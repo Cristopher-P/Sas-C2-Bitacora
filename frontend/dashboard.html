@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAS C4 - Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // Si no hay token, fuera de aquí. Regresa al login.
+            window.location.href = 'index.html';
+        }
+    </script>
+</head>
+<body style="background-color: #f0f2f5;">
+
+    <div id="app-container" style="display: flex; flex-direction: column; min-height: 100vh;">
+        
+        <header>
+            <div class="container">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="logo">
+                        <i class="fas fa-shield-alt"></i>
+                        <h1>SAS C4 - Bitácora</h1>
+                    </div>
+                    
+                <nav id="main-nav">
+    <ul>
+        <li><a href="#" id="nav-dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="#" id="nav-llamadas"><i class="fas fa-phone-plus"></i> Registrar</a></li>
+        <li><a href="#" id="nav-buscar"><i class="fas fa-search"></i> Buscar</a></li>
+        <!-- NUEVO: Botón para C5 -->
+        <li><a href="#" id="nav-c5" style="background: #25D366; color: white; border-radius: 4px; padding: 8px 12px;">
+            <i class="fab fa-whatsapp"></i> Enviar a C5
+        </a></li>
+        
+        <li id="user-info" style="color: #bbdefb; font-weight: bold; margin-left: 10px;"></li>
+        
+        <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
+    </ul>
+</nav>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="container">
+                <div id="content">
+                    <div style="text-align: center; margin-top: 50px;">
+                        <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: #667eea;"></i>
+                        <p>Cargando sistema...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="container">
+                <p>Sistema de Bitácora de Llamadas SAS C4 &copy; 2024</p>
+                <p class="version">Versión 1.0.0</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/LlamadasService.js"></script>
+    <script src="js/C5Service.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+        // 1. Mostrar nombre del usuario logueado
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user && user.username) {
+            // Agregamos un icono bonito antes del nombre
+            document.getElementById('user-info').innerHTML = `<i class="fas fa-user-circle"></i> ${user.username}`;
+        }
+
+        // 2. Hacer funcionar el botón de Cerrar Sesión
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if(confirm("¿Deseas cerrar sesión?")) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = 'index.html'; // Nos regresamos al login
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
