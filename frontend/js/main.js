@@ -755,24 +755,43 @@ async guardarReporteC5() {
         // Generar folio C4
         const folioC4 = this.generarFolioC4(fecha, hora);
         
-        // Verificar si tenemos el servicio C5
-        if (typeof C5Service !== 'undefined') {
-            try {
-                const resultado = await C5Service.crearReporte(datos);
-                
-                if (resultado.success) {
-                    this.mostrarReporteGenerado(folioC4, datos, resultado.data);
-                } else {
-                    throw new Error(resultado.message);
-                }
-            } catch (error) {
-                console.warn('Error con servicio C5, usando modo local:', error);
-                this.mostrarReporteGenerado(folioC4, datos);
-            }
+       // En la función guardarReporteC5() de main.js
+if (typeof C5Service !== 'undefined') {
+    try {
+        // Asegúrate que los datos tengan el formato correcto
+        const datosParaBackend = {
+            fecha_envio: fecha,
+            hora_envio: hora,
+            motivo: document.getElementById('motivo-c5').value,
+            ubicacion: document.getElementById('ubicacion-c5').value,
+            descripcion: document.getElementById('descripcion-c5').value,
+            agente: document.getElementById('agente-c5').value || '',
+            conclusion: document.getElementById('conclusion-c5').value || '',
+            metodo_envio: metodo,
+            numero_destino: ''  // O agrega un campo en el formulario
+        };
+        
+        console.log('📤 Enviando a backend:', datosParaBackend);
+        
+        const resultado = await C5Service.crearReporte(datosParaBackend);
+        
+        console.log('✅ Respuesta del backend:', resultado);
+        
+        if (resultado.success) {
+            this.mostrarReporteGenerado(folioC4, datos, resultado.data);
         } else {
-            // Modo local (sin backend)
-            this.mostrarReporteGenerado(folioC4, datos);
+            throw new Error(resultado.message);
         }
+    } catch (error) {
+        console.error('Error con servicio C5:', error);
+        alert('⚠️ Error guardando en base de datos: ' + error.message);
+        // Continúa mostrando el reporte en modo local
+        this.mostrarReporteGenerado(folioC4, datos);
+    }
+} else {
+    // Modo local (sin backend)
+    this.mostrarReporteGenerado(folioC4, datos);
+}
         
     } catch (error) {
         console.error('Error guardando reporte:', error);
@@ -953,27 +972,182 @@ registrarFolioC5Respuesta(folioC4) {
 }
 
 // Listar reportes C5 (placeholder)
-listarReportesC5() {
+// Listar reportes C5 (con conexión a DB)
+async listarReportesC5() {
     const content = document.getElementById('content');
+    
     content.innerHTML = `
         <div class="fade-in">
-            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                <button class="btn" onclick="app.loadModuloC5()" style="margin-right: 15px; background: transparent; color: #666;">
-                    <i class="fas fa-arrow-left fa-lg"></i>
-                </button>
-                <h2 style="margin: 0;"><i class="fas fa-list-alt"></i> Reportes Enviados al C5</h2>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center;">
+                    <button class="btn" onclick="app.loadModuloC5()" style="margin-right: 15px; background: transparent; color: #666;">
+                        <i class="fas fa-arrow-left fa-lg"></i>
+                    </button>
+                    <h2 style="margin: 0;"><i class="fas fa-list-alt"></i> Reportes Enviados al C5</h2>
+                </div>
+                <div>
+                    <select id="filtro-estado" class="form-control" style="display: inline-block; width: auto; margin-right: 10px;" onchange="app.filtrarReportesC5()">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">Pendientes</option>
+                        <option value="enviado">Enviados</option>
+                        <option value="recibido">Recibidos</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="app.cargarReportesC5()">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
             </div>
             
-            <div style="text-align: center; padding: 50px; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-                <i class="fas fa-tools fa-4x text-muted mb-3"></i>
-                <h3 style="color: #6c757d;">En Desarrollo</h3>
-                <p>Esta funcionalidad estará disponible en la próxima actualización.</p>
-                <button class="btn btn-primary" onclick="app.loadModuloC5()">
-                    <i class="fas fa-arrow-left"></i> Volver al Módulo C5
-                </button>
+            <div id="tabla-reportes-container" style="text-align: center; padding: 20px;">
+                <i class="fas fa-spinner fa-spin fa-2x"></i><br>Cargando reportes...
             </div>
         </div>
     `;
+    
+    // Cargar reportes
+    await this.cargarReportesC5();
+}
+
+// Cargar reportes desde el backend
+async cargarReportesC5() {
+    try {
+        const estado = document.getElementById('filtro-estado')?.value || '';
+        
+        const filtros = {};
+        if (estado) filtros.estado = estado;
+        
+        let reportes = [];
+        
+        if (typeof C5Service !== 'undefined') {
+            const resultado = await C5Service.obtenerReportes(filtros);
+            if (resultado.success) {
+                reportes = resultado.data;
+            } else {
+                throw new Error(resultado.message);
+            }
+        } else {
+            // Datos de ejemplo si no hay servicio
+            reportes = [
+                {
+                    id: 1,
+                    folio_c4: '2001260812',
+                    folio_c5: 'C5-2026-001',
+                    fecha_envio: '2026-01-20',
+                    hora_envio: '08:12:00',
+                    motivo: 'SOLICITUD DE OTROS SERVICIOS PÚBLICOS',
+                    ubicacion: '12 PONIENTE Y 14 NORTE LOS FRAILES',
+                    estado: 'recibido',
+                    created_at: '2026-01-20 08:15:00'
+                }
+            ];
+        }
+        
+        this.renderizarTablaReportesC5(reportes);
+        
+    } catch (error) {
+        console.error('Error cargando reportes:', error);
+        document.getElementById('tabla-reportes-container').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i> Error cargando reportes: ${error.message}
+            </div>
+        `;
+    }
+}
+
+// Renderizar tabla de reportes
+renderizarTablaReportesC5(reportes) {
+    const container = document.getElementById('tabla-reportes-container');
+    
+    if (reportes.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 50px;">
+                <i class="fas fa-inbox fa-3x text-muted"></i>
+                <h4 style="margin-top: 20px;">No hay reportes</h4>
+                <p>No se encontraron reportes C5 en el sistema.</p>
+                <button class="btn btn-primary" onclick="app.crearNuevoReporteC5()">
+                    <i class="fas fa-plus"></i> Crear Primer Reporte
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = `
+        <div class="table-container" style="background: white; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow: hidden;">
+            <div class="table-responsive">
+                <table class="table table-hover" style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead style="background: #2c3e50; color: white;">
+                        <tr>
+                            <th style="padding: 12px;">Folio C4</th>
+                            <th style="padding: 12px;">Folio C5</th>
+                            <th style="padding: 12px;">Fecha/Hora</th>
+                            <th style="padding: 12px;">Motivo</th>
+                            <th style="padding: 12px;">Ubicación</th>
+                            <th style="padding: 12px;">Estado</th>
+                            <th style="padding: 12px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    `;
+    
+    reportes.forEach(reporte => {
+        // Color del estado
+        let badgeColor = '#6c757d'; // gris
+        if (reporte.estado === 'recibido') badgeColor = '#28a745'; // verde
+        if (reporte.estado === 'enviado') badgeColor = '#ffc107'; // amarillo
+        if (reporte.estado === 'pendiente') badgeColor = '#dc3545'; // rojo
+        
+        html += `
+            <tr>
+                <td style="padding: 12px; font-family: monospace; font-weight: bold;">${reporte.folio_c4}</td>
+                <td style="padding: 12px;">${reporte.folio_c5 || '--'}</td>
+                <td style="padding: 12px;">
+                    ${reporte.fecha_envio}<br>
+                    <small>${reporte.hora_envio}</small>
+                </td>
+                <td style="padding: 12px;">${reporte.motivo}</td>
+                <td style="padding: 12px;">${reporte.ubicacion}</td>
+                <td style="padding: 12px;">
+                    <span style="background: ${badgeColor}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8em;">
+                        ${reporte.estado || 'pendiente'}
+                    </span>
+                </td>
+                <td style="padding: 12px;">
+                    <button class="btn btn-sm" style="background: #e9ecef; margin-right: 5px;" 
+                            onclick="app.verDetallesReporte('${reporte.folio_c4}')" title="Ver detalles">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    ${!reporte.folio_c5 ? `
+                    <button class="btn btn-sm" style="background: #17a2b8; color: white; margin-right: 5px;" 
+                            onclick="app.registrarFolioParaReporte('${reporte.folio_c4}')" title="Registrar C5">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                    ` : ''}
+                    <button class="btn btn-sm" style="background: #25D366; color: white;" 
+                            onclick="app.enviarWhatsAppReporte('${reporte.folio_c4}')" title="Reenviar WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                    </tbody>
+                </table>
+            </div>
+            <div style="padding: 15px; background: #f8f9fa; border-top: 1px solid #eee; text-align: center;">
+                <small class="text-muted">Mostrando ${reportes.length} reportes</small>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+// Función para filtrar reportes
+filtrarReportesC5() {
+    this.cargarReportesC5();
 }
 
 // Registrar respuesta C5 desde el menú principal
