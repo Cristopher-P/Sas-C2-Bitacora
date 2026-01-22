@@ -1,11 +1,29 @@
-// Servicio para manejar llamadas
+/**
+ * LlamadasService.js - Servicio para manejar llamadas
+ * Versión corregida (sin dependencia de Auth)
+ */
+
 class LlamadasService {
     static apiBaseUrl = 'http://localhost:3000/api/llamadas';
+    
+    // Método auxiliar para obtener headers de autenticación
+    static getAuthHeaders() {
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        return headers;
+    }
     
     // Registrar nueva llamada
     static async registrarLlamada(datosLlamada) {
         try {
-            const headers = await Auth.getAuthHeaders();
+            const headers = this.getAuthHeaders();
             const response = await fetch(`${this.apiBaseUrl}/registrar`, {
                 method: 'POST',
                 headers,
@@ -22,7 +40,7 @@ class LlamadasService {
     // Obtener lista de llamadas
     static async obtenerLlamadas(filtros = {}) {
         try {
-            const headers = await Auth.getAuthHeaders();
+            const headers = this.getAuthHeaders();
             let url = `${this.apiBaseUrl}/listar?`;
             
             // Agregar filtros a la URL
@@ -43,7 +61,7 @@ class LlamadasService {
     // Obtener una llamada específica
     static async obtenerLlamada(id) {
         try {
-            const headers = await Auth.getAuthHeaders();
+            const headers = this.getAuthHeaders();
             const response = await fetch(`${this.apiBaseUrl}/${id}`, { headers });
             return await response.json();
         } catch (error) {
@@ -55,7 +73,7 @@ class LlamadasService {
     // Actualizar llamada
     static async actualizarLlamada(id, datos) {
         try {
-            const headers = await Auth.getAuthHeaders();
+            const headers = this.getAuthHeaders();
             const response = await fetch(`${this.apiBaseUrl}/${id}/actualizar`, {
                 method: 'PUT',
                 headers,
@@ -72,7 +90,7 @@ class LlamadasService {
     // Eliminar llamada
     static async eliminarLlamada(id) {
         try {
-            const headers = await Auth.getAuthHeaders();
+            const headers = this.getAuthHeaders();
             const response = await fetch(`${this.apiBaseUrl}/${id}/eliminar`, {
                 method: 'DELETE',
                 headers
@@ -88,7 +106,7 @@ class LlamadasService {
     // Obtener estadísticas
     static async obtenerEstadisticas(fechaInicio, fechaFin) {
         try {
-            const headers = await Auth.getAuthHeaders();
+            const headers = this.getAuthHeaders();
             const url = `${this.apiBaseUrl}/estadisticas/obtener?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
             const response = await fetch(url, { headers });
             return await response.json();
@@ -101,7 +119,7 @@ class LlamadasService {
     // Obtener datos para autocompletar
     static async obtenerAutocompletar() {
         try {
-            const headers = await Auth.getAuthHeaders();
+            const headers = this.getAuthHeaders();
             const response = await fetch(`${this.apiBaseUrl}/autocompletar/obtener`, { headers });
             return await response.json();
         } catch (error) {
@@ -120,7 +138,7 @@ class LlamadasService {
     // Exportar llamadas
     static async exportarLlamadas(fechaInicio, fechaFin) {
         try {
-            const headers = await Auth.getAuthHeaders();
+            const headers = this.getAuthHeaders();
             const url = `${this.apiBaseUrl}/exportar?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
             const response = await fetch(url, { headers });
             return await response.json();

@@ -3,7 +3,7 @@
  */
 
 class C5Service {
-    static apiBaseUrl = 'http://localhost:3000/api/c5';
+    static apiBaseUrl = '/api/c5';  // Cambia esto si es necesario
     
     // Crear nuevo reporte C5
     static async crearReporte(datosReporte) {
