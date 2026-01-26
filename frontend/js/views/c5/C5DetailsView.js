@@ -251,7 +251,7 @@ class C5DetailsView {
             C5Service.registrarFolioC5(this.reporte.folio_c4, folioC5)
                 .then(resultado => {
                     if (resultado.success) {
-                        alert(`✅ Folio C5 registrado exitosamente:\n\nC4: ${this.reporte.folio_c4}\nC5: ${folioC5}`);
+                        alert(`Folio C5 registrado exitosamente:\n\nC4: ${this.reporte.folio_c4}\nC5: ${folioC5}`);
                         this.cargarDetalles(); // Recargar detalles
                     } else {
                         alert(`⚠️ Error: ${resultado.message}`);
@@ -262,7 +262,7 @@ class C5DetailsView {
                     alert('⚠️ Error al registrar. Verifica la conexión.');
                 });
         } else {
-            alert(`✅ Folio C5 registrado localmente:\n\nC4: ${this.reporte.folio_c4}\nC5: ${folioC5}\n\n(Nota: Para sincronizar con el servidor, activa el servicio C5)`);
+            alert(`Folio C5 registrado localmente:\n\nC4: ${this.reporte.folio_c4}\nC5: ${folioC5}\n\n(Nota: Para sincronizar con el servidor, activa el servicio C5)`);
         }
     }
 

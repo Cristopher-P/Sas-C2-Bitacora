@@ -181,7 +181,7 @@ const datos = {
             const resultado = await LlamadasService.registrarLlamada(datos);
             
             if (resultado && resultado.success) {
-                alert('✅ Llamada registrada exitosamente.');
+                alert(' Llamada registrada exitosamente.');
                 this.appController.goToDashboard();
             } else {
                 const errorMsg = resultado?.message || 'Error del servidor';
