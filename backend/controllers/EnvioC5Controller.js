@@ -47,7 +47,7 @@ class EnvioC5Controller {
 
             const resultado = await EnvioC5.create(datosEnvio);
             
-            console.log('✅ Reporte guardado en MySQL:', resultado.folio_c4);
+            console.log(' Reporte guardado en MySQL:', resultado.folio_c4);
 
             res.status(201).json({
                 success: true,
@@ -97,7 +97,7 @@ class EnvioC5Controller {
             // Obtener reportes de la base de datos
             const reportes = await EnvioC5.findAll(filtros);
             
-            console.log(`✅ Encontrados ${reportes.length} reportes`);
+            console.log(` Encontrados ${reportes.length} reportes`);
 
             res.json({
                 success: true,

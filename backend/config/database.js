@@ -26,7 +26,7 @@ pool.getConnection((err, connection) => {
         console.log('   2. Credenciales en .env son correctas');
         console.log('   3. Base de datos existe');
     } else {
-        console.log('✅ Conectado a MySQL correctamente');
+        console.log('Conectado a MySQL correctamente ');
         connection.release();
     }
 });

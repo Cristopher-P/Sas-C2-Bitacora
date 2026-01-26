@@ -23,19 +23,19 @@ class LlamadaController {
                 colonia,
                 seguimiento,
                 razonamiento,
-                descripcion,  // ✅ Agregado: campo del frontend
+                descripcion,  // 
                 motivo_radio_operacion,
                 salida,
                 detenido,
                 vehiculo,
                 numero_telefono,
-                telefono,      // ✅ Agregado: campo del frontend
+                telefono,      // 
                 peticionario,
                 agente,
                 telefono_agente
             } = req.body;
 
-            // ✅ CORRECTO: Crear objeto con valores por defecto
+            //  CORRECTO: Crear objeto con valores por defecto
             const datosLlamada = {
                 fecha: fecha || new Date().toISOString().split('T')[0],
                 turno: turno || (req.user ? req.user.turno : 'matutino'),
@@ -56,7 +56,7 @@ class LlamadaController {
                 usuario_id: req.user ? req.user.id : 1
             };
 
-            // ✅ ¡ESTA LÍNEA FALTABA! Crear en la base de datos
+            // ¡ESTA LÍNEA FALTABA! Crear en la base de datos
             const llamadaId = await LlamadaBitacora.create(datosLlamada);
 
             // Obtener la llamada recién creada con su folio
@@ -72,7 +72,7 @@ class LlamadaController {
             res.status(500).json({
                 success: false,
                 message: 'Error al registrar la llamada',
-                error: error.message  // ✅ Agregar mensaje detallado
+                error: error.message  // Agregar mensaje detallado
             });
         }
     }

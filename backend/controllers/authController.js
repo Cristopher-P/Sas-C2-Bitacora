@@ -59,7 +59,7 @@ class AuthController {
                 { expiresIn: '8h' }
             );
 
-            console.log("✅ Login Exitoso para:", username);
+            console.log(" Login Exitoso para:", username);
 
             res.json({
                 success: true,
