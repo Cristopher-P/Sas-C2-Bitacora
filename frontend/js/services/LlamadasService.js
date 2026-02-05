@@ -29,11 +29,19 @@ class LlamadasService {
                 headers,
                 body: JSON.stringify(datosLlamada)
             });
-            
-            return await response.json();
+            const payload = await response.json();
+            if (!response.ok) {
+                return {
+                    success: false,
+                    message: payload?.message || 'Error al registrar la llamada',
+                    error: payload?.error || null,
+                    code: payload?.code || null
+                };
+            }
+            return payload;
         } catch (error) {
             console.error('Error registrando llamada:', error);
-            return { success: false, message: 'Error de conexión' };
+            return { success: false, message: 'Error de conexión', error: error.message };
         }
     }
     
@@ -74,7 +82,7 @@ class LlamadasService {
     static async actualizarLlamada(id, datos) {
         try {
             const headers = this.getAuthHeaders();
-            const response = await fetch(`${this.apiBaseUrl}/${id}/actualizar`, {
+            const response = await fetch(`${this.apiBaseUrl}/${id}`, {
                 method: 'PUT',
                 headers,
                 body: JSON.stringify(datos)
@@ -91,7 +99,7 @@ class LlamadasService {
     static async eliminarLlamada(id) {
         try {
             const headers = this.getAuthHeaders();
-            const response = await fetch(`${this.apiBaseUrl}/${id}/eliminar`, {
+            const response = await fetch(`${this.apiBaseUrl}/${id}`, {
                 method: 'DELETE',
                 headers
             });

@@ -20,25 +20,23 @@ class C5NewView {
 
     getTemplate(fechaHoy, horaActual) {
         return `
-            <div class="fade-in" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-                <!-- Encabezado Minimalista -->
-                <div style="margin-bottom: 30px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <div style="display: flex; align-items: center;">
-                            <button class="btn btn-back-to-main" style="margin-right: 20px; background: #2c3e50; color: white; border: none; border-radius: 6px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                                <i class="fas fa-arrow-left"></i>
-                            </button>
-                            <h1 style="margin: 0; color: #2c3e50; font-size: 1.8rem; font-weight: 700; letter-spacing: 0.5px;">
-                                NUEVO REPORTE CERIT
-                            </h1>
-                        </div>
-                        <div style="display: flex; align-items: center; background: #f8f9fa; padding: 8px 16px; border-radius: 6px; border: 1px solid #e9ecef;">
-                            <i class="fas fa-user-shield" style="color: #2c3e50; margin-right: 8px;"></i>
-                            <span style="color: #2c3e50; font-weight: 600; font-size: 0.95rem;">${this.currentUser || 'OPERADOR'}</span>
-                        </div>
+            <div class="fade-in view-shell view-shell--wide view-form">
+                <!-- Encabezado -->
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <button class="btn btn-secondary btn-icon btn-back-to-main" aria-label="Volver">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h1 class="page-title">
+                            NUEVO REPORTE CERIT
+                        </h1>
                     </div>
-                    <div style="background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%); height: 4px; border-radius: 2px;"></div>
+                    <div class="user-chip">
+                        <i class="fas fa-user-shield"></i>
+                        <span>${this.currentUser || 'OPERADOR'}</span>
+                    </div>
                 </div>
+                <div class="page-divider page-divider--danger"></div>
 
                 <!-- Panel de Control con Folio - Mismo tamaño -->
                 <div style="margin-bottom: 25px;">
@@ -228,13 +226,6 @@ class C5NewView {
                     </form>
                 </div>
 
-                <!-- Nota de Seguridad -->
-                <div style="margin-top: 30px; text-align: center; color: #7f8c8d; font-size: 0.85rem; padding: 15px; border-top: 1px solid #e9ecef;">
-                    <p style="margin: 0;">
-                        <i class="fas fa-lock" style="margin-right: 8px; color: #2c3e50;"></i>
-                        Sistema protegido bajo protocolos de seguridad CERIT - Acceso autorizado únicamente
-                    </p>
-                </div>
             </div>
         `;
     }

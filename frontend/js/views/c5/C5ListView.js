@@ -13,17 +13,7 @@ class C5ListView {
         this.originalContainer = container; 
         
         this.expandedContainer = document.createElement('div');
-        this.expandedContainer.className = 'c5-expanded-view';
-        this.expandedContainer.style.cssText = `
-            position: relative;
-            width: 100vw;
-            margin-left: calc(-51vw + 51%);
-            margin-right: calc(-51vw + 51%);
-            padding: 20px 30px; 
-            background: #f0f2f5;
-            min-height: 100vh;
-            overflow-x: hidden;
-        `;
+        this.expandedContainer.className = 'c5-expanded-view view-bleed view-shell view-form';
         
         this.originalContainer.innerHTML = '';
         this.originalContainer.appendChild(this.expandedContainer);
@@ -38,25 +28,23 @@ class C5ListView {
 // En el método getTemplate(), cambia el max-width del contenedor principal:
 getTemplate() {
     return `
-        <div class="fade-in" style="max-width: 1600px; margin: 0 auto;"> <!-- CAMBIA 1400px → 1600px -->
-            <!-- Encabezado Minimalista - Mismo estilo que C5NewView -->
-            <div style="margin-bottom: 30px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: center;">
-                        <button class="btn btn-back-to-main" style="margin-right: 20px; background: #2c3e50; color: white; border: none; border-radius: 6px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                            <i class="fas fa-arrow-left"></i>
-                        </button>
-                        <h1 style="margin: 0; color: #2c3e50; font-size: 1.8rem; font-weight: 700; letter-spacing: 0.5px;">
-                            REPORTES CERIT
-                        </h1>
-                    </div>
-                    <div style="display: flex; align-items: center; background: #f8f9fa; padding: 8px 16px; border-radius: 6px; border: 1px solid #e9ecef;">
-                        <i class="fas fa-user-shield" style="color: #2c3e50; margin-right: 8px;"></i>
-                        <span style="color: #2c3e50; font-weight: 600; font-size: 0.95rem;">${this.currentUser || 'OPERADOR'}</span>
-                    </div>
+        <div class="fade-in view-shell--wide">
+            <!-- Encabezado -->
+            <div class="page-header">
+                <div class="page-title-group">
+                    <button class="btn btn-secondary btn-icon btn-back-to-main" aria-label="Volver">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1 class="page-title">
+                        REPORTES CERIT
+                    </h1>
                 </div>
-                <div style="background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%); height: 4px; border-radius: 2px;"></div>
+                <div class="user-chip">
+                    <i class="fas fa-user-shield"></i>
+                    <span>${this.currentUser || 'OPERADOR'}</span>
+                </div>
             </div>
+            <div class="page-divider page-divider--danger"></div>
 
             <!-- Panel de Estadísticas (Recuadros pequeños en la parte superior) -->
             <div style="margin-bottom: 25px;">
@@ -165,14 +153,6 @@ getTemplate() {
                         <i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Cargando información...
                     </div>
                 </div>
-            </div>
-
-            <!-- Nota de Seguridad - Mismo que C5NewView -->
-            <div style="margin-top: 30px; text-align: center; color: #7f8c8d; font-size: 0.85rem; padding: 15px; border-top: 1px solid #e9ecef; max-width: 1600px; margin-left: auto; margin-right: auto;"> <!-- Añadido max-width -->
-                <p style="margin: 0;">
-                    <i class="fas fa-lock" style="margin-right: 8px; color: #2c3e50;"></i>
-                    Sistema protegido bajo protocolos de seguridad CERIT - Acceso autorizado únicamente
-                </p>
             </div>
         </div>
     `;

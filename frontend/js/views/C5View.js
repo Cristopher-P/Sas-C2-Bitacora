@@ -111,13 +111,15 @@ class C5View {
 
     showError(message) {
         this.container.innerHTML = `
-            <div style="text-align: center; padding: 50px;">
-                <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
-                <h3 style="margin: 20px 0 10px 0;">Error de carga</h3>
-                <p style="color: #666; margin-bottom: 20px;">${message}</p>
-                <button onclick="app.currentView.showMain()" class="btn btn-primary">
-                    <i class="fas fa-home"></i> Volver al Menú Principal
-                </button>
+            <div class="view-shell view-shell--wide">
+                <div class="card empty-state">
+                    <i class="fas fa-exclamation-triangle fa-3x text-danger"></i>
+                    <h3>Error de carga</h3>
+                    <p class="text-muted">${message}</p>
+                    <button onclick="app.currentView.showMain()" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Volver al Menú Principal
+                    </button>
+                </div>
             </div>
         `;
     }

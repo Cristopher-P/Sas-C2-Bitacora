@@ -4,96 +4,468 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAS C4 - Iniciar Sesión</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/png" href="/frontend/js/assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        /* CAJA DE LOGIN */
+        .login-box {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            overflow: hidden;
+            border: 1px solid #ecf0f1;
+        }
+
+        .login-header {
+            background: #2c3e50;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .login-header i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #3498db;
+        }
+
+        .login-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .login-header h2 {
+            font-size: 1rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        /* Indicador de Turno */
+        .turno-indicator {
+            background: #34495e;
+            color: white;
+            padding: 8px 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .login-body {
+            padding: 30px;
+        }
+
+        /* ALERTA */
+        .alert {
+            background: #e3f2fd;
+            border-left: 4px solid #3498db;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0d47a1;
+            font-size: 0.9rem;
+        }
+
+        .alert i {
+            font-size: 1.1rem;
+        }
+
+        /* FORMULARIO */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            color: #3498db;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dfe6e9;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        /* BOTÓN */
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(44, 62, 80, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(44, 62, 80, 0.25);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* MENSAJE DE ERROR */
+        .error-message {
+            background: #ffebee;
+            border-left: 4px solid #e74c3c;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #c0392b;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .error-message i {
+            font-size: 1.1rem;
+        }
+
+        /* PIE DE PÁGINA */
+        .login-footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid #ecf0f1;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+
+        .version {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #95a5a6;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 15px;
+            }
+
+            .login-body {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-header {
+                padding: 20px;
+            }
+
+            .login-header i {
+                font-size: 2.5rem;
+            }
+
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ANIMACIONES */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-box {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* ESTILOS DE FOCO MEJORADOS */
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        /* ESTADO OPERATIVO */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            color: #27ae60;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #27ae60;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
 
-    <div id="login-container">
-        
-        <div class="centering-box">
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="login-container">
+
+        <!-- CAJA DE LOGIN -->
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>SAS C4</h1>
+                <h2>Bitácora de Llamadas</h2>
+            </div>
             
-            <div class="login-wrapper">
-                <div class="login-box">
-                    <div class="login-header">
-                        <i class="fas fa-shield-alt"></i>
-                        <h1>SAS C4</h1>
-                        <h2>Bitácora de Llamadas</h2>
+            <!-- Indicador de Turno -->
+            <div class="turno-indicator">
+                <i class="fas fa-clock"></i> Sistema de Acceso - Turno General
+            </div>
+            
+            <div class="login-body">
+                <!-- Alerta Informativa -->
+                <div class="alert">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Ingresa tus credenciales operativas para acceder al sistema.</span>
+                </div>
+
+                <!-- Formulario -->
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fas fa-user"></i> Usuario
+                        </label>
+                        <input type="text" 
+                               id="username" 
+                               class="form-control" 
+                               placeholder="Ingresa tu usuario operativo" 
+                               required 
+                               autofocus>
                     </div>
                     
-                    <div class="login-body">
-                        <div class="alert alert-info" style="font-size: 0.9em;">
-                            <i class="fas fa-info-circle"></i> Ingresa tus credenciales operativas.
-                        </div>
-                        
-                        <form id="login-form">
-                            <div class="form-group">
-                                <label for="username">
-                                    <i class="fas fa-user"></i> Usuario
-                                </label>
-                                <input type="text" id="username" class="form-control" placeholder="Ingresa tu usuario" required autofocus>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="password">
-                                    <i class="fas fa-lock"></i> Contraseña
-                                </label>
-                                <input type="password" id="password" class="form-control" placeholder="Ingresa tu contraseña" required>
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                            </button>
-                        </form>
-                        
-                        <div id="login-message" class="mt-3" style="color: red; text-align: center; display: none;"></div>
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i> Contraseña
+                        </label>
+                        <input type="password" 
+                               id="password" 
+                               class="form-control" 
+                               placeholder="Ingresa tu contraseña de acceso" 
+                               required>
+                    </div>
+
+                    <!-- Estado del Sistema -->
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>Sistema operativo - Conectado</span>
                     </div>
                     
-                    <div class="login-footer">
-                        <p>Sistema de Bitácora Operativa &copy; 2024</p>
-                        <p class="version">Versión 1.0.0</p>
-                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                    </button>
+                </form>
+
+                <!-- Mensaje de Error -->
+                <div id="login-message" class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="error-text"></span>
                 </div>
             </div>
-
-        </div> </div>
+            
+            <!-- Pie de Página -->
+            <div class="login-footer">
+                <p>Sistema de Bitácora Operativa &copy; 2024</p>
+                <p class="version">Versión 1.0.0 | Protocolo SAS-C4</p>
+            </div>
+        </div>
+    </div>
 
     <script src="js/auth.js"></script>
 
     <script>
         const loginForm = document.getElementById('login-form');
         const loginMessage = document.getElementById('login-message');
+        const errorText = document.getElementById('error-text');
+
+        // Validación en tiempo real
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+
+        usernameInput.addEventListener('input', () => {
+            usernameInput.style.borderColor = '#dfe6e9';
+            hideError();
+        });
+
+        passwordInput.addEventListener('input', () => {
+            passwordInput.style.borderColor = '#dfe6e9';
+            hideError();
+        });
+
+        function showError(message) {
+            errorText.textContent = message;
+            loginMessage.style.display = 'flex';
+            
+            // Agregar efecto de shake
+            loginMessage.style.animation = 'none';
+            setTimeout(() => {
+                loginMessage.style.animation = 'shake 0.5s';
+            }, 10);
+        }
+
+        function hideError() {
+            loginMessage.style.display = 'none';
+        }
+
+        // Efecto de shake para errores
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
 
         loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Evita recargar la página
+            e.preventDefault();
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
             const btn = loginForm.querySelector('button');
 
-            try {
-                // Efecto de carga en el botón
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando...';
-                btn.disabled = true;
-                loginMessage.style.display = 'none';
+            // Validación básica
+            if (!username) {
+                showError('El usuario es requerido');
+                usernameInput.style.borderColor = '#e74c3c';
+                usernameInput.focus();
+                return;
+            }
 
-                // Llamamos a tu Auth.js
+            if (!password) {
+                showError('La contraseña es requerida');
+                passwordInput.style.borderColor = '#e74c3c';
+                passwordInput.focus();
+                return;
+            }
+
+            try {
+                // Efecto de carga
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando credenciales...';
+                btn.disabled = true;
+                hideError();
+
+                // Llamar al servicio de autenticación
                 const result = await Auth.login(username, password);
 
                 if (result.success) {
-                    // SI ES CORRECTO -> NOS VAMOS AL DASHBOARD
+                    // Éxito - animación de éxito
+                    btn.innerHTML = '<i class="fas fa-check"></i> Acceso concedido';
+                    btn.style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
+                    
+                    // Pequeña pausa para mostrar éxito
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Redireccionar al dashboard
                     window.location.href = 'dashboard.html';
+                } else {
+                    throw new Error(result.message || 'Credenciales incorrectas');
                 }
 
             } catch (error) {
-                // Si falla, mostramos el error
+                // Error - restaurar botón
                 btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
                 btn.disabled = false;
                 
-                loginMessage.style.display = 'block';
-                loginMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${error.message || 'Error de conexión'}`;
+                // Mostrar error
+                showError(error.message || 'Error de conexión con el servidor');
+                
+                // Resaltar campos
+                usernameInput.style.borderColor = '#e74c3c';
+                passwordInput.style.borderColor = '#e74c3c';
             }
+        });
+
+        // Efecto de carga inicial
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simular conexión con el servidor
+            setTimeout(() => {
+                document.querySelector('.status-indicator').innerHTML = `
+                    <div class="status-dot" style="background: #27ae60;"></div>
+                    <span>Sistema operativo - Conectado</span>
+                `;
+            }, 1000);
         });
     </script>
 

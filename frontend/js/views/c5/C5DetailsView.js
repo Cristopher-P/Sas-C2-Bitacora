@@ -17,15 +17,18 @@ class C5DetailsView {
 
     getTemplate() {
         return `
-            <div class="fade-in">
-                <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                    <button class="btn btn-back-to-list" style="margin-right: 15px; background: transparent; color: #666;">
-                        <i class="fas fa-arrow-left fa-lg"></i>
-                    </button>
-                    <h2 style="margin: 0;"><i class="fas fa-file-invoice"></i> Detalles del Reporte</h2>
+            <div class="fade-in view-shell view-shell--wide view-form">
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <button class="btn btn-secondary btn-icon btn-back-to-list" aria-label="Volver">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                        <h2 class="page-title"><i class="fas fa-file-invoice"></i> Detalles del Reporte</h2>
+                    </div>
                 </div>
+                <div class="page-divider page-divider--danger"></div>
                 
-                <div id="detalles-container" style="text-align: center; padding: 50px;">
+                <div id="detalles-container" class="card empty-state">
                     <i class="fas fa-spinner fa-spin fa-2x"></i><br>Cargando detalles del reporte ${this.folioC4}...
                 </div>
             </div>

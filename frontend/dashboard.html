@@ -3,75 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAS C4 - Dashboard</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>SAS C4</title>
+    <link rel="icon" type="image/png" href="assets\favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <link rel="stylesheet" href="css/styles.css">
+    
     <script>
-        // VERIFICACIÓN DE SESIÓN (esto sí déjalo aquí)
+        // VERIFICACIÓN DE SESIÓN
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
         
         if (!token || !user) {
-            // Si no hay token o usuario, regresa al login
             window.location.href = 'index.html';
         }
     </script>
 </head>
 
-<body style="background-color: #f0f2f5;">
+<body>
 
-    <div id="app-container" style="display: flex; flex-direction: column; min-height: 100vh;">
-
+    <div id="app-container" class="app-container">
+        <!-- HEADER CON NAVBAR ESTILO DASHBOARD -->
         <header>
-            <div class="container">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="container header-container">
+                <div class="header-content">
+                    <!-- LOGO -->
                     <div class="logo">
                         <i class="fas fa-shield-alt"></i>
                         <h1>SAS C4 - Bitácora</h1>
                     </div>
 
+                    <!-- NAVBAR -->
                     <nav id="main-nav">
                         <ul>
-                            <li><a href="#" id="nav-dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
-                            <li><a href="#" id="nav-llamadas"><i class="fas fa-phone-plus"></i> Registrar</a></li>
-                            <li><a href="#" id="nav-buscar"><i class="fas fa-search"></i> Buscar</a></li>
-                            <li><a href="#" id="nav-c5" style="background: #25D366; color: white; border-radius: 4px; padding: 8px 12px;">
-                                <i class="fab fa-whatsapp"></i> Enviar a C5
-                            </a></li>
-
-                            <li id="user-info" style="color: #bbdefb; font-weight: bold; margin-left: 10px;">
-                                <!-- El app.js llenará esto -->
-                            </li>
-
-                            <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
+                            <li><a href="#" id="nav-dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+                            <li><a href="#" id="nav-llamadas"><i class="fas fa-plus-circle"></i> <span>Registrar</span></a></li>
+                            <li><a href="#" id="nav-buscar"><i class="fas fa-search"></i> <span>Buscar</span></a></li>
+                            <li><a href="#" id="nav-mapacalor"><i class="fas fa-map-marked-alt"></i> <span>Mapa</span></a></li>
+                            <li><a href="#" id="nav-c5"><i class="fab fa-whatsapp"></i> <span>Enviar a C5</span></a></li>
                         </ul>
                     </nav>
+
+                    <div class="header-actions">
+                        <!-- INFO USUARIO -->
+                        <div id="user-info">
+                            <i class="fas fa-user-shield"></i>
+                            <span id="user-name">Cargando...</span>
+                        </div>
+
+                        <!-- BOTÓN SALIR -->
+                        <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>Salir</span></a>
+                    </div>
                 </div>
             </div>
         </header>
 
+        <!-- CONTENIDO PRINCIPAL -->
         <main>
             <div class="container">
                 <div id="content">
                     <!-- App.js cargará las vistas aquí -->
-                    <div style="text-align: center; margin-top: 50px;">
-                        <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: #667eea;"></i>
-                        <p>Cargando sistema...</p>
+                    <div class="loading-container">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                        <p>Cargando sistema operativo...</p>
                     </div>
                 </div>
             </div>
         </main>
 
-        <footer>
+        <!-- FOOTER INSTITUCIONAL - POSICIONADO EN LA PARTE INFERIOR -->
+        <div class="institutional-footer">
             <div class="container">
-                <p>Sistema de Bitácora de Llamadas SAS C4 &copy; 2024</p>
-                <p class="version">Versión 1.0.0</p>
+                <div class="footer-content">
+                    <div class="cerit-brand">
+                        <i class="fas fa-certificate"></i>
+                        CERIT TEHUACÁN - CENTRO DE EMERGENCIA Y RESPUESTA INMEDIATA
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <p class="footer-copyright" id="copyright-text">
+                        Sistema de Gestión de Emergencias © 2024 - Todos los derechos reservados
+                    </p>
+                    <p class="footer-version">Versión 1.0.0 | Protocolo SAS-C4</p>
+                </div>
             </div>
-        </footer>
+        </div>
     </div>
 
-    <!-- 1. UTILIDADES primero (dependencias básicas) -->
+    <!-- SCRIPTS -->
     <script src="js/utils/helpers.js"></script>
     <script src="js/utils/formatters.js"></script>
     <script src="js/utils/notifications.js"></script>
@@ -79,6 +96,7 @@
     <script src="js/services/C5Service.js"></script>
     
     <script src="js/views/DashboardView.js"></script>
+    <script src="js/views/MapaCalorView.js"></script>
     <script src="js/views/LlamadasView.js"></script>
     <script src="js/views/BuscarView.js"></script>
     <script src="js/views/LoginView.js"></script> 
@@ -90,10 +108,94 @@
     <script src="js/views/c5/C5DetailsView.js"></script> 
     <script src="js/views/C5View.js"></script>
     
-    <!-- 4. APP.JS ÚLTIMO (depende de todo lo anterior) -->
+    <!-- APP.JS ÚLTIMO -->
     <script src="js/app.js"></script>
     
-    <!-- app.js ya maneja el logout y user-info -->
+    <!-- SCRIPT PARA INICIALIZAR FOOTER Y USUARIO -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Actualizar nombre de usuario
+            const user = localStorage.getItem('user');
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    const userName = userData.nombre || userData.username || 'Operador';
+                    const userTurno = userData.turno || 'General';
+                    
+                    const userNameEl = document.getElementById('user-name');
+                    if (userNameEl) {
+                        userNameEl.textContent = `${userName} | Turno ${userTurno}`;
+                    }
+                } catch (e) {
+                    const userNameEl = document.getElementById('user-name');
+                    if (userNameEl) {
+                        userNameEl.textContent = 'Operador';
+                    }
+                }
+            }
+
+            // 2. Actualizar año de copyright
+            const currentYear = new Date().getFullYear();
+            const copyrightEl = document.getElementById('copyright-text');
+            if (copyrightEl) {
+                copyrightEl.textContent =
+                    `Sistema de Gestión de Emergencias © ${currentYear} - Todos los derechos reservados`;
+            }
+
+            // 3. Manejar botón de logout
+            document.getElementById('logout-btn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            });
+
+            // 4. Manejar navegación (si app.js no está cargado)
+            document.getElementById('nav-dashboard')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.app && window.app.loadView) {
+                    window.app.loadView('dashboard');
+                }
+            });
+
+            document.getElementById('nav-llamadas')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.app && window.app.loadView) {
+                    window.app.loadView('llamadas');
+                }
+            });
+
+            document.getElementById('nav-buscar')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.app && window.app.loadView) {
+                    window.app.loadView('buscar');
+                }
+            });
+
+            document.getElementById('nav-c5')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (window.app && window.app.loadView) {
+                    window.app.loadView('c5');
+                }
+            });
+
+            // 5. Ajustar altura del contenido cuando se carga
+            function adjustContentHeight() {
+                const content = document.getElementById('content');
+                const main = document.querySelector('main');
+                
+                if (content.children.length > 1 || content.innerHTML.includes('dashboard') || 
+                    content.innerHTML.includes('view')) {
+                    content.classList.add('loaded');
+                    main.style.minHeight = 'auto';
+                }
+            }
+
+            // Verificar cada segundo si se cargó contenido
+            setTimeout(adjustContentHeight, 1000);
+            setInterval(adjustContentHeight, 3000);
+        });
+    </script>
 
 </body>
 </html>
