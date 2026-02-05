@@ -72,7 +72,7 @@ app.listen(PORT, () => {
     console.log('='.repeat(50));
     console.log(`✅ Servidor: http://localhost:${PORT}`);
     console.log(`📊 Entorno: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🗄️  Base de datos: ${process.env.DB_NAME || 'sas_c4_db'}`);
+    console.log(`🗄️  Base de datos: ${process.env.MYSQLDATABASE || 'sas_c4_db'}`);
     console.log('👥 Usuarios disponibles:');
     console.log('   admin / password123 (Administrador)');
     console.log('   matutino / password123 (Turno Matutino)');

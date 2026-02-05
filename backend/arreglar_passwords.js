@@ -3,10 +3,10 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 
 const dbConfig = {
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'sas_c4_db'
+    host: process.env.MYSQLHOST || 'localhost',
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'sas_c4_db'
 };
 
 const usuarios = [
