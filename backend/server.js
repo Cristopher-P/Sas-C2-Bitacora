@@ -79,7 +79,7 @@ app.use((err, req, res, next) => {
 });
 
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log('='.repeat(50));
     console.log('🚀 SAS C4 - Bitácora de Llamadas');
     console.log('='.repeat(50));

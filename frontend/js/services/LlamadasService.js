@@ -4,7 +4,7 @@
  */
 
 class LlamadasService {
-    static apiBaseUrl = 'http://localhost:3000/api/llamadas';
+    static apiBaseUrl = '/api/llamadas';
     
     // Método auxiliar para obtener headers de autenticación
     static getAuthHeaders() {
@@ -159,7 +159,7 @@ class LlamadasService {
     // Obtener fecha y hora del servidor
     static async getServerDateTime() {
         try {
-            const response = await fetch('http://localhost:3000/api/llamadas/fecha-servidor');
+            const response = await fetch('/api/llamadas/fecha-servidor');
             return await response.json();
         } catch (error) {
             console.error('Error obteniendo fecha:', error);
