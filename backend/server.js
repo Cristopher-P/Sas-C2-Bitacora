@@ -26,6 +26,19 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 const authRoutes = require('./routes/authRoutes');
 const llamadasRoutes = require('./routes/llamadasRoutes');
 const enviosC5Routes = require('./routes/enviosC5Routes');
+const db = require('./config/database'); // ajusta la ruta si es distinta
+
+// Endpoint de prueba
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT 1 AS ok');
+    res.json({ db: 'connected', rows });
+  } catch (err) {
+    console.error('DB ERROR:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // Usar rutas
 app.use('/api/auth', authRoutes);
