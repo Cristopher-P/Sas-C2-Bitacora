@@ -1,13 +1,19 @@
-// backend/models/User.js
-const pool = require('../config/database');
+// backend/models/User.js - CON FALLBACK AUTOMÁTICO
+const db = require('../config/database');
 
 class User {
     static async findByUsername(username) {
         console.log(`🔍 Buscando usuario: ${username}`);
         
+        // Si NO hay conexión, usar datos mock directamente
+        if (!db.isConnected()) {
+            console.warn('⚠️  MySQL desconectado - usando MOCK');
+            return this.getMockUser(username);
+        }
+        
         try {
             const sql = 'SELECT * FROM usuarios WHERE username = ?';
-            const [rows] = await pool.execute(sql, [username]);
+            const [rows] = await db.execute(sql, [username]);
             
             if (rows.length > 0) {
                 console.log(`✅ Usuario encontrado en BD`);
@@ -15,14 +21,10 @@ class User {
             }
             
             console.log(`❌ Usuario no encontrado en BD`);
-            
-            // Datos mock de emergencia
             return this.getMockUser(username);
             
         } catch (error) {
             console.error(`🔥 Error en BD:`, error.message);
-            
-            // Datos mock si la BD falla
             return this.getMockUser(username);
         }
     }
@@ -69,9 +71,20 @@ class User {
     }
 
     static async findById(id) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MySQL desconectado - findById mock');
+            const mockUsers = [
+                { id: 1, username: 'admin', nombre_completo: 'Administrador', turno: 'Todos', rol: 'admin' },
+                { id: 2, username: 'matutino', nombre_completo: 'Turno Matutino', turno: 'Matutino', rol: 'supervisor' },
+                { id: 3, username: 'vespertino', nombre_completo: 'Turno Vespertino', turno: 'Vespertino', rol: 'supervisor' },
+                { id: 4, username: 'nocturno', nombre_completo: 'Turno Nocturno', turno: 'Nocturno', rol: 'supervisor' }
+            ];
+            return mockUsers.find(u => u.id === id) || null;
+        }
+        
         try {
             const sql = 'SELECT id, username, nombre_completo, turno, rol FROM usuarios WHERE id = ?';
-            const [rows] = await pool.execute(sql, [id]);
+            const [rows] = await db.execute(sql, [id]);
             return rows[0] || null;
         } catch (error) {
             console.error('Error findById:', error.message);

@@ -1,8 +1,57 @@
-const pool = require('../config/database');
+const db = require('../config/database');
 
 class LlamadaBitacora {
+    // Datos MOCK para cuando MySQL no está disponible
+    static getMockLlamadas() {
+        const now = new Date();
+        const mockData = [];
+        
+        const turnos = ['Matutino', 'Vespertino', 'Nocturno'];
+        const motivos = ['Robo', 'Violencia familiar', 'Accidente vehicular', 'Riña', 'Persona sospechosa', 'Alarma activada'];
+        const colonias = ['Centro', 'Del Valle', 'San José', 'Las Flores', 'Industrial'];
+        const calles = ['Av. Principal', 'Calle Morelos', 'Av. Juárez', 'Calle Hidalgo', 'Blvd. Revolución'];
+        
+        for (let i = 0; i < 15; i++) {
+            const daysAgo = Math.floor(Math.random() * 7);
+            const fecha = new Date(now);
+            fecha.setDate(fecha.getDate() - daysAgo);
+            
+            const hora = `${String(Math.floor(Math.random() * 24)).padStart(2, '0')}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')}`;
+            const turno = turnos[Math.floor(Math.random() * turnos.length)];
+            const motivo = motivos[Math.floor(Math.random() * motivos.length)];
+            
+            mockData.push({
+                id: i + 1,
+                folio_sistema: `MOCK-${String(i + 1).padStart(4, '0')}`,
+                fecha: fecha.toISOString().split('T')[0],
+                turno: turno,
+                hora: hora,
+                motivo: motivo,
+                ubicacion: `${calles[Math.floor(Math.random() * calles.length)]} #${Math.floor(Math.random() * 500) + 1}`,
+                colonia: colonias[Math.floor(Math.random() * colonias.length)],
+                peticionario: `Ciudadano ${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`,
+                agente: `Agente ${Math.floor(Math.random() * 100) + 1}`,
+                salida: Math.random() > 0.5 ? 'si' : 'no',
+                detenido: Math.random() > 0.7 ? 'si' : 'no',
+                vehiculo: Math.random() > 0.6 ? 'si' : 'no',
+                numero_telefono: `664${Math.floor(Math.random() * 9000000) + 1000000}`,
+                seguimiento: Math.random() > 0.5 ? 'si' : 'no',
+                hora_registro: new Date().toISOString(),
+                latitud: (32.5 + Math.random() * 0.2).toFixed(6),
+                longitud: (-117.0 - Math.random() * 0.2).toFixed(6)
+            });
+        }
+        
+        return mockData.sort((a, b) => new Date(b.fecha + ' ' + b.hora) - new Date(a.fecha + ' ' + a.hora));
+    }
+
     // Crear nueva llamada
     static async create(llamadaData) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: create llamada');
+            return Math.floor(Math.random() * 1000) + 1;
+        }
+        
         const sql = `
             INSERT INTO llamadas_bitacora 
             (folio_sistema, fecha, turno, hora, motivo, ubicacion, colonia,
@@ -12,7 +61,7 @@ class LlamadaBitacora {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
-        const [result] = await pool.execute(sql, [
+        const [result] = await db.execute(sql, [
             llamadaData.folio_sistema,
             llamadaData.fecha,
             llamadaData.turno,
@@ -40,18 +89,45 @@ class LlamadaBitacora {
 
     // Obtener llamada por ID
     static async findById(id) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: findById llamada');
+            const mockData = this.getMockLlamadas();
+            return mockData.find(l => l.id === parseInt(id));
+        }
+        
         const sql = `
             SELECT lb.*
             FROM llamadas_bitacora lb
             WHERE lb.id = ?
         `;
         
-        const [rows] = await pool.execute(sql, [id]);
+        const [rows] = await db.execute(sql, [id]);
         return rows[0];
     }
 
     // Obtener todas las llamadas con filtros
     static async findAll(filtros = {}) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: findAll llamadas');
+            let mockData = this.getMockLlamadas();
+            
+            // Aplicar filtros a datos mock
+            if (filtros.fecha) {
+                mockData = mockData.filter(l => l.fecha === filtros.fecha);
+            }
+            if (filtros.turno) {
+                mockData = mockData.filter(l => l.turno === filtros.turno);
+            }
+            if (filtros.motivo) {
+                mockData = mockData.filter(l => l.motivo.includes(filtros.motivo));
+            }
+            if (filtros.limit) {
+                mockData = mockData.slice(0, parseInt(filtros.limit));
+            }
+            
+            return mockData;
+        }
+        
         let sql = `
             SELECT 
                 lb.id,
@@ -67,7 +143,6 @@ class LlamadaBitacora {
                 lb.salida,
                 lb.detenido,
                 lb.vehiculo,
-                lb.vehiculo,
                 lb.hora_registro,
                 lb.latitud,
                 lb.longitud,
@@ -78,75 +153,66 @@ class LlamadaBitacora {
         
         const params = [];
 
-        // Aplicar filtros
         if (filtros.fecha) {
             sql += ' AND lb.fecha = ?';
             params.push(filtros.fecha);
         }
-
         if (filtros.turno) {
             sql += ' AND lb.turno = ?';
             params.push(filtros.turno);
         }
-
         if (filtros.motivo) {
             sql += ' AND lb.motivo LIKE ?';
             params.push(`%${filtros.motivo}%`);
         }
-
         if (filtros.ubicacion) {
             sql += ' AND lb.ubicacion LIKE ?';
             params.push(`%${filtros.ubicacion}%`);
         }
-
         if (filtros.colonia) {
             sql += ' AND lb.colonia LIKE ?';
             params.push(`%${filtros.colonia}%`);
         }
-
         if (filtros.peticionario) {
             sql += ' AND lb.peticionario LIKE ?';
             params.push(`%${filtros.peticionario}%`);
         }
-
         if (filtros.agente) {
             sql += ' AND lb.agente LIKE ?';
             params.push(`%${filtros.agente}%`);
         }
-
         if (filtros.folio) {
             sql += ' AND lb.folio_sistema LIKE ?';
             params.push(`%${filtros.folio}%`);
         }
-
         if (filtros.salida) {
             sql += ' AND lb.salida = ?';
             params.push(filtros.salida);
         }
-
         if (filtros.detenido) {
             sql += ' AND lb.detenido = ?';
             params.push(filtros.detenido);
         }
 
-        // Ordenar por fecha y hora descendente
         sql += ' ORDER BY lb.fecha DESC, lb.hora DESC';
 
-        // Limitar resultados si se especifica
         if (filtros.limit) {
             sql += ' LIMIT ?';
             params.push(parseInt(filtros.limit));
         }
 
-        const [rows] = await pool.execute(sql, params);
+        const [rows] = await db.execute(sql, params);
         return rows;
     }
 
-    // Obtener todas las llamadas sin JOIN (para incluir registros huérfanos)
+    // Obtener todas las llamadas sin JOIN
     static async findAllRaw(filtros = {}) {
+        if (!db.isConnected()) {
+            return this.findAll(filtros);
+        }
+        
         let sql = `
-            SELECT 
-                lb.*
+            SELECT lb.*
             FROM llamadas_bitacora lb
             WHERE 1=1
         `;
@@ -157,47 +223,38 @@ class LlamadaBitacora {
             sql += ' AND lb.fecha = ?';
             params.push(filtros.fecha);
         }
-
         if (filtros.turno) {
             sql += ' AND lb.turno = ?';
             params.push(filtros.turno);
         }
-
         if (filtros.motivo) {
             sql += ' AND lb.motivo LIKE ?';
             params.push(`%${filtros.motivo}%`);
         }
-
         if (filtros.ubicacion) {
             sql += ' AND lb.ubicacion LIKE ?';
             params.push(`%${filtros.ubicacion}%`);
         }
-
         if (filtros.colonia) {
             sql += ' AND lb.colonia LIKE ?';
             params.push(`%${filtros.colonia}%`);
         }
-
         if (filtros.peticionario) {
             sql += ' AND lb.peticionario LIKE ?';
             params.push(`%${filtros.peticionario}%`);
         }
-
         if (filtros.agente) {
             sql += ' AND lb.agente LIKE ?';
             params.push(`%${filtros.agente}%`);
         }
-
         if (filtros.folio) {
             sql += ' AND lb.folio_sistema LIKE ?';
             params.push(`%${filtros.folio}%`);
         }
-
         if (filtros.salida) {
             sql += ' AND lb.salida = ?';
             params.push(filtros.salida);
         }
-
         if (filtros.detenido) {
             sql += ' AND lb.detenido = ?';
             params.push(filtros.detenido);
@@ -210,12 +267,18 @@ class LlamadaBitacora {
             params.push(parseInt(filtros.limit));
         }
 
-        const [rows] = await pool.execute(sql, params);
+        const [rows] = await db.execute(sql, params);
         return rows;
     }
 
-    // Contar todas las llamadas (sin JOIN) con filtros
+    // Contar llamadas
     static async countAllRaw(filtros = {}) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: countAllRaw');
+            const mockData = this.getMockLlamadas();
+            return mockData.length;
+        }
+        
         let sql = `
             SELECT COUNT(*) as total
             FROM llamadas_bitacora lb
@@ -228,76 +291,74 @@ class LlamadaBitacora {
             sql += ' AND lb.fecha = ?';
             params.push(filtros.fecha);
         }
-
         if (filtros.turno) {
             sql += ' AND lb.turno = ?';
             params.push(filtros.turno);
         }
-
         if (filtros.motivo) {
             sql += ' AND lb.motivo LIKE ?';
             params.push(`%${filtros.motivo}%`);
         }
-
         if (filtros.ubicacion) {
             sql += ' AND lb.ubicacion LIKE ?';
             params.push(`%${filtros.ubicacion}%`);
         }
-
         if (filtros.colonia) {
             sql += ' AND lb.colonia LIKE ?';
             params.push(`%${filtros.colonia}%`);
         }
-
         if (filtros.peticionario) {
             sql += ' AND lb.peticionario LIKE ?';
             params.push(`%${filtros.peticionario}%`);
         }
-
         if (filtros.agente) {
             sql += ' AND lb.agente LIKE ?';
             params.push(`%${filtros.agente}%`);
         }
-
         if (filtros.folio) {
             sql += ' AND lb.folio_sistema LIKE ?';
             params.push(`%${filtros.folio}%`);
         }
-
         if (filtros.salida) {
             sql += ' AND lb.salida = ?';
             params.push(filtros.salida);
         }
-
         if (filtros.detenido) {
             sql += ' AND lb.detenido = ?';
             params.push(filtros.detenido);
         }
 
-        const [rows] = await pool.execute(sql, params);
+        const [rows] = await db.execute(sql, params);
         return rows[0]?.total || 0;
     }
 
-    // Obtener llamadas por rango de fechas
+    // Métodos adicionales
     static async findByDateRange(fechaInicio, fechaFin) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: findByDateRange');
+            return this.getMockLlamadas().filter(l => l.fecha >= fechaInicio && l.fecha <= fechaFin);
+        }
+        
         const sql = `
-            SELECT 
-                lb.*
+            SELECT lb.*
             FROM llamadas_bitacora lb
             WHERE lb.fecha BETWEEN ? AND ?
             ORDER BY lb.fecha DESC, lb.hora DESC
         `;
         
-        const [rows] = await pool.execute(sql, [fechaInicio, fechaFin]);
+        const [rows] = await db.execute(sql, [fechaInicio, fechaFin]);
         return rows;
     }
 
-    // Actualizar llamada
     static async update(id, datosActualizados) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: update llamada');
+            return 1;
+        }
+        
         const campos = [];
         const valores = [];
         
-        // Construir SET dinámicamente
         Object.keys(datosActualizados).forEach(campo => {
             if (campo !== 'id' && campo !== 'folio_sistema') {
                 campos.push(`${campo} = ?`);
@@ -305,26 +366,32 @@ class LlamadaBitacora {
             }
         });
         
-        if (campos.length === 0) {
-            return 0;
-        }
+        if (campos.length === 0) return 0;
         
         const sql = `UPDATE llamadas_bitacora SET ${campos.join(', ')} WHERE id = ?`;
         valores.push(id);
         
-        const [result] = await pool.execute(sql, valores);
+        const [result] = await db.execute(sql, valores);
         return result.affectedRows;
     }
 
-    // Eliminar llamada
     static async delete(id) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: delete llamada');
+            return 1;
+        }
+        
         const sql = 'DELETE FROM llamadas_bitacora WHERE id = ?';
-        const [result] = await pool.execute(sql, [id]);
+        const [result] = await db.execute(sql, [id]);
         return result.affectedRows;
     }
 
-    // Obtener estadísticas
     static async getEstadisticas(fechaInicio, fechaFin) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: getEstadisticas');
+            return [];
+        }
+        
         const sql = `
             SELECT 
                 fecha,
@@ -339,12 +406,22 @@ class LlamadaBitacora {
             ORDER BY fecha DESC
         `;
         
-        const [rows] = await pool.execute(sql, [fechaInicio, fechaFin]);
+        const [rows] = await db.execute(sql, [fechaInicio, fechaFin]);
         return rows;
     }
 
-    // Obtener datos para autocompletar
     static async getDatosAutocompletar() {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: getDatosAutocompletar');
+            return {
+                motivos: ['Robo', 'Violencia familiar', 'Accidente vehicular'],
+                ubicaciones: ['Av. Principal', 'Calle Morelos'],
+                colonias: ['Centro', 'Del Valle'],
+                peticionarios: ['Ciudadano A', 'Ciudadano B'],
+                agentes: ['Agente 1', 'Agente 2']
+            };
+        }
+        
         const queries = [
             'SELECT DISTINCT motivo FROM llamadas_bitacora WHERE motivo IS NOT NULL ORDER BY motivo',
             'SELECT DISTINCT ubicacion FROM llamadas_bitacora WHERE ubicacion IS NOT NULL ORDER BY ubicacion',
@@ -354,7 +431,7 @@ class LlamadaBitacora {
         ];
         
         const resultados = await Promise.all(
-            queries.map(sql => pool.execute(sql).then(([rows]) => rows.map(r => Object.values(r)[0])))
+            queries.map(sql => db.execute(sql).then(([rows]) => rows.map(r => Object.values(r)[0])))
         );
         
         return {
@@ -366,8 +443,16 @@ class LlamadaBitacora {
         };
     }
 
-    // Obtener total de llamadas por turno
     static async getTotalPorTurno(fecha) {
+        if (!db.isConnected()) {
+            console.warn('⚠️  MOCK: getTotalPorTurno');
+            return [
+                { turno: 'Matutino', total: 5 },
+                { turno: 'Vespertino', total: 6 },
+                { turno: 'Nocturno', total: 4 }
+            ];
+        }
+        
         const sql = `
             SELECT 
                 turno,
@@ -383,7 +468,7 @@ class LlamadaBitacora {
                 END
         `;
         
-        const [rows] = await pool.execute(sql, [fecha]);
+        const [rows] = await db.execute(sql, [fecha]);
         return rows;
     }
 }

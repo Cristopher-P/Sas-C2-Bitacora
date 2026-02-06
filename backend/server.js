@@ -150,27 +150,73 @@ app.get('/api/status', (req, res) => {
     });
 });
 
-// Ruta de información del sistema
+// Ruta de información del sistema con diagnóstico completo
 app.get('/api/system-info', async (req, res) => {
+    const db = require('./config/database');
+    const User = require('./models/User');
+    const LlamadaBitacora = require('./models/LlamadaBitacora');
+    const EnvioC5 = require('./models/EnvioC5');
+    
+    const dbConnected = db.isConnected();
+    
     try {
-        const pool = require('./config/database');
-        const [users] = await pool.execute('SELECT COUNT(*) as count FROM usuarios');
-        const [hashed] = await pool.execute("SELECT COUNT(*) as count FROM usuarios WHERE password LIKE '$2a$%' OR password LIKE '$2b$%'");
+        let usuariosCount = 0;
+        let llamadasCount = 0;
+        let reportesCount = 0;
+        
+        if (dbConnected) {
+            // Datos reales de MySQL
+            const [users] = await db.execute('SELECT COUNT(*) as count FROM usuarios');
+            usuariosCount = users[0]?.count || 0;
+            
+            const llamadasTotal = await LlamadaBitacora.countAllRaw();
+            llamadasCount = llamadasTotal;
+            
+            const reportes = await EnvioC5.findAll();
+            reportesCount = reportes.length;
+        } else {
+            // Datos mock
+            const mockUsers = ['admin', 'matutino', 'vespertino', 'nocturno'];
+            usuariosCount = mockUsers.length;
+            llamadasCount = LlamadaBitacora.getMockLlamadas().length;
+            reportesCount = EnvioC5.getMockEnvios().length;
+        }
         
         res.json({
             status: 'online',
-            users: users[0].count,
-            hashedPasswords: hashed[0].count,
-            environment: process.env.NODE_ENV || 'development',
-            database: process.env.MYSQLDATABASE || 'sas_c4_db',
-            timestamp: new Date().toISOString()
+            database: {
+                connected: dbConnected,
+                mode: dbConnected ? 'MySQL Real' : '⚠️  MODO MOCK',
+                host: process.env.MYSQLHOST || 'localhost',
+                name: process.env.MYSQLDATABASE || 'railway'
+            },
+            data: {
+                usuarios: usuariosCount,
+                llamadas: llamadasCount,
+                reportes_c5: reportesCount
+            },
+            environment: {
+                nodeEnv: process.env.NODE_ENV || 'development',
+                port: process.env.PORT || 3000
+            },
+            timestamp: new Date().toISOString(),
+            message: dbConnected ? 'Sistema funcionando con MySQL' : '⚠️  MySQL desconectado - usando datos de prueba'
         });
     } catch (error) {
         res.json({
             status: 'online',
-            database: 'no disponible',
-            message: 'Modo mock activado',
-            timestamp: new Date().toISOString()
+            database: {
+                connected: false,
+                mode: '⚠️  MODO MOCK (error)',
+                error: error.message
+            },
+            data: {
+                usuarios: 4,
+                llamadas: 15,
+                reportes_c5: 10
+            },
+            timestamp: new Date().toISOString(),
+            message: '⚠️  Sistema en modo resistente - usando datos mock'
         });
     }
 });

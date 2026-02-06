@@ -1,96 +1,106 @@
-// backend/config/database.js - VERSIÓN CORREGIDA
+// backend/config/database.js - SISTEMA INTELIGENTE CON FALLBACK
 const mysql = require('mysql2');
 
-// ¡CORREGIR LA CONTRASEÑA!
-const databaseUrl = process.env.MYSQL_DATABASE_URL || 
-  'mysql://root:ifxpXbmEPWLFcMFIqMmOG1xYTEySWkEs@crossover.proxy.rlwy.net:27268/railway';
+let isDBConnected = false;
+let pool = null;
 
-console.log('🔗 URL de conexión MySQL (segura):', 
-  databaseUrl.replace(/:([^:]+)@/, ':***@'));
-
-// Parsear la URL
-const parseDatabaseUrl = (url) => {
-  try {
-    const parsed = new URL(url);
-    return {
-      host: parsed.hostname,
-      user: parsed.username,
-      password: parsed.password,
-      database: parsed.pathname.substring(1),
-      port: parsed.port || 3306,
-      ssl: { rejectUnauthorized: false },
-      connectTimeout: 10000, // 10 segundos timeout
-      charset: 'utf8mb4'
-    };
-  } catch (error) {
-    console.error('❌ Error parseando URL de MySQL:', error.message);
-    return null;
-  }
-};
-
-let config = parseDatabaseUrl(databaseUrl);
-
-// Si no se pudo parsear la URL, usar variables individuales
-if (!config) {
-  config = {
+// Configuración de MySQL
+const config = {
     host: process.env.MYSQLHOST || process.env.MYSQL_HOST || 'crossover.proxy.rlwy.net',
     user: process.env.MYSQLUSER || process.env.MYSQL_USER || 'root',
     password: process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || 'ifxpXbmEPWLFcMFIqMmOG1xYTEySWkEs',
     database: process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'railway',
     port: process.env.MYSQLPORT || process.env.MYSQL_PORT || 27268,
     ssl: { rejectUnauthorized: false },
-    connectTimeout: 10000,
+    connectTimeout: 5000, // timeout 5 segundos
     charset: 'utf8mb4'
-  };
+};
+
+console.log('🔧 Configuración MySQL:', {
+    host: config.host,
+    database: config.database,
+    port: config.port,
+    user: config.user
+});
+
+// Intentar crear pool
+try {
+    pool = mysql.createPool(config);
+    
+    // Test de conexión
+    pool.getConnection((err, connection) => {
+        if (err) {
+            console.error('❌ MySQL ERROR:', err.code, err.message);
+            console.warn('⚠️  MODO MOCK ACTIVADO - Usando datos de prueba');
+            isDBConnected = false;
+        } else {
+            console.log('✅ MySQL CONECTADO');
+            isDBConnected = true;
+            connection.release();
+        }
+    });
+} catch (error) {
+    console.error('❌ Error creando pool:', error.message);
+    console.warn('⚠️  MODO MOCK ACTIVADO');
+    isDBConnected = false;
 }
 
-console.log('🔧 Configuración MySQL final (segura):', {
-  host: config.host,
-  database: config.database,
-  port: config.port,
-  user: config.user,
-  passwordLength: config.password ? config.password.length : 0
-});
-
-const pool = mysql.createPool(config);
-
-// Test de conexión más detallado
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.error('❌ ERROR DE CONEXIÓN MYSQL:', {
-      code: err.code,
-      errno: err.errno,
-      sqlState: err.sqlState,
-      message: err.message,
-      address: config.host,
-      port: config.port
-    });
-    
-    // Verificación específica de error 1045
-    if (err.errno === 1045) {
-      console.error('🔐 ERROR DE AUTENTICACIÓN:');
-      console.error('   - Usuario:', config.user);
-      console.error('   - Contraseña usada:', config.password ? '***' + config.password.slice(-3) : 'NO DEFINIDA');
-      console.error('   - Verifica que la contraseña sea EXACTAMENTE:');
-      console.error('     ifxpXbmEPWLFcMFIqMmOG1xYTEySWkEs');
-      console.error('     (Mayúsculas/minúsculas y números exactos)');
+// Intentar reconectar cada 30 segundos
+setInterval(() => {
+    if (!isDBConnected && pool) {
+        pool.getConnection((err, connection) => {
+            if (!err) {
+                console.log('✅ MySQL RECONECTADO');
+                isDBConnected = true;
+                connection.release();
+            }
+        });
     }
-  } else {
-    console.log('✅ ¡CONEXIÓN EXITOSA A MYSQL!');
-    console.log(`   Host: ${connection.config.host}:${connection.config.port}`);
-    console.log(`   Database: ${connection.config.database}`);
-    console.log(`   User: ${connection.config.user}`);
-    
-    // Hacer una consulta de prueba
-    connection.query('SELECT 1 + 1 AS result', (queryErr, results) => {
-      if (queryErr) {
-        console.error('❌ Error en consulta de prueba:', queryErr.message);
-      } else {
-        console.log(`   Test query: ${results[0].result}`);
-      }
-      connection.release();
-    });
-  }
-});
+}, 30000);
 
-module.exports = pool.promise();
+// Wrapper que retorna funciones mock o reales
+const db = {
+    // Indicador de conexión
+    isConnected: () => isDBConnected,
+    
+    // Execute con fallback
+    execute: async (sql, params = []) => {
+        if (isDBConnected && pool) {
+            try {
+                const promisePool = pool.promise();
+                return await promisePool.execute(sql, params);
+            } catch (error) {
+                console.error('❌ Error en execute:', error.message);
+                isDBConnected = false;
+                throw error;
+            }
+        }
+        
+        // Mock: retornar array vacío
+        console.warn('⚠️  Mock execute llamado:', sql.substring(0, 50));
+        return [[], null];
+    },
+    
+    // Query con fallback
+    query: async (sql, params = []) => {
+        if (isDBConnected && pool) {
+            try {
+                const promisePool = pool.promise();
+                return await promisePool.query(sql, params);
+            } catch (error) {
+                console.error('❌ Error en query:', error.message);
+                isDBConnected = false;
+                throw error;
+            }
+        }
+        
+        // Mock: retornar array vacío
+        console.warn('⚠️  Mock query llamado:', sql.substring(0, 50));
+        return [[], null];
+    },
+    
+    // Getter para el pool (usado en server.js)
+    getPool: () => pool
+};
+
+module.exports = db;
