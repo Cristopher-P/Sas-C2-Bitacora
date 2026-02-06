@@ -1,60 +1,65 @@
 // backend/config/database.js
 const mysql = require('mysql2');
 
-// Railway NO usa MYSQL_URL, usa variables separadas
-const config = {
-  host: process.env.MYSQLHOST,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
-  port: process.env.MYSQLPORT || 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  ssl: { rejectUnauthorized: false }  // IMPORTANTE para Railway
+// URL PÚBLICA que Railway te da
+const databaseUrl = process.env.MYSQL_DATABASE_URL || 
+  'mysql://root:ifxpXbmEPWLFcMFIqMmOG1xYTEySWkEs@crossover.proxy.rlwy.net:27268/railway';
+
+console.log('🔗 URL de conexión MySQL:', databaseUrl.replace(/:[^:]*@/, ':***@'));
+
+// Parsear la URL
+const parseDatabaseUrl = (url) => {
+  try {
+    const parsed = new URL(url);
+    return {
+      host: parsed.hostname,
+      user: parsed.username,
+      password: parsed.password,
+      database: parsed.pathname.substring(1),
+      port: parsed.port || 3306,
+      ssl: { rejectUnauthorized: false }
+    };
+  } catch (error) {
+    console.error('❌ Error parseando URL de MySQL:', error.message);
+    return null;
+  }
 };
 
-// Debug: Muestra qué variables tenemos
-console.log('🔧 Variables MySQL disponibles:');
-console.log('- MYSQLHOST:', process.env.MYSQLHOST ? '✅' : '❌ NO DEFINIDA');
-console.log('- MYSQLUSER:', process.env.MYSQLUSER ? '✅' : '❌ NO DEFINIDA');
-console.log('- MYSQLDATABASE:', process.env.MYSQLDATABASE ? '✅' : '❌ NO DEFINIDA');
-console.log('- MYSQLPORT:', process.env.MYSQLPORT || 3306);
+const config = parseDatabaseUrl(databaseUrl) || {
+  // Fallback a variables individuales (con los nombres CORRECTOS)
+  host: process.env.MYSQLHOST || process.env.MYSQL_HOST,
+  user: process.env.MYSQLUSER || process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQLDATABASE || process.env.MYSQL_DATABASE || 'railway',
+  port: process.env.MYSQLPORT || process.env.MYSQL_PORT || 3306,
+  ssl: { rejectUnauthorized: false }
+};
 
-// Validación crítica
-if (!process.env.MYSQLHOST || !process.env.MYSQLUSER || !process.env.MYSQLDATABASE) {
-  console.error('❌ FALTAN VARIABLES DE MYSQL EN RAILWAY');
-  console.error('   Ve a Railway → Settings → Variables y verifica que existan:');
-  console.error('   - MYSQLHOST');
-  console.error('   - MYSQLUSER');
-  console.error('   - MYSQLPASSWORD');
-  console.error('   - MYSQLDATABASE');
-  console.error('   - MYSQLPORT');
-  
-  // Configuración de fallback para desarrollo
-  const fallbackConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'bitacora_dev',
-    port: 3306
-  };
-  console.log('⚠️  Usando configuración de desarrollo');
-  Object.assign(config, fallbackConfig);
-}
+console.log('🔧 Configuración MySQL final:', {
+  host: config.host,
+  database: config.database,
+  port: config.port,
+  user: config.user
+});
 
 const pool = mysql.createPool(config);
 
 // Test de conexión
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error('❌ Error conectando a MySQL:', err.message);
-    console.error('   Código de error:', err.code);
-    console.error('   Número de error:', err.errno);
+    console.error('❌ Error conectando a MySQL:', {
+      message: err.message,
+      code: err.code,
+      host: config.host,
+      port: config.port
+    });
+    
+    // Si falla, probar con localhost para desarrollo
+    console.log('⚠️  Intentando conexión local...');
   } else {
-    console.log('✅ Conexión a MySQL exitosa');
-    console.log('   Host:', connection.config.host);
-    console.log('   Database:', connection.config.database);
+    console.log('✅ ¡CONEXIÓN EXITOSA A MYSQL!');
+    console.log(`   Host: ${connection.config.host}`);
+    console.log(`   Database: ${connection.config.database}`);
     connection.release();
   }
 });
