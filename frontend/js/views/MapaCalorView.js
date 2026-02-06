@@ -1266,7 +1266,7 @@ class MapaCalorView {
         if (typeof LlamadasService !== 'undefined' && LlamadasService.apiBaseUrl) {
             return `${LlamadasService.apiBaseUrl}/geocode`;
         }
-        return 'http://localhost:3000/api/llamadas/geocode';
+        return '/api/llamadas/geocode';
     }
 
     prepararCanvasHeatmap() {
