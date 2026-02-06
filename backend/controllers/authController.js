@@ -34,17 +34,25 @@ class AuthController {
                     message: 'Credenciales incorrectas'
                 });
             }
+            console.log(`🔍 Usuario encontrado: ${user.username}`);
+            console.log(`📝 Tipo de contraseña en BD: ${user.password.startsWith('$2a$') ? 'Hash bcrypt' : 'Texto plano'}`);
 
             // Verificar contraseña
             const validPassword = await bcrypt.compare(password, user.password);
             
             if (!validPassword) {
                 console.log("❌ Contraseña incorrecta para:", username);
+                // Si falla bcrypt.compare, intentar comparación directa (solo para desarrollo)
+            if (password === user.password) {
+                console.log("⚠️  Contraseña coincide en texto plano (DEBERÍA SER HASH)");
+                // Aquí podrías auto-actualizar a hash
+            }
                 return res.status(401).json({
                     success: false,
                     message: 'Credenciales incorrectas'
                 });
             }
+
 
             // Generar Token
             const token = jwt.sign(
@@ -122,6 +130,7 @@ class AuthController {
             });
         }
     }
+    
 }
 
 module.exports = AuthController;
