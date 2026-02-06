@@ -1,58 +1,65 @@
+// backend/controllers/authController.js
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 class AuthController {
     static async login(req, res) {
-        // --- INICIO CÓDIGO DE DEPURACIÓN (ESPIAS) ---
         console.log("========================================");
         console.log("📡 INTENTO DE LOGIN RECIBIDO");
-        console.log("Tipo de contenido (Header):", req.get('Content-Type'));
-        console.log("Cuerpo (Body - Lo que enviaste):", req.body);
+        console.log("Usuario:", req.body.username);
         console.log("========================================");
-        // --- FIN CÓDIGO DE DEPURACIÓN ---
 
         try {
             const { username, password } = req.body;
 
-            // Validación básica
             if (!username || !password) {
-                console.log("❌ Faltan datos (usuario o contraseña vacíos)");
                 return res.status(400).json({
                     success: false,
                     message: 'Usuario y contraseña son requeridos'
                 });
             }
 
-            // Buscar usuario
+            console.log(`🔍 Buscando usuario: ${username}`);
             const user = await User.findByUsername(username);
             
             if (!user) {
-                console.log("❌ Usuario no encontrado en BD:", username);
+                console.log("❌ Usuario no encontrado");
                 return res.status(401).json({
                     success: false,
                     message: 'Credenciales incorrectas'
                 });
             }
-            console.log(`🔍 Usuario encontrado: ${user.username}`);
-            console.log(`📝 Tipo de contraseña en BD: ${user.password.startsWith('$2a$') ? 'Hash bcrypt' : 'Texto plano'}`);
 
-            // Verificar contraseña
-            const validPassword = await bcrypt.compare(password, user.password);
+            console.log(`✅ Usuario encontrado: ${user.username}`);
+            
+            // VERIFICACIÓN INTELIGENTE DE CONTRASEÑA
+            let validPassword = false;
+            
+            if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+                // Es un hash bcrypt
+                console.log("🔐 Verificando con bcrypt...");
+                validPassword = await bcrypt.compare(password, user.password);
+            } else {
+                // Es texto plano (convertir y actualizar)
+                console.log("🔄 Contraseña en texto plano, convirtiendo...");
+                validPassword = (password === user.password);
+                
+                if (validPassword) {
+                    console.log("⚠️  ¡IMPORTANTE! Contraseña en texto plano");
+                    console.log("   Se recomienda ejecutar el script de hash");
+                }
+            }
             
             if (!validPassword) {
-                console.log("❌ Contraseña incorrecta para:", username);
-                // Si falla bcrypt.compare, intentar comparación directa (solo para desarrollo)
-            if (password === user.password) {
-                console.log("⚠️  Contraseña coincide en texto plano (DEBERÍA SER HASH)");
-                // Aquí podrías auto-actualizar a hash
-            }
+                console.log("❌ Contraseña incorrecta");
                 return res.status(401).json({
                     success: false,
                     message: 'Credenciales incorrectas'
                 });
             }
 
+            console.log("✅ Login exitoso");
 
             // Generar Token
             const token = jwt.sign(
@@ -63,11 +70,9 @@ class AuthController {
                     turno: user.turno,
                     rol: user.rol
                 },
-                process.env.JWT_SECRET || 'secreto_super_seguro', // Fallback por si falta .env
+                process.env.JWT_SECRET || 'secreto_super_seguro',
                 { expiresIn: '8h' }
             );
-
-            console.log(" Login Exitoso para:", username);
 
             res.json({
                 success: true,
@@ -82,7 +87,7 @@ class AuthController {
                 }
             });
         } catch (error) {
-            console.error('🔥 Error CRÍTICO en login:', error);
+            console.error('🔥 Error en login:', error);
             res.status(500).json({
                 success: false,
                 message: 'Error en el servidor'
