@@ -17,21 +17,21 @@ class MapaCalorView {
             turno: null
         };
         
-        // Configuración de colores mejorada
+        // Configuración de colores mejorada (Inspirada en index.html)
         this.colors = {
-            primary: '#003366',
-            primaryLight: '#0a4d8c',
-            primaryDark: '#001f3f',
-            accent: '#ff6b35',
-            accentRed: '#dc3545',
-            accentGreen: '#28a745',
-            warning: '#ffc107',
-            info: '#17a2b8',
-            dark: '#212529',
-            light: '#f8f9fa',
-            border: '#dee2e6',
-            text: '#495057',
-            textLight: '#6c757d'
+            primary: '#2c3e50',      // Dark blue from login header
+            primaryLight: '#34495e', // Slightly lighter blue
+            primaryDark: '#1a252f',  // Darker shade
+            accent: '#e67e22',       // Orange accent
+            accentRed: '#e74c3c',    // Red for errors/alerts
+            accentGreen: '#27ae60',  // Green for success
+            warning: '#f1c40f',      // Yellow for warnings
+            info: '#3498db',         // Blue for info
+            dark: '#2c3e50',         // Dark text
+            light: '#f5f7fa',        // Light background
+            border: '#ecf0f1',       // Light border
+            text: '#2c3e50',         // Primary text
+            textLight: '#7f8c8d'     // Secondary text
         };
         
         // Coordenadas de Tehuacán, Puebla
@@ -112,84 +112,11 @@ class MapaCalorView {
     
     getTemplate() {
         return `
-            <div class="mapa-calor-container view-form view-bleed" style="width: 100vw; height: 100vh; background: ${this.colors.light}; display: flex; flex-direction: column; overflow: hidden;">
-                <!-- Header del Mapa Mejorado -->
-                <div class="header-mapa mapa-header" style="background: white; padding: 15px 25px; border-bottom: 3px solid ${this.colors.primary}; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative;">
-                    <div class="mapa-toolbar" style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 20px;">
-                            <div>
-                                <h2 style="margin: 0; color: ${this.colors.primary}; font-size: 1.4rem; display: flex; align-items: center; gap: 12px; font-weight: 700;">
-                                    <div style="width: 40px; height: 40px; background: ${this.colors.primary}; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,51,102,0.2);">
-                                        <i class="fas fa-map-marked-alt" style="color: white; font-size: 1.1rem;"></i>
-                                    </div>
-                                    MAPA DE CALOR CERIT
-                                </h2>
-                                <p style="margin: 5px 0 0 52px; color: ${this.colors.textLight}; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-map-marker-alt" style="color: ${this.colors.accent};"></i>
-                                    Tehuacán, Puebla - Visualización en tiempo real
-                                </p>
-                            </div>
-                            
-                            <!-- Indicador de actualización -->
-                            <div id="indicador-actualizacion" style="display: flex; align-items: center; gap: 8px; padding: 8px 15px; background: linear-gradient(135deg, #28a745 0%, #34ce57 100%); border-radius: 20px; box-shadow: 0 2px 8px rgba(40,167,69,0.3);">
-                                <div class="pulso-indicador" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
-                                <span style="color: white; font-size: 0.85rem; font-weight: 600;">EN VIVO</span>
-                            </div>
-                            
-                            <!-- Indicador de geocodificación -->
-                            <div id="indicador-geocoding" style="display: none; align-items: center; gap: 8px; padding: 8px 15px; background: linear-gradient(135deg, #17a2b8 0%, #1fc6df 100%); border-radius: 20px; box-shadow: 0 2px 8px rgba(23,162,184,0.3);">
-                                <div class="pulso-indicador" style="width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
-                                <span id="texto-geocoding" style="color: white; font-size: 0.85rem; font-weight: 600;">Geocodificando...</span>
-                            </div>
-                        </div>
-                        
-                        <div class="mapa-toolbar" style="display: flex; gap: 12px; align-items: center;">
-                            <!-- Botón de vista rápida -->
-                            <div class="btn-group-mapa" style="display: flex; gap: 0; background: ${this.colors.light}; border-radius: 8px; padding: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
-                                <button class="btn-vista-mapa active" data-vista="calor" 
-                                        style="padding: 8px 16px; background: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: ${this.colors.primary}; transition: all 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"
-                                        title="Mapa de calor">
-                                    <i class="fas fa-fire"></i>
-                                </button>
-                                <button class="btn-vista-mapa" data-vista="marcadores" 
-                                        style="padding: 8px 16px; background: transparent; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: ${this.colors.textLight}; transition: all 0.3s;"
-                                        title="Marcadores">
-                                    <i class="fas fa-map-pin"></i>
-                                </button>
-                                <button class="btn-vista-mapa" data-vista="clusters" 
-                                        style="padding: 8px 16px; background: transparent; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: ${this.colors.textLight}; transition: all 0.3s;"
-                                        title="Agrupación">
-                                    <i class="fas fa-th"></i>
-                                </button>
-                            </div>
-                            
-                            <!-- Botón agregar incidencia -->
-                            <button id="btn-agregar-incidencia" 
-                                    class="btn-accion-mapa"
-                                    style="padding: 10px 18px; background: ${this.colors.accent}; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 3px 10px rgba(255,107,53,0.3);"
-                                    title="Agregar incidencia en el mapa">
-                                <i class="fas fa-plus-circle"></i>
-                                <span>Agregar</span>
-                            </button>
-                            
-                            <!-- Botón exportar -->
-                            <button id="btn-exportar-mapa" 
-                                    class="btn-accion-mapa"
-                                    style="padding: 10px 18px; background: ${this.colors.info}; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 3px 10px rgba(23,162,184,0.3);"
-                                    title="Exportar mapa">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            
-                            <!-- Botón volver -->
-                            <button id="btn-volver-dashboard" 
-                                    class="btn-accion-mapa"
-                                    style="padding: 10px 18px; background: ${this.colors.primary}; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; box-shadow: 0 3px 10px rgba(0,51,102,0.3);">
-                                <i class="fas fa-arrow-left"></i>
-                                <span>Dashboard</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="mapa-calor-container" style="position: fixed; top: 80px; left: 0; width: 100%; height: calc(100vh - 80px); background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%); display: flex; flex-direction: column; overflow: hidden; z-index: 90; margin: 0; padding: 0;">
+                <!-- Header eliminado para dar más espacio al mapa -->
+                
+                <!-- Indicadores Flotantes (Top Center) -->
+                <!-- Indicadores de estado eliminados (EN VIVO, Geocodificando) para limpiar la vista -->
                 
                 <!-- Contenido Principal -->
                 <div class="mapa-layout" style="overflow: hidden; position: relative;">
@@ -199,7 +126,7 @@ class MapaCalorView {
                         
                         <!-- Botón toggle panel -->
                         <button id="btn-toggle-panel" 
-                                style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; background: white; border: 1px solid ${this.colors.border}; border-left: none; border-radius: 0 10px 10px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 2px 0 8px rgba(0,0,0,0.1); transition: all 0.3s; z-index: 10;">
+                                style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; background: white; border: 1px solid ${this.colors.border}; border-left: none; border-radius: 0 10px 10px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 4px 0 12px rgba(0,0,0,0.1); transition: all 0.3s; z-index: 10;">
                             <i class="fas fa-chevron-left" style="color: ${this.colors.primary}; transition: transform 0.3s;"></i>
                         </button>
                         
@@ -297,8 +224,9 @@ class MapaCalorView {
                     <div class="mapa-canvas" style="position: relative; background: ${this.colors.light};">
                         <div id="mapa-tehuacan" style="width: 100%; height: 100%;"></div>
                         
-                        <!-- Controles flotantes del mapa -->
+                        <!-- Controles flotantes del mapa (Columna Vertical Derecha) -->
                         <div class="controles-flotantes" style="position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 400;">
+                        
                             <!-- Control de zoom personalizado -->
                             <div style="background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); overflow: hidden;">
                                 <button id="btn-zoom-in" 
@@ -322,13 +250,33 @@ class MapaCalorView {
                                     style="width: 45px; height: 45px; background: white; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                                 <i class="fas fa-expand" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
                             </button>
+
+                            <!-- Divisor visual -->
+                            <div style="height: 10px;"></div>
+
+                            <!-- Modos de Vista (Apilados Verticalmente) -->
+                            <div class="grupo-vistas-vertical" style="background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column;">
+                                <button class="btn-vista-mapa active" data-vista="calor" 
+                                        style="width: 45px; height: 45px; background: ${this.colors.light}; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.primary}; transition: all 0.3s; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid ${this.colors.border};"
+                                        title="Mapa de calor">
+                                    <i class="fas fa-fire"></i>
+                                </button>
+                                <button class="btn-vista-mapa" data-vista="marcadores" 
+                                        style="width: 45px; height: 45px; background: white; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.textLight}; transition: all 0.3s; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid ${this.colors.border};"
+                                        title="Marcadores">
+                                    <i class="fas fa-map-pin"></i>
+                                </button>
+                                <button class="btn-vista-mapa" data-vista="clusters" 
+                                        style="width: 45px; height: 45px; background: white; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.textLight}; transition: all 0.3s; display: flex; align-items: center; justify-content: center;"
+                                        title="Agrupación">
+                                    <i class="fas fa-th"></i>
+                                </button>
+                            </div>
                         </div>
                         
-                        <!-- Indicador de modo vista -->
-                        <div id="indicador-modo-vista" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 8px; z-index: 400; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                            <i class="fas fa-fire"></i>
-                            <span>Modo: <span id="nombre-modo-vista">Mapa de Calor</span></span>
-                        </div>
+                        <!-- Indicador de modo vista [ELIMINADO] -->
+                        <!-- Se elimina para limpiar la vista. -->
+                        <div id="indicador-modo-vista" style="display: none;"></div>
                         
                         <!-- Leyenda Flotante (Top Center) -->
                         <div id="leyenda-flotante" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 6px 15px; border-radius: 30px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 400; max-width: 90%; overflow-x: auto;">
@@ -370,11 +318,9 @@ class MapaCalorView {
                     flex: 1;
                     min-height: 0;
                     overflow: hidden;
-                }
-                .mapa-header {
-                    position: sticky;
-                    top: 0;
-                    z-index: 120;
+                    width: 100%;
+                    height: 100%;
+                    position: relative;
                 }
                 .mapa-panel {
                     width: 380px;
@@ -456,20 +402,13 @@ class MapaCalorView {
                 }
                 
                 .btn-vista-mapa:hover {
-                    background: white;
+                    background: ${this.colors.light} !important;
                     color: ${this.colors.primary};
-                    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
                 }
 
-                .btn-vista-mapa:focus {
-                    outline: none;
-                    box-shadow: none;
-                }
-                
                 .btn-vista-mapa.active {
-                    background: white !important;
-                    color: ${this.colors.primary} !important;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+                    background: ${this.colors.primary} !important;
+                    color: white !important;
                 }
                 
                 .input-custom:focus {
@@ -580,20 +519,14 @@ class MapaCalorView {
                     .mapa-toolbar button {
                         padding: 8px 12px !important;
                     }
-                    .btn-group-mapa {
-                        width: 100%;
-                        justify-content: space-between;
-                    }
-                    .btn-group-mapa button {
-                        flex: 1;
+                    .btn-group-mapa-flotante {
+                        bottom: 80px !important;
+                        right: 20px !important;
                     }
                     .controles-flotantes {
-                        flex-direction: row !important;
-                        top: auto !important;
-                        bottom: 80px !important;
+                        top: 20px !important;
                         right: 12px !important;
-                        left: 12px !important;
-                        justify-content: center;
+                        flex-direction: column !important;
                     }
                 }
             </style>
@@ -673,11 +606,6 @@ class MapaCalorView {
     }
     
     bindEvents() {
-        // Botón volver
-        document.getElementById('btn-volver-dashboard').addEventListener('click', () => {
-            this.appController.loadView('dashboard');
-        });
-        
         // Botones de vista
         document.querySelectorAll('.btn-vista-mapa').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -726,16 +654,6 @@ class MapaCalorView {
             this.togglePantallaCompleta();
         });
         
-        // Agregar incidencia
-        document.getElementById('btn-agregar-incidencia').addEventListener('click', () => {
-            this.habilitarModoAgregarIncidencia();
-        });
-        
-        // Exportar mapa
-        document.getElementById('btn-exportar-mapa').addEventListener('click', () => {
-            this.exportarMapaComoImagen();
-        });
-        
         // Clicks en leyenda flotante para filtrar
         document.querySelectorAll('.leyenda-item-flotante').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -748,20 +666,19 @@ class MapaCalorView {
     }
     
     iniciarAnimaciones() {
-        // Animaciones de entrada escalonadas
+        // Animaciones simplificadas para evitar bugs visuales
+        // Aseguramos que todo sea visible inmediatamente o con una transición CSS simple
         const elementos = [
             '.stat-card',
             '.seccion-filtros',
             '.seccion-leyenda'
         ];
         
-        elementos.forEach((selector, index) => {
-            const elementos = document.querySelectorAll(selector);
-            elementos.forEach((el, i) => {
-                el.style.opacity = '0';
-                setTimeout(() => {
-                    el.style.animation = `fadeInUp 0.5s ease-out forwards`;
-                }, (index * 100) + (i * 50));
+        elementos.forEach(selector => {
+            const els = document.querySelectorAll(selector);
+            els.forEach(el => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
             });
         });
     }
@@ -817,8 +734,8 @@ class MapaCalorView {
         // Aplicar modo de vista
         this.aplicarModoVista();
         
-        // Mostrar notificación
-        this.mostrarNotificacionRapida(`Modo cambiado a: ${nombres[modo]}`);
+        // Notificación eliminada por solicitud del usuario
+        // this.mostrarNotificacionRapida(`Modo cambiado a: ${nombres[modo]}`);
     }
 
     syncBotonesModoVista(modo) {
@@ -883,7 +800,7 @@ class MapaCalorView {
             this.coordenadasTehuacan.zoom,
             { animate: true, duration: 1 }
         );
-        this.mostrarNotificacionRapida('Centrado en Tehuacán');
+        // this.mostrarNotificacionRapida('Centrado en Tehuacán');
     }
     
     togglePantallaCompleta() {
@@ -912,9 +829,7 @@ class MapaCalorView {
                 }
             }
             
-            if (datos.length === 0) {
-                console.log('Sin registros para el mapa');
-            }
+
             
             this.datosMapa = this.normalizarDatosMapa(datos);
             if (!Array.isArray(this.datosMapa)) {
@@ -923,6 +838,8 @@ class MapaCalorView {
             this.aplicarModoVista();
             this.actualizarEstadisticas(this.datosMapa.length, this.datosMapa.length);
             this.actualizarContadoresTipo(this.datosMapa);
+            // Corregido: Actualizar explícitamente la lista de últimos registros al cargar
+            this.actualizarUltimosRegistros(this.datosMapa);
 
             this.resolverCoordenadasIncidencias(this.datosMapa).then(() => {
                 this.aplicarModoVista();
@@ -1094,7 +1011,7 @@ class MapaCalorView {
             return;
         }
 
-        console.log(`🌍 Iniciando geocodificación de ${pendientes.length} incidencias...`);
+
         this.mostrarIndicadorGeocoding(true);
 
         const procesarLote = async (lote, index) => {
@@ -1127,7 +1044,7 @@ class MapaCalorView {
         }
 
         this.mostrarIndicadorGeocoding(false);
-        console.log(`✅ Geocodificación completada`);
+
     }
 
 
@@ -1149,7 +1066,7 @@ class MapaCalorView {
             return this.coordenadasCache.get(query);
         }
 
-        console.log(`📍 Geocodificando (Photon): "${query}"`);
+
 
         // 3. Consultar Photon API (Rápido y tolerante)
         try {
@@ -1266,7 +1183,7 @@ class MapaCalorView {
         if (typeof LlamadasService !== 'undefined' && LlamadasService.apiBaseUrl) {
             return `${LlamadasService.apiBaseUrl}/geocode`;
         }
-        return 'http://localhost:3000/api/llamadas/geocode';
+        return '/api/llamadas/geocode';
     }
 
     prepararCanvasHeatmap() {
@@ -1419,7 +1336,7 @@ class MapaCalorView {
     mostrarClusters(datos) {
         // Similar a mostrarMarcadores pero con agrupación
         this.mostrarMarcadores(datos);
-        this.mostrarNotificacionRapida('Modo clusters activado');
+        // this.mostrarNotificacionRapida('Modo clusters activado');
     }
     
     crearMarcadorMejorado(lat, lng, tipoInfo, incidencia, index) {
@@ -1463,7 +1380,7 @@ class MapaCalorView {
                     });
                     
                     if (resultado.success) {
-                        this.mostrarNotificacionRapida('✅ Ubicación actualizada correctamente');
+                        // this.mostrarNotificacionRapida('✅ Ubicación actualizada correctamente');
                         // Actualizar datos locales del marcador para que no rebote al recargar
                         incidencia.latitud = nuevaPosicion.lat;
                         incidencia.longitud = nuevaPosicion.lng;
@@ -1601,15 +1518,92 @@ class MapaCalorView {
         this.actualizarUltimosRegistros(datosFiltrados);
         this.actualizarUIFiltrosActivos(); // Asegurar que la leyenda refleje el estado
         
-        this.mostrarNotificacionRapida(`Filtros: ${datosFiltrados.length} registros`);
+        // this.mostrarNotificacionRapida(`Filtros: ${datosFiltrados.length} registros`);
     }
 
-    // ... (omitted)
+    // Implementación del método faltante para mostrar últimos registros
+    actualizarUltimosRegistros(datos) {
+        const contenedor = document.getElementById('lista-ultimos-registros');
+        if (!contenedor) return;
+        
+        contenedor.innerHTML = '';
+        
+        // Ordenar por fecha y hora descendente
+        const ordenados = [...datos].sort((a, b) => {
+            const fechaA = new Date(`${a.fecha}T${a.hora || '00:00:00'}`);
+            const fechaB = new Date(`${b.fecha}T${b.hora || '00:00:00'}`);
+            return fechaB - fechaA;
+        });
+        
+        // Tomar los últimos 10
+        const ultimos = ordenados.slice(0, 10);
+        
+        if (ultimos.length === 0) {
+            contenedor.innerHTML = `
+                <div style="text-align: center; color: ${this.colors.textLight}; padding: 20px; font-style: italic;">
+                    <i class="fas fa-inbox" style="font-size: 1.5rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
+                    No hay registros recientes
+                </div>
+            `;
+            return;
+        }
+        
+        ultimos.forEach(incidencia => {
+            const tipoInfo = this.tiposIncidencia[this.determinarTipoIncidencia(incidencia.motivo)];
+            
+            const item = document.createElement('div');
+            item.className = 'item-registro';
+            item.style.cssText = `
+                background: white;
+                border-left: 4px solid ${tipoInfo.color};
+                padding: 10px;
+                border-radius: 6px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+                cursor: pointer;
+                transition: all 0.2s;
+                border: 1px solid ${this.colors.border};
+                border-left-width: 4px;
+            `;
+            
+            // Hover effect handled by CSS or inline listeners
+            item.onmouseenter = () => { 
+                item.style.transform = 'translateX(3px)'; 
+                item.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            };
+            item.onmouseleave = () => { 
+                item.style.transform = 'translateX(0)'; 
+                item.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+            };
+            
+            item.onclick = () => this.centrarEnIncidencia(incidencia.id);
+            
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
+                    <span style="font-weight: 700; color: ${this.colors.text}; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-${tipoInfo.icon}" style="color: ${tipoInfo.color}; font-size: 0.8rem;"></i>
+                        ${tipoInfo.nombre}
+                    </span>
+                    <span style="font-size: 0.75rem; color: ${this.colors.textLight}; background: ${this.colors.light}; padding: 2px 6px; border-radius: 4px;">
+                        ${incidencia.hora ? incidencia.hora.substring(0, 5) : '--:--'}
+                    </span>
+                </div>
+                <div style="color: ${this.colors.textLight}; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">
+                    ${incidencia.ubicacion || 'Ubicación no especificada'}
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;">
+                    <span style="color: ${this.colors.info}; font-weight: 600;">${incidencia.colonia || ''}</span>
+                    <span style="color: ${this.colors.textLight};">${incidencia.fecha}</span>
+                </div>
+            `;
+            
+            contenedor.appendChild(item);
+        });
+    }
 
     centrarEnIncidencia(id) {
         const incidencia = this.datosMapa.find(d => d.id == id);
         if (!incidencia) {
-            this.mostrarNotificacionRapida('Registro no encontrado');
+            // this.mostrarNotificacionRapida('Registro no encontrado');
             return;
         }
 
@@ -1617,7 +1611,7 @@ class MapaCalorView {
         const coords = this.obtenerCoordenadas(incidencia);
         
         if (!coords || !Number.isFinite(coords.lat) || !Number.isFinite(coords.lng)) {
-            this.mostrarNotificacionRapida('Ubicación no disponible para este registro');
+            // this.mostrarNotificacionRapida('Ubicación no disponible para este registro');
             return;
         }
 
@@ -1744,7 +1738,7 @@ class MapaCalorView {
         this.actualizarEstadisticas(this.datosMapa.length, this.datosMapa.length);
         this.actualizarContadoresTipo(this.datosMapa);
         
-        this.mostrarNotificacionRapida('Filtros limpiados');
+        // this.mostrarNotificacionRapida('Filtros limpiados');
     }
     
     habilitarModoAgregarIncidencia() {
@@ -1770,7 +1764,7 @@ class MapaCalorView {
     
     mostrarModalAgregarIncidencia(lat, lng) {
         // [Código del modal igual que en la versión original, pero con estilos mejorados]
-        this.mostrarNotificacionRapida('Modal de agregar incidencia (funcionalidad completa)');
+        // this.mostrarNotificacionRapida('Modal de agregar incidencia (funcionalidad completa)');
     }
     
     exportarMapaComoImagen() {
@@ -1847,6 +1841,17 @@ class MapaCalorView {
                 colonia: 'Centro',
                 latitud: '18.4620',
                 longitud: '-97.3930'
+            },
+            {
+                id: 10, // Added newer record for testing sort
+                fecha: fecha,
+                hora: '23:59:00',
+                turno: 'nocturno',
+                motivo: 'Reporte de prueba reciente',
+                ubicacion: 'Zócalo de la ciudad',
+                colonia: 'Centro',
+                latitud: '18.4625',
+                longitud: '-97.3925'
             },
             {
                 id: 2,

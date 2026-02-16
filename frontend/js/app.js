@@ -33,8 +33,13 @@ class App {
         this.updateUserInfo();
         this.setupEventListeners();
         
-        // 3. Cargar vista inicial (Dashboard)
-        await this.loadView('dashboard');
+        // 3. Cargar vista inicial (recuperar última vista o Dashboard por defecto)
+        const lastView = localStorage.getItem('lastView');
+        if (lastView) {
+            await this.loadView(lastView);
+        } else {
+            await this.loadView('dashboard');
+        }
     }
 
     updateUserInfo() {
@@ -72,7 +77,7 @@ class App {
 
         setupNav('nav-dashboard', 'dashboard');
         setupNav('nav-llamadas', 'llamadas');
-        setupNav('nav-buscar', 'buscar');
+
         setupNav('nav-c5', 'c5');
         setupNav('nav-mapacalor', 'mapacalor'); // ← NUEVO: Enlace para mapa de calor
         
@@ -88,6 +93,7 @@ class App {
                 if(confirm("¿Deseas cerrar sesión?")) {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
+                    localStorage.removeItem('lastView');
                     window.location.href = 'index.html';
                 }
             });
@@ -96,6 +102,9 @@ class App {
 
     async loadView(viewName) {
         const content = document.getElementById('content');
+        
+        // Guardar la vista actual para recargas
+        localStorage.setItem('lastView', viewName);
         
         // Limpiar vista anterior
         if (this.currentView && typeof this.currentView.cleanup === 'function') {
@@ -112,76 +121,68 @@ class App {
 
         this.setActiveNav(viewName);
 
-        // Cargar nueva vista con pequeño delay para que se vea el loader
-        setTimeout(async () => {
-            try {
-                switch(viewName) {
-                    case 'dashboard':
-                        if (typeof DashboardView === 'undefined') {
-                            throw new Error('DashboardView no está cargado');
-                        }
-                        this.currentView = new DashboardView(this.currentUser, this);
-                        await this.currentView.render(content);
-                        break;
-                        
-                    case 'llamadas':
-                        if (typeof LlamadasView === 'undefined') {
-                            throw new Error('LlamadasView no está cargado');
-                        }
-                        this.currentView = new LlamadasView(this.currentUser, this);
-                        await this.currentView.render(content);
-                        break;
-                        
-                    case 'c5':
-                        if (typeof C5View === 'undefined') {
-                            throw new Error('C5View no está cargado');
-                        }
-                        this.currentView = new C5View(this.currentUser, this);
-                        await this.currentView.render(content);
-                        break;
-                        
-                    case 'buscar':
-                        if (typeof BuscarView === 'undefined') {
-                            throw new Error('BuscarView no está cargado');
-                        }
-                        this.currentView = new BuscarView(this.currentUser, this);
-                        await this.currentView.render(content);
-                        break;
-                        
-                    case 'mapacalor':  // ← NUEVO: Vista del mapa de calor
-                        if (typeof MapaCalorView === 'undefined') {
-                            throw new Error('MapaCalorView no está cargado');
-                        }
-                        this.currentView = new MapaCalorView(this);
-                        await this.currentView.render(content);
-                        break;
-                        
-                    default:
-                        console.error('Vista no encontrada:', viewName);
-                        await this.loadView('dashboard');
-                }
-            } catch (error) {
-                console.error('Error cargando vista:', error);
-                content.innerHTML = `
-                    <div class="alert alert-error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Error cargando la vista:</strong><br>
-                        ${error.message}
-                        <br><br>
-                        <button onclick="app.loadView('dashboard')" class="btn btn-primary">
-                            <i class="fas fa-home"></i> Volver al Dashboard
-                        </button>
-                    </div>
-                `;
+        // Cargar nueva vista inmediatamente
+        try {
+            switch(viewName) {
+                case 'dashboard':
+                    if (typeof DashboardView === 'undefined') {
+                        throw new Error('DashboardView no está cargado');
+                    }
+                    this.currentView = new DashboardView(this.currentUser, this);
+                    await this.currentView.render(content);
+                    break;
+                    
+                case 'llamadas':
+                    if (typeof LlamadasView === 'undefined') {
+                        throw new Error('LlamadasView no está cargado');
+                    }
+                    this.currentView = new LlamadasView(this.currentUser, this);
+                    await this.currentView.render(content);
+                    break;
+                    
+                case 'c5':
+                    if (typeof C5View === 'undefined') {
+                        throw new Error('C5View no está cargado');
+                    }
+                    this.currentView = new C5View(this.currentUser, this);
+                    await this.currentView.render(content);
+                    break;
+                    
+
+                    
+                case 'mapacalor':  // ← NUEVO: Vista del mapa de calor
+                    if (typeof MapaCalorView === 'undefined') {
+                        throw new Error('MapaCalorView no está cargado');
+                    }
+                    this.currentView = new MapaCalorView(this);
+                    await this.currentView.render(content);
+                    break;
+                    
+                default:
+                    console.error('Vista no encontrada:', viewName);
+                    await this.loadView('dashboard');
             }
-        }, 100);
+        } catch (error) {
+            console.error('Error cargando vista:', error);
+            content.innerHTML = `
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Error cargando la vista:</strong><br>
+                    ${error.message}
+                    <br><br>
+                    <button onclick="app.loadView('dashboard')" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Volver al Dashboard
+                    </button>
+                </div>
+            `;
+        }
     }
 
     setActiveNav(viewName) {
         const map = {
             dashboard: 'nav-dashboard',
             llamadas: 'nav-llamadas',
-            buscar: 'nav-buscar',
+
             c5: 'nav-c5',
             mapacalor: 'nav-mapacalor'
         };
@@ -217,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'DashboardView', 
         'LlamadasView', 
         'C5View', 
-        'BuscarView',
+
         'MapaCalorView'  // ← NUEVO: Agregar MapaCalorView a las dependencias
     ];
     

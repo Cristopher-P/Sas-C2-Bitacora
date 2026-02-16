@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAS C4 - Iniciar Sesión</title>
-    <link rel="icon" type="image/png" href="/frontend/js/assets/favicon.png">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -33,7 +34,7 @@
         .login-box {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
             overflow: hidden;
             border: 1px solid #ecf0f1;
         }
@@ -233,6 +234,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -268,12 +270,21 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- CONTENEDOR PRINCIPAL -->
@@ -286,12 +297,12 @@
                 <h1>SAS C4</h1>
                 <h2>Bitácora de Llamadas</h2>
             </div>
-            
+
             <!-- Indicador de Turno -->
             <div class="turno-indicator">
                 <i class="fas fa-clock"></i> Sistema de Acceso - Turno General
             </div>
-            
+
             <div class="login-body">
                 <!-- Alerta Informativa -->
                 <div class="alert">
@@ -305,23 +316,16 @@
                         <label for="username">
                             <i class="fas fa-user"></i> Usuario
                         </label>
-                        <input type="text" 
-                               id="username" 
-                               class="form-control" 
-                               placeholder="Ingresa tu usuario operativo" 
-                               required 
-                               autofocus>
+                        <input type="text" id="username" class="form-control" placeholder="Ingresa tu usuario operativo"
+                            required autofocus>
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="password">
                             <i class="fas fa-lock"></i> Contraseña
                         </label>
-                        <input type="password" 
-                               id="password" 
-                               class="form-control" 
-                               placeholder="Ingresa tu contraseña de acceso" 
-                               required>
+                        <input type="password" id="password" class="form-control"
+                            placeholder="Ingresa tu contraseña de acceso" required>
                     </div>
 
                     <!-- Estado del Sistema -->
@@ -329,7 +333,7 @@
                         <div class="status-dot"></div>
                         <span>Sistema operativo - Conectado</span>
                     </div>
-                    
+
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                     </button>
@@ -341,7 +345,7 @@
                     <span id="error-text"></span>
                 </div>
             </div>
-            
+
             <!-- Pie de Página -->
             <div class="login-footer">
                 <p>Sistema de Bitácora Operativa &copy; 2024</p>
@@ -374,7 +378,7 @@
         function showError(message) {
             errorText.textContent = message;
             loginMessage.style.display = 'flex';
-            
+
             // Agregar efecto de shake
             loginMessage.style.animation = 'none';
             setTimeout(() => {
@@ -433,10 +437,10 @@
                     // Éxito - animación de éxito
                     btn.innerHTML = '<i class="fas fa-check"></i> Acceso concedido';
                     btn.style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
-                    
+
                     // Pequeña pausa para mostrar éxito
                     await new Promise(resolve => setTimeout(resolve, 500));
-                    
+
                     // Redireccionar al dashboard
                     window.location.href = 'dashboard.html';
                 } else {
@@ -447,10 +451,10 @@
                 // Error - restaurar botón
                 btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
                 btn.disabled = false;
-                
+
                 // Mostrar error
                 showError(error.message || 'Error de conexión con el servidor');
-                
+
                 // Resaltar campos
                 usernameInput.style.borderColor = '#e74c3c';
                 passwordInput.style.borderColor = '#e74c3c';
@@ -470,4 +474,5 @@
     </script>
 
 </body>
+
 </html>

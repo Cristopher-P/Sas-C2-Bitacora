@@ -14,183 +14,125 @@ class C5SuccessView {
         const textoCodificado = encodeURIComponent(textoFormateado);
         const whatsappLink = `https://wa.me/?text=${textoCodificado}`;
         
+        // Usar contenedor consistente con LlamadasView y estilos C5
         this.container.innerHTML = this.getTemplate(textoFormateado, textoCodificado, whatsappLink);
         this.bindEvents();
     }
 
     getTemplate(textoFormateado, textoCodificado, whatsappLink) {
         return `
-            <div class="fade-in view-shell view-shell--wide view-form">
+            <div class="fade-in c5-container">
                 <!-- Encabezado -->
-                <div class="page-header">
-                    <div class="page-title-group">
+                <div class="c5-header">
+                    <div style="flex: 1;">
+                        <div class="c5-title">
+                            <i class="fas fa-check-circle" style="color: var(--cerit-success);"></i> REPORTE GENERADO
+                        </div>
+                        <div style="color: var(--color-muted); font-size: 0.9rem; margin-top: 5px;">
+                            <i class="fas fa-user-shield"></i> Operador: ${this.currentUser || 'OPERADOR'}
+                        </div>
+                    </div>
+                    <div>
                         <button class="btn btn-secondary btn-icon btn-back-to-main" aria-label="Volver">
                             <i class="fas fa-arrow-left"></i>
                         </button>
-                        <h1 class="page-title">
-                            REPORTE GENERADO - CERIT
-                        </h1>
-                    </div>
-                    <div class="user-chip">
-                        <i class="fas fa-user-shield"></i>
-                        <span>${this.currentUser || 'OPERADOR'}</span>
                     </div>
                 </div>
-                <div class="page-divider page-divider--success"></div>
 
-                <!-- Panel de Éxito -->
-                <div style="margin-bottom: 25px;">
-                    <div style="background: #d5f4e6; border-radius: 8px; padding: 25px; border: 1px solid #a3e4d7; display: flex; align-items: center; justify-content: space-between;">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="background: #2ecc71; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <i class="fas fa-check fa-lg"></i>
-                            </div>
-                            <div>
-                                <h2 style="margin: 0; color: #155724; font-size: 1.5rem; font-weight: 700;">
-                                    REPORTE C4 GENERADO EXITOSAMENTE
-                                </h2>
-                                <p style="color: #0c503c; margin: 8px 0 0 0; font-size: 1rem;">
-                                    El folio ha sido registrado en el sistema. Procede a enviar al C5.
-                                </p>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="color: #2c3e50; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">FOLIO C4 GENERADO</div>
-                            <div style="font-family: 'Courier New', monospace; font-size: 2rem; font-weight: 700; color: #2ecc71; letter-spacing: 2px;">
-                                ${this.folioC4}
-                            </div>
-                            <div style="color: #7f8c8d; font-size: 0.85rem; margin-top: 5px;">
-                                Formato: DDMMYYHHMM
-                            </div>
+                <!-- Panel de Éxito (Status Banner) -->
+                <div class="status-banner">
+                    <div class="status-text">
+                        <h4>REPORTE C4 GENERADO EXITOSAMENTE</h4>
+                        <p style="margin: 5px 0 0 0; color: var(--color-text); opacity: 0.8;">
+                            El folio ha sido registrado. Procede a enviar al C5.
+                        </p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--color-muted); margin-bottom: 5px;">Folio C4 Sistema</div>
+                        <div class="folio-badge">
+                            ${this.folioC4}
                         </div>
                     </div>
                 </div>
 
-                <!-- Panel de Acciones -->
-                <div style="margin-bottom: 25px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <!-- Información del Reporte -->
-                        <div style="background: white; border-radius: 8px; padding: 25px; border: 1px solid #e9ecef; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                                <div style="background: #3498db; color: white; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                    <i class="fas fa-eye"></i>
-                                </div>
-                                <div>
-                                    <h3 style="margin: 0; color: #2c3e50; font-size: 1.2rem; font-weight: 600;">
-                                        VISTA PREVIA DEL REPORTE
-                                    </h3>
-                                    <p style="color: #7f8c8d; margin: 5px 0 0 0; font-size: 0.9rem;">
-                                        Formato listo para enviar al Centro de Control
-                                    </p>
-                                </div>
+                <!-- Grid Principal -->
+                <div class="c5-grid">
+                    
+                    <!-- Columna Izquierda: Vista Previa -->
+                    <div class="c5-card" style="padding: 20px;">
+                        <div class="section-title">
+                            <i class="fas fa-eye"></i> VISTA PREVIA DEL REPORTE
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--color-muted); margin-bottom: 15px;">
+                            Formato listo para enviar al Centro de Control:
+                        </p>
+                        
+                        <div class="preview-box">
+${textoFormateado}
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button onclick="app.currentView.currentSubView.imprimirReporteC5()" class="btn-block btn-print">
+                                <i class="fas fa-print"></i> IMPRIMIR FORMATO
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Acciones y Respuesta -->
+                    <div class="c5-card" style="padding: 20px;">
+                        <div class="section-title">
+                            <i class="fas fa-paper-plane"></i> ENVÍO Y SEGUIMIENTO
+                        </div>
+                        
+                        <div class="action-card" style="margin-bottom: 20px;">
+                            <div style="font-weight: 600; color: var(--cerit-primary); margin-bottom: 10px;">
+                                <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
                             </div>
-                            
-                            <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; border: 1px solid #dee2e6; max-height: 350px; overflow-y: auto;">
-                                <pre style="margin: 0; font-family: 'Courier New', monospace; white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6; color: #2c3e50;">${textoFormateado}</pre>
+                            <button onclick="window.open('${whatsappLink}', '_blank')" class="btn-block btn-whatsapp">
+                                <i class="fab fa-whatsapp"></i> ABRIR WHATSAPP WEB
+                            </button>
+                            <button onclick="app.currentView.currentSubView.copiarReporteC5('${textoCodificado}')" class="btn-block btn-copy">
+                                <i class="fas fa-copy"></i> COPIAR AL PORTAPAPELES
+                            </button>
+                        </div>
+                        
+                        <!-- Registro de Respuesta C5 -->
+                        <div class="response-area">
+                            <div style="font-weight: 600; color: var(--cerit-warning); margin-bottom: 5px;">
+                                <i class="fas fa-exchange-alt"></i> REGISTRAR FOLIO C5
                             </div>
+                            <p style="font-size: 0.85rem; color: var(--color-muted); margin-bottom: 10px;">
+                                Ingresa el folio que devuelve el operador del C5:
+                            </p>
                             
-                            <div style="margin-top: 20px;">
-                                <button onclick="app.currentView.currentSubView.imprimirReporteC5()"
-                                        style="width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                    <i class="fas fa-print"></i> IMPRIMIR FORMATO C5
+                            <div class="response-input-group">
+                                <input type="text" id="folio-c5-respuesta" 
+                                       class="response-input" 
+                                       placeholder="Ej: 123456"
+                                       autocomplete="off">
+                                <button onclick="app.currentView.currentSubView.registrarFolioC5Respuesta()" 
+                                        class="btn btn-primary" 
+                                        style="padding: 8px 15px; background: var(--cerit-warning); border: none;">
+                                    <i class="fas fa-save"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Envío al C5 -->
-                        <div style="background: white; border-radius: 8px; padding: 25px; border: 1px solid #e9ecef; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                            <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                                <div style="background: #25D366; color: white; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px; flex-shrink: 0;">
-                                    <i class="fab fa-whatsapp"></i>
-                                </div>
-                                <div>
-                                    <h3 style="margin: 0; color: #2c3e50; font-size: 1.2rem; font-weight: 600;">
-                                        ENVÍO AL CENTRO DE CONTROL
-                                    </h3>
-                                    <p style="color: #7f8c8d; margin: 5px 0 0 0; font-size: 0.9rem;">
-                                        Envía este reporte al C5 por WhatsApp
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 20px;">
-                                <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; border-left: 4px solid #2ecc71; margin-bottom: 15px;">
-                                    <p style="margin: 0; color: #155724; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 10px;">
-                                        <i class="fas fa-info-circle" style="margin-top: 2px;"></i>
-                                        Copia el formato y pégalo en WhatsApp del Centro de Control C5
-                                    </p>
-                                </div>
-                                
-                                <div style="display: flex; flex-direction: column; gap: 12px;">
-                                    <button onclick="window.open('${whatsappLink}', '_blank')"
-                                            style="padding: 14px; background: #25D366; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                        <i class="fab fa-whatsapp fa-lg"></i> ABRIR WHATSAPP PARA ENVIAR
-                                    </button>
-                                    
-                                    <button onclick="app.currentView.currentSubView.copiarReporteC5('${textoCodificado}')"
-                                            style="padding: 14px; background: #3498db; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                        <i class="fas fa-copy"></i> COPIAR TEXTO AL PORTAPAPELES
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Registro de Respuesta C5 -->
-                            <div style="background: #fff3cd; padding: 20px; border-radius: 6px; border: 1px solid #ffeaa7;">
-                                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 15px;">
-                                    <div style="background: #f39c12; color: white; width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                        <i class="fas fa-exchange-alt"></i>
-                                    </div>
-                                    <div>
-                                        <h4 style="margin: 0; color: #856404; font-size: 1.1rem; font-weight: 600;">
-                                            REGISTRAR RESPUESTA DEL C5
-                                        </h4>
-                                        <p style="color: #856404; margin: 5px 0 0 0; font-size: 0.9rem;">
-                                            ¿Ya recibiste el folio que devolvió el Centro de Control?
-                                        </p>
-                                    </div>
-                                </div>
-                                
-                                <div style="display: flex; gap: 10px;">
-                                    <div style="flex: 1; position: relative;">
-                                        <input type="text" id="folio-c5-respuesta" 
-                                               placeholder="Ingresa el folio C5 devuelto"
-                                               style="width: 100%; padding: 10px 12px 10px 40px; border: 2px solid #dee2e6; border-radius: 6px; font-size: 0.95rem; transition: all 0.2s; box-sizing: border-box;"
-                                               onfocus="this.style.borderColor='#3498db'; this.style.boxShadow='0 0 0 3px rgba(52,152,219,0.1)'"
-                                               onblur="this.style.borderColor='#dee2e6'; this.style.boxShadow='none'">
-                                        <i class="fas fa-hashtag" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #7f8c8d;"></i>
-                                    </div>
-                                    <button onclick="app.currentView.currentSubView.registrarFolioC5Respuesta()"
-                                            style="padding: 10px 20px; background: #f39c12; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                                        <i class="fas fa-save"></i> REGISTRAR
-                                    </button>
-                                </div>
-                                <div style="color: #856404; font-size: 0.85rem; margin-top: 10px; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-info-circle"></i> El folio se guardará y aparecerá en la lista como "Recibido"
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Botones de Navegación -->
-                <div style="background: #f8f9fa; border-radius: 8px; padding: 25px; border: 1px solid #e9ecef;">
-                    <div style="display: flex; gap: 15px; justify-content: center;">
-                        <button onclick="app.currentView.showNewReport()"
-                                style="padding: 12px 25px; background: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-plus-circle"></i> NUEVO REPORTE
-                        </button>
-                        <button onclick="app.currentView.showList()"
-                                style="padding: 12px 25px; background: #3498db; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-list"></i> VER TODOS LOS REPORTES
-                        </button>
-                        <button onclick="app.currentView.showMain()"
-                                style="padding: 12px 25px; background: #2c3e50; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-home"></i> VOLVER AL INICIO
-                        </button>
-                    </div>
+                <!-- Botones de Navegación Pie -->
+                <div class="footer-actions">
+                    <button onclick="app.currentView.showNewReport()" class="btn btn-success">
+                        <i class="fas fa-plus-circle"></i> NUEVO REPORTE
+                    </button>
+                    <button onclick="app.currentView.showList()" class="btn btn-info">
+                        <i class="fas fa-list"></i> VER TODOS
+                    </button>
+                    <button onclick="app.currentView.showMain()" class="btn btn-secondary">
+                        <i class="fas fa-home"></i> INICIO
+                    </button>
                 </div>
-
-
             </div>
         `;
     }
@@ -233,7 +175,7 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
         const texto = decodeURIComponent(textoCodificado);
         navigator.clipboard.writeText(texto)
             .then(() => {
-                this.mostrarAlerta(' TEXTO COPIADO', 'El formato CERIT ha sido copiado al portapapeles', 'success');
+                this.mostrarAlerta('TEXTO COPIADO', 'El formato CERIT ha sido copiado al portapapeles', 'success');
             })
             .catch(() => {
                 // Fallback
@@ -243,7 +185,7 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                this.mostrarAlerta(' TEXTO COPIADO', 'El formato CERIT ha sido copiado al portapapeles', 'success');
+                this.mostrarAlerta('TEXTO COPIADO', 'El formato CERIT ha sido copiado al portapapeles', 'success');
             });
     }
 
@@ -292,7 +234,7 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
             C5Service.registrarFolioC5(this.folioC4, folioC5)
                 .then(resultado => {
                     if (resultado.success) {
-                        this.mostrarAlerta(' FOLIO C5 REGISTRADO', `Folio registrado exitosamente:\nC4: ${this.folioC4}\nC5: ${folioC5}`, 'success');
+                        this.mostrarAlerta('FOLIO C5 REGISTRADO', `Folio registrado exitosamente:\nC4: ${this.folioC4}\nC5: ${folioC5}`, 'success');
                         if (folioC5Input) folioC5Input.value = '';
                     } else {
                         this.mostrarAlerta('⚠️ ERROR', resultado.message, 'error');
@@ -304,34 +246,39 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
                 });
         } else {
             // Modo local
-            this.mostrarAlerta(' FOLIO C5 REGISTRADO LOCALMENTE', `Folio registrado localmente:\nC4: ${this.folioC4}\nC5: ${folioC5}\n\n(Nota: Para sincronizar con el servidor, activa el servicio C5)`, 'success');
+            this.mostrarAlerta('FOLIO C5 REGISTRADO LOCALMENTE', `Folio registrado localmente:\nC4: ${this.folioC4}\nC5: ${folioC5}\n\n(Nota: Para sincronizar con el servidor, activa el servicio C5)`, 'success');
             if (folioC5Input) folioC5Input.value = '';
         }
     }
 
     mostrarAlerta(titulo, mensaje, tipo = 'info') {
-        const color = tipo === 'error' ? '#e74c3c' : tipo === 'success' ? '#2ecc71' : '#3498db';
+        const color = tipo === 'error' ? 'var(--color-danger)' : tipo === 'success' ? 'var(--color-success)' : 'var(--color-info)';
         
         const alertDiv = document.createElement('div');
+        // Simplificar estilos usando variables CSS
         alertDiv.style.cssText = `
             position: fixed; top: 20px; right: 20px; 
-            background: white; border-left: 4px solid ${color}; 
+            background: white; border-left: 4px solid ${tipo === 'error' ? '#dc3545' : '#28a745'}; 
             padding: 15px 20px; border-radius: 6px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-            z-index: 1001; min-width: 300px; max-width: 400px;
+            z-index: 1001; min-width: 300px;
+            animation: fadeIn 0.3s ease;
         `;
         
+        const iconClass = tipo === 'error' ? 'exclamation-triangle' : tipo === 'success' ? 'check-circle' : 'info-circle';
+        const iconColor = tipo === 'error' ? '#dc3545' : '#28a745';
+
         alertDiv.innerHTML = `
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <div style="background: ${color}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="fas fa-${tipo === 'error' ? 'exclamation-triangle' : tipo === 'success' ? 'check-circle' : 'info-circle'}"></i>
+            <div style="display: flex; align-items: start; gap: 12px;">
+                <div style="color: ${iconColor}; font-size: 1.2rem;">
+                    <i class="fas fa-${iconClass}"></i>
                 </div>
                 <div style="flex: 1;">
-                    <div style="font-weight: 600; color: #2c3e50; margin-bottom: 5px;">${titulo}</div>
-                    <div style="color: #7f8c8d; font-size: 0.9rem; white-space: pre-line;">${mensaje}</div>
+                    <div style="font-weight: 600; color: var(--color-text); margin-bottom: 5px;">${titulo}</div>
+                    <div style="color: var(--color-muted); font-size: 0.9rem; white-space: pre-line;">${mensaje}</div>
                 </div>
                 <button onclick="this.parentElement.parentElement.remove()" 
-                        style="background: none; border: none; color: #95a5a6; cursor: pointer; padding: 0; font-size: 1rem;">
+                        style="background: none; border: none; color: #aaa; cursor: pointer;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>

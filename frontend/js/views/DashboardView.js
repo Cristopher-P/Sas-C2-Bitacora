@@ -36,6 +36,19 @@ class DashboardView {
         this.originalContainer = null;
         this.horaActualizacion = null;
         this.intervaloActualizacion = null;
+        this.expandedContainer = null;
+        this.originalContainer = null;
+        this.horaActualizacion = null;
+        this.intervaloActualizacion = null;
+    }
+
+    cleanup() {
+        if (this.intervaloActualizacion) {
+            clearInterval(this.intervaloActualizacion);
+            this.intervaloActualizacion = null;
+        }
+        this.container = null;
+        this.expandedContainer = null;
     }
 
     async render(container) {
@@ -70,14 +83,13 @@ class DashboardView {
                 <!-- HEADER INSTITUCIONAL -->
                 
                 <!-- PANEL DE CONTROL PRINCIPAL -->
-                <div class="dashboard-main-grid" style="display: grid; grid-template-columns: 1fr 320px; gap: 20px; margin-bottom: 12px; align-items: stretch;">
+                <div class="dashboard-main-grid">
                     <!-- Tabla Principal -->
-                    <div class="dashboard-table-column" style="display: flex; flex-direction: column;">
+                    <div class="dashboard-table-column">
                         <!-- Encabezado de Tabla -->
                         <div style="background: white; border-radius: 10px 10px 0 0; padding: 20px; border: 1px solid ${this.colors.border}; border-bottom: 3px solid ${this.colors.primary}; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <h3 style="margin: 0; color: ${this.colors.primary}; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-list-ul"></i>
                                     BITÁCORA DE OPERACIONES
                                 </h3>
                                 
@@ -89,7 +101,6 @@ class DashboardView {
                                                placeholder="Buscar por folio, ubicación..."
                                                onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
                                                onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
-                                        <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: ${this.colors.gray};"></i>
                                     </div>
                                     
                                     <select id="filtro-estado" 
@@ -144,14 +155,14 @@ class DashboardView {
                                                 style="padding: 8px 15px; background: ${this.colors.primary}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;}"
                                                 onmouseover="this.style.background='${this.colors.secondary}'"
                                                 onmouseout="this.style.background='${this.colors.primary}'">
-                                            <i class="fas fa-check"></i> Aplicar
+                                            Aplicar
                                         </button>
                                         
                                         <button id="btn-limpiar-filtros" 
                                                 style="padding: 8px 15px; background: white; color: ${this.colors.gray}; border: 1px solid ${this.colors.border}; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;}"
                                                 onmouseover="this.style.background='${this.colors.light}'; this.style.color='${this.colors.dark}'"
                                                 onmouseout="this.style.background='white'; this.style.color='${this.colors.gray}'">
-                                            <i class="fas fa-times"></i> Limpiar
+                                            Limpiar
                                         </button>
                                     </div>
                                 </div>
@@ -160,7 +171,6 @@ class DashboardView {
                             <!-- Controles de Vista -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                                 <div id="contador-registros" style="color: ${this.colors.gray}; font-size: 0.85rem; display: flex; align-items: center; gap: 5px;">
-                                    <i class="fas fa-database"></i>
                                     <span>Mostrando <span id="registros-mostrados">0</span> de <span id="registros-totales">0</span> registros</span>
                                 </div>
                                 <div style="display: flex; gap: 8px;">
@@ -168,19 +178,19 @@ class DashboardView {
                                             style="padding: 6px 12px; background: white; color: ${this.colors.primary}; border: 1px solid ${this.colors.primary}; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
                                             onmouseover="this.style.background='${this.colors.primary}'; this.style.color='white'"
                                             onmouseout="this.style.background='white'; this.style.color='${this.colors.primary}'">
-                                        <i class="fas fa-filter"></i> Más filtros
+                                        Más filtros
                                     </button>
                                     <button id="btn-exportar-excel" 
                                             style="padding: 6px 12px; background: ${this.colors.accentGreen}; color: white; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
                                             onmouseover="this.style.background='#218838'; this.style.transform='translateY(-1px)'"
                                             onmouseout="this.style.background='${this.colors.accentGreen}'; this.style.transform='translateY(0)'">
-                                        <i class="fas fa-file-excel"></i> Exportar
+                                        Exportar
                                     </button>
                                     <button id="btn-imprimir" 
                                             style="padding: 6px 12px; background: ${this.colors.info}; color: white; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
                                             onmouseover="this.style.background='#138496'; this.style.transform='translateY(-1px)'"
                                             onmouseout="this.style.background='${this.colors.info}'; this.style.transform='translateY(0)'">
-                                        <i class="fas fa-print"></i> Imprimir
+                                        Imprimir
                                     </button>
                                 </div>
                             </div>
@@ -188,7 +198,7 @@ class DashboardView {
                         
                         <!-- Tabla de Datos -->
                         <div id="tabla-llamadas-container" class="dashboard-table-container"
-                             style="background: white; border-radius: 0 0 10px 10px; border: 1px solid ${this.colors.border}; border-top: none; flex: 1; min-height: 520px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                             style="background: white; border-radius: 0 0 10px 10px; border: 1px solid ${this.colors.border}; border-top: none; flex: 1; min-height: 520px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                             <div style="padding: 50px; text-align: center; color: ${this.colors.gray};">
                                 <div style="width: 50px; height: 50px; border: 3px solid ${this.colors.border}; border-top-color: ${this.colors.primary}; border-radius: 50%; margin: 0 auto 20px; animation: spin 1s linear infinite;"></div>
                                 <h4 style="color: ${this.colors.dark}; margin-bottom: 10px;">Cargando bitácora de operaciones</h4>
@@ -202,7 +212,6 @@ class DashboardView {
                         <!-- Accesos Rápidos -->
                         <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid ${this.colors.border}; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                             <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-bolt"></i>
                                 ACCESOS RÁPIDOS
                             </h4>
                             
@@ -211,7 +220,6 @@ class DashboardView {
                                         style="padding: 12px; background: linear-gradient(135deg, ${this.colors.secondary} 0%, ${this.colors.primary} 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: left; display: flex; align-items: center; gap: 10px;"
                                         onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 4px 8px rgba(0, 51, 102, 0.2)'"
                                         onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none'">
-                                    <i class="fas fa-file-alt" style="font-size: 1.2rem;"></i>
                                     <div>
                                         <div>Reporte Mensual</div>
                                         <div style="font-size: 0.8rem; opacity: 0.9;">Generar PDF</div>
@@ -222,7 +230,6 @@ class DashboardView {
                                         style="padding: 12px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: left; display: flex; align-items: center; gap: 10px;"
                                         onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 4px 8px rgba(231, 76, 60, 0.2)'"
                                         onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none'">
-                                    <i class="fas fa-map-marked-alt" style="font-size: 1.2rem;"></i>
                                     <div>
                                         <div>Mapa de Calor</div>
                                         <div style="font-size: 0.8rem; opacity: 0.9;">Incidencias</div>
@@ -234,7 +241,6 @@ class DashboardView {
                         <!-- Estadísticas del Día Pequeñas -->
                         <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid ${this.colors.border}; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                             <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-chart-line"></i>
                                 ESTADÍSTICAS DEL DÍA
                             </h4>
                             
@@ -274,11 +280,13 @@ class DashboardView {
                         <!-- Estadísticas del Mes -->
 <div id="estadisticas-mes" style="background: white; border-radius: 10px; padding: 20px; border: 1px solid ${this.colors.border}; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
     <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-calendar-alt"></i>
         ESTADÍSTICAS DEL MES
     </h4>
     <div id="estadisticas-mes-contenido" style="color: ${this.colors.gray}; text-align: center; padding: 20px;">
-        <i class="fas fa-chart-bar fa-2x" style="margin-bottom: 10px; color: ${this.colors.border};"></i>
+    <div id="estadisticas-mes-contenido" style="color: ${this.colors.gray}; text-align: center; padding: 20px;">
+        <div style="margin-bottom: 10px; color: ${this.colors.border}; font-size: 2rem; font-weight: bold; opacity: 0.3;">
+            <div style="width: 40px; height: 40px; background: ${this.colors.border}; display: inline-block; border-radius: 4px;"></div>
+        </div>
         <p>Selecciona un mes para ver estadísticas</p>
     </div>
 </div>
@@ -287,6 +295,40 @@ class DashboardView {
             </div>
             
             <style>
+                /* Estilos Responsivos */
+                .dashboard-main-grid {
+                    display: grid; 
+                    grid-template-columns: 1fr 320px; 
+                    gap: 20px; 
+                    margin-bottom: 12px; 
+                    align-items: start;
+                }
+                
+                .dashboard-table-column {
+                    display: flex; 
+                    flex-direction: column;
+                    min-width: 0; /* Permite que el contenedor se encoja correctamente en grid/flex */
+                }
+
+                /* Media Queries para Responsividad */
+                @media (max-width: 1200px) {
+                    .dashboard-main-grid {
+                        grid-template-columns: 1fr 280px;
+                    }
+                }
+
+                @media (max-width: 992px) {
+                    .dashboard-main-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    
+                    /* Mover la barra lateral abajo en móviles/tablets */
+                    .dashboard-main-grid > div:nth-child(2) {
+                        order: 2;
+                    }
+                }
+
+                /* Animaciones */
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
@@ -331,20 +373,62 @@ class DashboardView {
     }
     
     generarOpcionesMeses() {
-        const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 
-                      'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
-        const añoActual = new Date().getFullYear();
-        let options = '';
+        if (!this.data || this.data.length === 0) {
+             // Fallback a los últimos 6 meses si no hay datos
+             const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 
+                           'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+             let options = '';
+             for (let i = 0; i < 6; i++) {
+                 const fecha = new Date();
+                 fecha.setMonth(fecha.getMonth() - i);
+                 const año = fecha.getFullYear();
+                 const mes = fecha.getMonth() + 1;
+                 const valor = `${año}-${String(mes).padStart(2, '0')}`;
+                 const texto = `${meses[mes - 1]} ${año}`;
+                 options += `<option value="${valor}">${texto}</option>`;
+             }
+             return options;
+        }
+
+        // Obtener meses únicos de los datos
+        const mesesDisponibles = new Set();
         
-        // Últimos 6 meses
-        for (let i = 5; i >= 0; i--) {
-            const fecha = new Date();
-            fecha.setMonth(fecha.getMonth() - i);
-            const año = fecha.getFullYear();
-            const mes = fecha.getMonth() + 1;
-            const valor = `${año}-${String(mes).padStart(2, '0')}`;
-            const texto = `${meses[mes - 1]} ${año}`;
-            options += `<option value="${valor}">${texto}</option>`;
+        this.data.forEach(item => {
+            if (item.fecha) {
+                let fechaStr = item.fecha;
+                if (fechaStr.includes('T')) {
+                    fechaStr = fechaStr.split('T')[0];
+                }
+                // Formato esperado YYYY-MM-DD
+                if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
+                    const mesAnio = fechaStr.substring(0, 7); // YYYY-MM
+                    mesesDisponibles.add(mesAnio);
+                }
+            }
+        });
+
+        // Convertir a array y ordenar descendente
+        const mesesOrdenados = Array.from(mesesDisponibles).sort().reverse();
+        
+        const nombresMeses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 
+                             'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+        
+        let options = '';
+        mesesOrdenados.forEach(mesAnio => {
+            const [año, mes] = mesAnio.split('-');
+            const mesIndex = parseInt(mes, 10) - 1;
+            if (mesIndex >= 0 && mesIndex < 12) {
+                const texto = `${nombresMeses[mesIndex]} ${año}`;
+                options += `<option value="${mesAnio}">${texto}</option>`;
+            }
+        });
+        
+        // Si no hay meses disponibles (por formato de fecha incorrecto), mostrar el mes actual
+        if (options === '') {
+            const hoy = new Date();
+            const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+            const texto = `${nombresMeses[hoy.getMonth()]} ${hoy.getFullYear()}`;
+            options = `<option value="${mesActual}">${texto}</option>`;
         }
         
         return options;
@@ -515,7 +599,7 @@ class DashboardView {
             
         } catch (error) {
             console.error('Error loading dashboard data:', error);
-            this.mostrarAlerta('⚠️ ERROR', 'Error cargando datos del dashboard', 'error');
+            this.mostrarAlerta('ERROR', 'Error cargando datos del dashboard', 'error');
         }
     }
     
@@ -527,6 +611,8 @@ class DashboardView {
     }
     
     actualizarHora() {
+        if (!this.container) return;
+        
         const ahora = new Date();
         const horaStr = ahora.toLocaleTimeString('es-MX', { 
             hour: '2-digit', 
@@ -534,6 +620,7 @@ class DashboardView {
             second: '2-digit' 
         });
         
+        if (!this.container) return;
         const reloj = this.container.querySelector('#reloj-institucional');
         if (reloj) {
             reloj.textContent = horaStr;
@@ -554,6 +641,7 @@ class DashboardView {
             second: '2-digit' 
         });
         
+        if (!this.container) return;
         const elemento = this.container.querySelector('#ultima-actualizacion');
         if (elemento) {
             elemento.textContent = `Última actualización: ${horaStr}`;
@@ -652,12 +740,20 @@ class DashboardView {
             // Actualizar contador
             this.actualizarContadorRegistros();
             
+            // Recalcular estadísticas con los nuevos datos
+            this.calcularEstadisticasDesdeDatos();
+
+            // ACTUALIZACIÓN DE MESES Y ESTADÍSTICAS MENSUALES
+            this.actualizarSelectorMeses();
+            this.inicializarEstadisticasMes();
+            
         } catch (error) {
             console.error("Error crítico al cargar datos:", error);
+            if (!container) return;
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px;">
                     <div style="font-size: 3rem; color: ${this.colors.accentRed}; margin-bottom: 15px;">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        !
                     </div>
                     <h3 style="color: ${this.colors.accentRed}; margin-bottom: 10px;">Error al cargar datos</h3>
                     <p style="color: ${this.colors.gray}; margin-bottom: 20px;">${error.message}</p>
@@ -665,7 +761,7 @@ class DashboardView {
                             style="padding: 8px 20px; background: ${this.colors.primary}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
                             onmouseover="this.style.background='${this.colors.secondary}'"
                             onmouseout="this.style.background='${this.colors.primary}'">
-                        <i class="fas fa-redo"></i> Recargar Página
+                        Recargar Página
                     </button>
                 </div>
             `;
@@ -679,14 +775,11 @@ class DashboardView {
             return;
         }
         
-        console.log("=== RENDERIZANDO TABLA CERIT ===");
-        console.log("Total de datos:", this.data.length);
-        
         if (this.data.length === 0) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px;">
                     <div style="width: 80px; height: 80px; background: ${this.colors.light}; border: 3px solid ${this.colors.border}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: ${this.colors.gray};">
-                        <i class="fas fa-inbox fa-2x"></i>
+                        
                     </div>
                     <h4 style="color: ${this.colors.dark}; margin-bottom: 10px;">No hay registros</h4>
                     <p style="color: ${this.colors.gray}; margin-bottom: 20px;">No se encontraron llamadas con los filtros aplicados.</p>
@@ -694,7 +787,7 @@ class DashboardView {
                             style="padding: 10px 25px; background: ${this.colors.primary}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0, 51, 102, 0.2)'"
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                        <i class="fas fa-plus-circle"></i> Crear Primer Reporte
+                        <i class="fas fa-plus-circle" style="display:none"></i> Crear Primer Reporte
                     </button>
                 </div>
             `;
@@ -851,8 +944,23 @@ class DashboardView {
     
     getFilaTablaCERIT(llamada, index) {
         llamada = (llamada && typeof llamada === 'object') ? llamada : {};
-        const fechaStr = this.normalizarFecha(llamada.fecha);
-        const horaStr = this.normalizarHora(llamada.hora);
+        
+        // Normalización de datos principal
+        const hora = llamada.hora || llamada.hr_rec || '00:00';
+        const turno = llamada.turno || llamada.turn || 'NO ASIG.';
+        const telefono = llamada.numero_telefono || llamada.numero_tel || llamada.telefono_agente || '--';
+        const codigo = llamada.codigo_procedimiento || llamada.folio_sistema || llamada.folio_c5 || '--';
+        const ubicacion = llamada.ubicacion || '--';
+        const colonia = llamada.colonia || '--';
+        const motivo = llamada.motivo || '--';
+        const descripcion = llamada.descripcion_detallada || llamada.det || '--';
+        const peticionario = llamada.peticionario || '--';
+        const razonamiento = llamada.razonamiento || '--';
+        const vehiculo = llamada.vehiculo || '--';
+        const fecha = llamada.fecha;
+
+        const fechaStr = this.normalizarFecha(fecha);
+        const horaStr = this.normalizarHora(hora);
         const fechaHora = fechaStr ? new Date(`${fechaStr}T${horaStr || '00:00'}`) : null;
 
         const renderValor = (valor) => {
@@ -884,49 +992,38 @@ class DashboardView {
         
         // Colores para turno
         let turnoColor = this.colors.gray;
-        let turnoTexto = llamada.turno ? llamada.turno.toUpperCase() : 'NO ASIG.';
+        let turnoTexto = turno.toUpperCase();
         let turnoIcon = 'fas fa-clock';
         
-        if (llamada.turno && llamada.turno.toLowerCase() === 'matutino') {
+        if (turno.toLowerCase() === 'matutino') {
             turnoColor = '#f6d365';
             turnoIcon = 'fas fa-sun';
-        } else if (llamada.turno && llamada.turno.toLowerCase() === 'vespertino') {
+        } else if (turno.toLowerCase() === 'vespertino') {
             turnoColor = '#ff6b6b';
             turnoIcon = 'fas fa-clock';
-        } else if (llamada.turno && llamada.turno.toLowerCase() === 'nocturno') {
+        } else if (turno.toLowerCase() === 'nocturno') {
             turnoColor = '#4ecdc4';
             turnoIcon = 'fas fa-moon';
         }
         
-        const hora = horaStr || '--:--';
-        const fecha = fechaStr ? `${fechaStr.substring(8, 10)}/${fechaStr.substring(5, 7)}` : '--/--';
+        const horaDisplay = horaStr || '--:--';
+        const fechaDisplay = fechaStr ? `${fechaStr.substring(8, 10)}/${fechaStr.substring(5, 7)}` : '--/--';
         
         const procedencia = llamada.procedencia || llamada.motivo_radio_operacion || '--';
-        const grupo = llamada.grupo_tipo || llamada.agente || llamada.peticionario || '--';
-        const codigo = llamada.codigo_procedimiento || llamada.folio_sistema || llamada.folio_c5 || '--';
-        const descripcionBase = llamada.descripcion_detallada || llamada.razonamiento || '--';
-        const razonamientoBase = llamada.razonamiento || '--';
-        const vehiculoBase = llamada.vehiculo || '--';
-        const telefono = llamada.numero_telefono || llamada.telefono_agente || llamada.numero_whatsapp || '--';
-        const motivoBase = llamada.motivo || llamada.descripcion_detallada || llamada.razonamiento || '--';
-        const ubicacionBase = llamada.ubicacion || '--';
-        const coloniaBase = llamada.colonia || '--';
+        const grupo = llamada.grupo_tipo || llamada.agente || peticionario;
 
         // Acortar textos
-        const motivoCorto = motivoBase && motivoBase.length > 25 ? 
-            motivoBase.substring(0, 25) + '...' : motivoBase || '--';
+        const motivoCorto = motivo && motivo.length > 25 ? 
+            motivo.substring(0, 25) + '...' : motivo || '--';
         
-        const ubicacionCorta = ubicacionBase && ubicacionBase.length > 20 ? 
-            ubicacionBase.substring(0, 20) + '...' : ubicacionBase || '--';
+        const ubicacionCorta = ubicacion && ubicacion.length > 20 ? 
+            ubicacion.substring(0, 20) + '...' : ubicacion || '--';
 
-        const descripcionCorta = descripcionBase && descripcionBase.length > 30 ?
-            descripcionBase.substring(0, 30) + '...' : descripcionBase || '--';
+        const descripcionCorta = descripcion && descripcion.length > 30 ?
+            descripcion.substring(0, 30) + '...' : descripcion || '--';
 
-        const razonamientoCorto = razonamientoBase && razonamientoBase.length > 25 ?
-            razonamientoBase.substring(0, 25) + '...' : razonamientoBase || '--';
-        
-        const reportanteCorto = llamada.peticionario && llamada.peticionario.length > 15 ? 
-            llamada.peticionario.substring(0, 15) + '...' : llamada.peticionario || '--';
+        const razonamientoCorto = razonamiento && razonamiento.length > 25 ?
+            razonamiento.substring(0, 25) + '...' : razonamiento || '--';
         
         return `
     <tr data-id="${llamada.id || index}" 
@@ -936,14 +1033,14 @@ class DashboardView {
             ${idFormateado}
         </td>
         <td style="color: ${this.colors.dark}; font-weight: 600; font-family: monospace;">
-            ${fecha}
+            ${fechaDisplay}
         </td>
         <td style="color: ${this.colors.dark}; font-weight: 600; font-family: monospace;">
-            ${hora}
+            ${horaDisplay}
         </td>
         <td>
             <div style="display: flex; align-items: center; gap: 5px; color: ${turnoColor};">
-                <i class="${turnoIcon}" style="font-size: 0.9rem;"></i>
+                
                 <span style="font-weight: 600; font-size: 0.8rem;">${turnoTexto}</span>
             </div>
         </td>
@@ -956,37 +1053,37 @@ class DashboardView {
         <td style="font-family: monospace; font-size: 0.8rem;">
             ${renderValor(codigo)}
         </td>
-        <td title="${descripcionBase}">
+        <td title="${descripcion}">
             <div style="font-size: 0.8rem; color: ${this.colors.dark};">
                 ${renderValor(descripcionCorta)}
             </div>
         </td>
-        <td title="${razonamientoBase}">
+        <td title="${razonamiento}">
             <div style="font-size: 0.8rem; color: ${this.colors.dark};">
                 ${renderValor(razonamientoCorto)}
             </div>
         </td>
         <td style="font-size: 0.8rem;">
-            ${renderValor(vehiculoBase)}
+            ${renderValor(vehiculo)}
         </td>
-        <td title="${motivoBase || ''}\n${llamada.descripcion_detallada || ''}">
+        <td title="${motivo || ''}\n${descripcion || ''}">
             <div style="font-weight: 600; color: ${this.colors.dark}; font-size: 0.85rem;">${motivoCorto}</div>
         </td>
-        <td title="${ubicacionBase || ''}">
+        <td title="${ubicacion || ''}">
             <div style="font-size: 0.85rem; color: ${this.colors.dark};">
-                <i class="fas fa-map-marker-alt" style="color: ${this.colors.accentRed}; margin-right: 3px;"></i>
+                <span style="color: ${this.colors.accentRed}; font-weight: bold; margin-right: 3px;">•</span>
                 ${renderValor(ubicacionCorta)}
             </div>
         </td>
         <td style="font-size: 0.8rem;">
-            ${renderValor(coloniaBase)}
+            ${renderValor(colonia)}
         </td>
         <td style="font-size: 0.8rem; font-family: monospace;">
             ${renderValor(telefono)}
         </td>
         <td>
             <div class="badge-estado" style="background: ${estadoColor}; color: white;">
-                <i class="${estadoIcon}" style="margin-right: 3px;"></i>
+                
                 ${estadoTexto}
             </div>
         </td>
@@ -995,7 +1092,7 @@ class DashboardView {
                     data-action="ver" 
                     data-id="${llamada.id || index}"
                     title="Ver detalles completos">
-                <i class="fas fa-eye"></i> Ver
+                Ver
             </button>
         </td>
     </tr>
@@ -1042,6 +1139,8 @@ class DashboardView {
     }
     
     bindTableEvents() {
+        if (!this.container) return;
+
         // Botones Ver Detalles
         this.container.querySelectorAll('.btn-detalles').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -1150,7 +1249,7 @@ class DashboardView {
         const estadisticasMes = this.container.querySelector('#estadisticas-mes-contenido');
             if (estadisticasMes) {
                 estadisticasMes.innerHTML = `
-                    <i class="fas fa-chart-bar fa-2x" style="margin-bottom: 10px; color: ${this.colors.border};"></i>
+                    <div style="width: 40px; height: 40px; background: ${this.colors.border}; display: inline-block; border-radius: 4px; margin-bottom: 10px; opacity: 0.3;"></div>
                     <p>Selecciona un mes para ver estadísticas</p>
                     `;
 }
@@ -1165,6 +1264,8 @@ class DashboardView {
     }
     
     actualizarContadorRegistros(filtrados = null) {
+        if (!this.container) return;
+
         const total = this.data.length;
         const mostrados = filtrados !== null ? filtrados : total;
         
@@ -1178,12 +1279,12 @@ class DashboardView {
             
             if (mostrados < total) {
                 contador.innerHTML = `
-                    <i class="fas fa-filter" style="color: ${this.colors.accent};"></i>
+                    
                     <span>Mostrando <span id="registros-mostrados" style="color: ${this.colors.accent}; font-weight: 700;">${mostrados}</span> de <span id="registros-totales" style="font-weight: 700;">${total}</span> registros</span>
                 `;
             } else {
                 contador.innerHTML = `
-                    <i class="fas fa-database"></i>
+                    
                     <span>Mostrando <span id="registros-mostrados" style="font-weight: 700;">${mostrados}</span> de <span id="registros-totales" style="font-weight: 700;">${total}</span> registros</span>
                 `;
             }
@@ -1191,17 +1292,19 @@ class DashboardView {
     }
     
     toggleFiltrosDetallados() {
+        if (!this.container) return;
+
         const filtrosDetallados = this.container.querySelector('#filtros-detallados');
         const btnToggle = this.container.querySelector('#btn-toggle-filtros');
         
         if (filtrosDetallados.style.display === 'none' || filtrosDetallados.style.display === '') {
             filtrosDetallados.style.display = 'block';
-            btnToggle.innerHTML = '<i class="fas fa-filter"></i> Menos filtros';
+            btnToggle.innerHTML = 'Menos filtros';
             btnToggle.style.background = this.colors.primary;
             btnToggle.style.color = 'white';
         } else {
             filtrosDetallados.style.display = 'none';
-            btnToggle.innerHTML = '<i class="fas fa-filter"></i> Más filtros';
+            btnToggle.innerHTML = 'Más filtros';
             btnToggle.style.background = 'white';
             btnToggle.style.color = this.colors.primary;
         }
@@ -1228,9 +1331,26 @@ class DashboardView {
             return;
         }
         
-        // Filtrar registros de hoy
-        const hoy = new Date().toISOString().split('T')[0];
-        const datosHoy = this.data.filter(item => item.fecha === hoy);
+        // Filtrar registros de hoy usando fecha local
+        const hoy = new Date();
+        const year = hoy.getFullYear();
+        const month = String(hoy.getMonth() + 1).padStart(2, '0');
+        const day = String(hoy.getDate()).padStart(2, '0');
+        const hoyStr = `${year}-${month}-${day}`;
+        
+
+        
+        const datosHoy = this.data.filter(item => {
+            if (!item.fecha) return false;
+            // Normalizar fecha del item
+            let fechaItem = item.fecha;
+            if (fechaItem.includes('T')) {
+                fechaItem = fechaItem.split('T')[0];
+            }
+            return fechaItem === hoyStr;
+        });
+
+
         
         // Calcular estadísticas
         const stats = {
@@ -1338,12 +1458,13 @@ class DashboardView {
     }
     
    mostrarEstadisticasMes(mesAnio) {
+    if (!this.container) return;
     const container = this.container.querySelector('#estadisticas-mes-contenido');
     if (!container) return;
     
     if (!mesAnio) {
         container.innerHTML = `
-            <i class="fas fa-chart-bar fa-2x" style="margin-bottom: 10px; color: ${this.colors.border};"></i>
+            <div style="width: 40px; height: 40px; background: ${this.colors.border}; display: inline-block; border-radius: 4px; margin-bottom: 10px; opacity: 0.3;"></div>
             <p>Selecciona un mes para ver estadísticas</p>
         `;
         return;
@@ -1359,7 +1480,6 @@ class DashboardView {
     container.innerHTML = `
         <div style="text-align: left;">
             <h5 style="color: ${this.colors.primary}; margin-bottom: 15px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
-                <i class="fas fa-chart-bar"></i>
                 ${nombreMes} ${año}
             </h5>
             
@@ -1394,7 +1514,6 @@ class DashboardView {
             
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid ${this.colors.border};">
                 <div style="font-size: 0.75rem; color: ${this.colors.gray};">
-                    <i class="fas fa-info-circle" style="margin-right: 3px;"></i>
                     ${stats.concluidos} registros concluidos
                 </div>
             </div>
@@ -1433,6 +1552,49 @@ class DashboardView {
         };
     }
     
+
+    
+    actualizarSelectorMeses() {
+        if (!this.container) return;
+        const selector = this.container.querySelector('#filtro-mes');
+        if (selector) {
+            // Guardar selección actual si existe
+            const seleccionActual = selector.value;
+            
+            // Generar nuevas opciones basadas en los datos cargados
+            const opciones = this.generarOpcionesMeses();
+            
+            // Mantener la opción "Todos los meses" y agregar las nuevas
+            selector.innerHTML = '<option value="">Todos los meses</option>' + opciones;
+            
+            // Restaurar selección si es posible, o dejar en blanco
+            if (seleccionActual && selector.querySelector(`option[value="${seleccionActual}"]`)) {
+                selector.value = seleccionActual;
+            }
+        }
+    }
+
+    inicializarEstadisticasMes() {
+        // Seleccionar el mes más reciente de los datos para mostrar estadísticas por defecto
+        if (!this.container) return;
+        const selector = this.container.querySelector('#filtro-mes');
+        if (!selector) return;
+
+        let mesParaMostrar = '';
+        
+        // Intentar obtener el primer mes disponible (el más reciente) del selector
+        if (selector.options.length > 1) {
+            // El índice 0 es "Todos los meses", el 1 debería ser el mes más reciente
+            mesParaMostrar = selector.options[1].value;
+        } else {
+             // Si no hay opciones (no hay datos), usar mes actual
+             const hoy = new Date();
+             mesParaMostrar = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        this.mostrarEstadisticasMes(mesParaMostrar);
+    }
+
     // ========== MÉTODOS DE ACCIÓN ==========
     
     verDetallesCompletos(id) {
@@ -1443,11 +1605,21 @@ class DashboardView {
     }
     
     mostrarModalDetallesCERIT(llamada) {
-        // Generar ID en formato 2001260812 (día/mes/año-hora-minuto)
-        const fechaLlamada = new Date(`${llamada.fecha}T${llamada.hora}`);
-        const idFormateado = `${String(fechaLlamada.getDate()).padStart(2, '0')}${String(fechaLlamada.getMonth() + 1).padStart(2, '0')}${String(fechaLlamada.getFullYear()).slice(-2)}${String(fechaLlamada.getHours()).padStart(2, '0')}${String(fechaLlamada.getMinutes()).padStart(2, '0')}`;
+        // Normalizar fecha y hora para ID
+        const fechaStr = this.normalizarFecha(llamada.fecha);
+        const horaStr = this.normalizarHora(llamada.hora || llamada.hr_rec);
         
+        let idFormateado = '--';
+        if (fechaStr) {
+            const fechaLlamada = new Date(`${fechaStr}T${horaStr || '00:00'}`);
+            if (!isNaN(fechaLlamada)) {
+                idFormateado = `${String(fechaLlamada.getDate()).padStart(2, '0')}${String(fechaLlamada.getMonth() + 1).padStart(2, '0')}${String(fechaLlamada.getFullYear()).slice(-2)}${String(fechaLlamada.getHours()).padStart(2, '0')}${String(fechaLlamada.getMinutes()).padStart(2, '0')}`;
+            }
+        }
+        
+        const modalId = 'modal-reporte-cerit-' + Date.now();
         const modal = document.createElement('div');
+        modal.id = modalId;
         modal.style.cssText = `
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(0,0,0,0.85); z-index: 1000; display: flex; 
@@ -1466,7 +1638,7 @@ class DashboardView {
                             ID: ${idFormateado} | CERIT Tehuacán
                         </p>
                     </div>
-                    <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                    <button onclick="document.getElementById('${modalId}').remove()" 
                             style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;"
                             onmouseover="this.style.background='rgba(255,255,255,0.3)'"
                             onmouseout="this.style.background='rgba(255,255,255,0.2)'">
@@ -1476,16 +1648,6 @@ class DashboardView {
                 <div style="padding: 25px; overflow-y: auto; flex-grow: 1;">
                     ${this.getContenidoModalDetalles(llamada, idFormateado)}
                 </div>
-                <div style="padding: 20px; border-top: 1px solid ${this.colors.border}; background: ${this.colors.light}; flex-shrink: 0;">
-                    <div style="display: flex; gap: 10px; justify-content: center;">
-                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
-                                style="padding: 10px 25px; background: ${this.colors.gray}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;"
-                                onmouseover="this.style.background='#5a6268'"
-                                onmouseout="this.style.background='${this.colors.gray}'">
-                            <i class="fas fa-times"></i> Cerrar
-                        </button>
-                    </div>
-                </div>
             </div>
         `;
         
@@ -1493,6 +1655,29 @@ class DashboardView {
     }
     
     getContenidoModalDetalles(llamada, idFormateado) {
+        // Normalización de datos para compatibilidad con diferentes fuentes
+        const datos = {
+            ...llamada,
+            hora: llamada.hora || llamada.hr_rec || '00:00',
+            turno: llamada.turno || llamada.turn || 'NO ASIGNADO',
+            urgencia: llamada.urgencia || 'MEDIA', // Valor por defecto
+            grupo_tipo: llamada.grupo_tipo || 'General',
+            codigo_procedimiento: llamada.codigo_procedimiento || llamada.folio_sistema || 'S/C',
+            elementos_tipo: llamada.elementos_tipo || llamada.unidad || 'No especificado',
+            comunicacion: llamada.comunicacion || 'Radio/Teléfono',
+            asociacion: llamada.asociacion || 'Ninguna',
+            conversacion: llamada.conversacion || llamada.det || llamada.descripcion || 'Sin registro de conversación',
+            numero_telefono: llamada.numero_telefono || llamada.numero_tel || 'No registrado',
+            colonia: llamada.colonia || 'Sin colonia',
+            ubicacion: llamada.ubicacion || 'Sin ubicación exacta',
+            peticionario: llamada.peticionario || 'Anónimo',
+            motivo: llamada.motivo || 'Sin motivo especificado',
+            descripcion_detallada: llamada.descripcion_detallada || llamada.det || llamada.razonamiento || 'Sin detalles adicionales',
+            seguimiento: llamada.seguimiento || '',
+            conclusion: llamada.conclusion || '',
+            hora_registro: llamada.hora_registro || llamada.created_at || 'N/D'
+        };
+
         return `
             <!-- SECCIÓN 1: DATOS BÁSICOS Y TEMPORALES -->
             <div style="margin-bottom: 25px;">
@@ -1506,17 +1691,17 @@ class DashboardView {
                     </div>
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">FCCA (Fecha Creación)</div>
-                        <div>${llamada.fecha || 'N/A'}</div>
+                        <div>${datos.fecha || 'N/A'}</div>
                     </div>
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">TICR (Hora Inicio)</div>
-                        <div>${llamada.hora || 'N/A'}</div>
+                        <div>${datos.hora}</div>
                     </div>
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">Turno</div>
                         <div>
-                            <span style="padding: 3px 8px; background: ${llamada.turno === 'matutino' ? '#f6d365' : llamada.turno === 'vespertino' ? '#ff6b6b' : '#4ecdc4'}; color: ${llamada.turno === 'matutino' ? '#333' : 'white'}; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
-                                ${llamada.turno ? llamada.turno.toUpperCase() : 'NO ASIGNADO'}
+                            <span style="padding: 3px 8px; background: ${datos.turno.toLowerCase() === 'matutino' ? '#f6d365' : datos.turno.toLowerCase() === 'vespertino' ? '#ff6b6b' : '#4ecdc4'}; color: ${datos.turno.toLowerCase() === 'matutino' ? '#333' : 'white'}; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                                ${datos.turno.toUpperCase()}
                             </span>
                         </div>
                     </div>
@@ -1531,17 +1716,17 @@ class DashboardView {
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">Urgencia</div>
-                        <div style="padding: 3px 8px; background: ${llamada.urgencia === 'ALTA' ? this.colors.accentRed : llamada.urgencia === 'MEDIA' ? this.colors.warning : this.colors.accentGreen}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: 600; display: inline-block;">
-                            ${llamada.urgencia || 'N/A'}
+                        <div style="padding: 3px 8px; background: ${datos.urgencia === 'ALTA' ? this.colors.accentRed : datos.urgencia === 'MEDIA' ? this.colors.warning : this.colors.accentGreen}; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: 600; display: inline-block;">
+                            ${datos.urgencia}
                         </div>
                     </div>
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">Grupo Tipo</div>
-                        <div>${llamada.grupo_tipo || 'N/A'}</div>
+                        <div>${datos.grupo_tipo}</div>
                     </div>
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">Código Procedimiento</div>
-                        <div style="font-family: monospace;">${llamada.codigo_procedimiento || 'N/A'}</div>
+                        <div style="font-family: monospace;">${datos.codigo_procedimiento}</div>
                     </div>
                 </div>
             </div>
@@ -1554,20 +1739,20 @@ class DashboardView {
                 <div style="background: ${this.colors.light}; padding: 15px; border-radius: 8px;">
                     <div style="margin-bottom: 10px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Elementos Tipo</div>
-                        <div>${llamada.elementos_tipo || 'N/A'}</div>
+                        <div>${datos.elementos_tipo}</div>
                     </div>
                     <div style="margin-bottom: 10px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Comunicación</div>
-                        <div>${llamada.comunicacion || 'N/A'}</div>
+                        <div>${datos.comunicacion}</div>
                     </div>
                     <div style="margin-bottom: 10px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Asociación</div>
-                        <div>${llamada.asociacion || 'N/A'}</div>
+                        <div>${datos.asociacion}</div>
                     </div>
                     <div style="margin-bottom: 10px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Conversación/Diálogo</div>
                         <div style="white-space: pre-wrap; background: white; padding: 10px; border-radius: 4px; border: 1px solid ${this.colors.border};">
-                            ${llamada.conversacion || 'N/A'}
+                            ${datos.conversacion}
                         </div>
                     </div>
                 </div>
@@ -1581,33 +1766,33 @@ class DashboardView {
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">Teléfono Reportante</div>
-                        <div style="font-family: monospace; font-weight: 600;">${llamada.numero_telefono || 'N/A'}</div>
+                        <div style="font-family: monospace; font-weight: 600;">${datos.numero_telefono}</div>
                     </div>
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">Colonia</div>
-                        <div>${llamada.colonia || 'N/A'}</div>
+                        <div>${datos.colonia}</div>
                     </div>
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">Ubicación Específica</div>
-                        <div>${llamada.ubicacion || 'N/A'}</div>
+                        <div>${datos.ubicacion}</div>
                     </div>
                     <div style="background: ${this.colors.light}; padding: 12px; border-radius: 6px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px;">Reportante</div>
-                        <div>${llamada.peticionario || 'N/A'}</div>
+                        <div>${datos.peticionario}</div>
                     </div>
                 </div>
                 
                 <div style="margin-top: 15px;">
                     <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Motivo Principal</div>
                     <div style="font-weight: 600; font-size: 1.1rem; color: ${this.colors.dark}; background: white; padding: 10px; border-radius: 6px; border-left: 4px solid ${this.colors.primary};">
-                        ${llamada.motivo || 'N/A'}
+                        ${datos.motivo}
                     </div>
                 </div>
                 
                 <div style="margin-top: 15px;">
                     <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Descripción Detallada</div>
                     <div style="white-space: pre-wrap; line-height: 1.5; background: white; padding: 15px; border-radius: 6px; border: 1px solid ${this.colors.border};">
-                        ${llamada.descripcion_detallada || 'Sin descripción detallada'}
+                        ${datos.descripcion_detallada}
                     </div>
                 </div>
             </div>
@@ -1621,27 +1806,27 @@ class DashboardView {
                     <div style="margin-bottom: 15px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Estado Actual</div>
                         <div>
-                            ${llamada.conclusion ? 
+                            ${datos.conclusion ? 
                                 `<span style="padding: 8px 15px; background: ${this.colors.accentGreen}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">CONCLUIDO</span>` : 
-                                llamada.seguimiento ? 
+                                datos.seguimiento ? 
                                 `<span style="padding: 8px 15px; background: ${this.colors.accent}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">EN SEGUIMIENTO</span>` :
                                 `<span style="padding: 8px 15px; background: ${this.colors.gray}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">REGISTRADO</span>`
                             }
                         </div>
                     </div>
-                    ${llamada.seguimiento ? `
+                    ${datos.seguimiento ? `
                         <div style="margin-bottom: 10px;">
                             <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Seguimiento</div>
                             <div style="white-space: pre-wrap; background: white; padding: 10px; border-radius: 4px; border: 1px solid ${this.colors.border};">
-                                ${llamada.seguimiento}
+                                ${datos.seguimiento}
                             </div>
                         </div>
                     ` : ''}
-                    ${llamada.conclusion ? `
+                    ${datos.conclusion ? `
                         <div>
                             <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Conclusión</div>
                             <div style="white-space: pre-wrap; background: white; padding: 10px; border-radius: 4px; border: 1px solid ${this.colors.border};">
-                                ${llamada.conclusion}
+                                ${datos.conclusion}
                             </div>
                         </div>
                     ` : ''}
@@ -1657,11 +1842,11 @@ class DashboardView {
                     </div>
                     <div>
                         <i class="fas fa-database"></i> 
-                        Registro: ${llamada.id || 'N/A'}
+                        Registro: ${datos.id || 'N/A'}
                     </div>
                     <div>
                         <i class="fas fa-clock"></i> 
-                        Hora registro: ${llamada.hora_registro || 'N/A'}
+                        Hora registro: ${datos.hora_registro}
                     </div>
                 </div>
             </div>
@@ -2016,13 +2201,153 @@ class DashboardView {
         ventanaImpresion.document.close();
     }
     
-    generarReporteMensual() {
-        this.mostrarAlerta('📊 REPORTE MENSUAL', 'Generando reporte estadístico del mes actual...', 'info');
+    async generarReporteMensual() {
+        // Verificar filtros activos para determinar mes
+        let mesSeleccionado = this.filtrosActivos.mes;
         
-        // Simular generación de reporte
-        setTimeout(() => {
-            this.mostrarAlerta('✅ REPORTE GENERADO', 'El reporte mensual se ha generado correctamente', 'success');
-        }, 1500);
+        // Si no hay mes seleccionado en filtros, preguntar o usar el actual
+        if (!mesSeleccionado) {
+            // Intentar obtener del filtro de mes en el DOM aunque no esté aplicado
+            const filtroMes = this.container.querySelector('#filtro-mes');
+            if (filtroMes && filtroMes.value) {
+                mesSeleccionado = filtroMes.value;
+            } else {
+                // Usar mes actual por defecto
+                const hoy = new Date();
+                mesSeleccionado = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+            }
+        }
+        
+        this.mostrarAlerta('📊 REPORTE MENSUAL', `Generando PDF para el mes ${mesSeleccionado}...`, 'info');
+        
+        try {
+            // Filtrar datos por el mes seleccionado
+            const datosMes = this.filtrarPorMes(mesSeleccionado);
+            
+            if (datosMes.length === 0) {
+                this.mostrarAlerta('⚠️ SIN DATOS', `No hay registros para el mes ${mesSeleccionado}`, 'warning');
+                return;
+            }
+            
+            // Verificar si jsPDF está disponible
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                throw new Error("La librería jsPDF no está cargada");
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Colores
+            const primaryColor = [0, 51, 102]; // #003366
+            const secondaryColor = [108, 117, 125]; // #6c757d
+            
+            // Encabezado
+            doc.setFillColor(...primaryColor);
+            doc.rect(0, 0, 210, 40, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.setFont("helvetica", "bold");
+            doc.text("CERIT TEHUACÁN", 105, 20, { align: "center" });
+            
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.text("CENTRO DE EMERGENCIA Y RESPUESTA INMEDIATA", 105, 30, { align: "center" });
+            
+            // Info del reporte
+            const [año, mes] = mesSeleccionado.split('-');
+            const nombreMes = new Date(parseInt(año), parseInt(mes) - 1, 1)
+                .toLocaleDateString('es-MX', { month: 'long' }).toUpperCase();
+                
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(16);
+            doc.setFont("helvetica", "bold");
+            doc.text(`REPORTE MENSUAL DE OPERACIONES - ${nombreMes} ${año}`, 14, 55);
+            
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(...secondaryColor);
+            doc.text(`Generado el: ${new Date().toLocaleDateString('es-MX')} ${new Date().toLocaleTimeString('es-MX')}`, 14, 62);
+            doc.text(`Total de registros: ${datosMes.length}`, 14, 67);
+            doc.text(`Operador solicitante: ${this.currentUser?.nombre || 'SISTEMA'}`, 14, 72);
+            
+            // Estadísticas Resumen
+            const stats = this.calcularEstadisticasMes(datosMes);
+            
+            doc.setDrawColor(200, 200, 200);
+            doc.setFillColor(245, 245, 245);
+            doc.roundedRect(140, 50, 55, 35, 3, 3, 'FD');
+            
+            doc.setFontSize(11);
+            doc.setTextColor(...primaryColor);
+            doc.setFont("helvetica", "bold");
+            doc.text("RESUMEN", 145, 58);
+            
+            doc.setFontSize(9);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Matutino: ${stats.matutino}`, 145, 65);
+            doc.text(`Vespertino: ${stats.vespertino}`, 145, 70);
+            doc.text(`Nocturno: ${stats.nocturno}`, 145, 75);
+            doc.text(`Concluidos: ${stats.concluidos}`, 145, 80);
+            
+            // Tabla de datos
+            const tableData = datosMes.map(item => [
+                item.fecha || '',
+                (item.hora || '').substring(0, 5),
+                (item.turno || '').substring(0, 1).toUpperCase(),
+                item.folio_sistema || '',
+                item.motivo || '',
+                item.ubicacion || '',
+                item.conclusion ? 'Conc.' : (item.seguimiento ? 'Seg.' : 'Reg.')
+            ]);
+            
+            doc.autoTable({
+                startY: 90,
+                head: [['Fecha', 'Hora', 'T', 'Folio', 'Motivo', 'Ubicación', 'Estado']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { 
+                    fillColor: primaryColor,
+                    fontSize: 9,
+                    halign: 'center'
+                },
+                bodyStyles: { 
+                    fontSize: 8,
+                    overflow: 'linebreak'
+                },
+                columnStyles: {
+                    0: { cellWidth: 20 },
+                    1: { cellWidth: 12 },
+                    2: { cellWidth: 8, halign: 'center' },
+                    3: { cellWidth: 25 },
+                    4: { cellWidth: 45 },
+                    5: { cellWidth: 50 },
+                    6: { cellWidth: 15, halign: 'center' }
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 245, 245]
+                },
+                didDrawPage: function (data) {
+                    // Footer
+                    const str = "Página " + doc.internal.getNumberOfPages();
+                    doc.setFontSize(8);
+                    doc.setTextColor(150);
+                    const pageSize = doc.internal.pageSize;
+                    const pageHeight = pageSize.height ? pageSize.height : pageSize.getHeight();
+                    doc.text(str, data.settings.margin.left, pageHeight - 10);
+                }
+            });
+            
+            // Guardar PDF
+            doc.save(`Reporte_CERIT_${nombreMes}_${año}.pdf`);
+            
+            this.mostrarAlerta('✅ REPORTE GENERADO', 'El PDF se ha descargado correctamente', 'success');
+            
+        } catch (error) {
+            console.error("Error generando PDF:", error);
+            this.mostrarAlerta('❌ ERROR', `Error al generar PDF: ${error.message}`, 'error');
+        }
     }
     
     mostrarMapaCalor() {

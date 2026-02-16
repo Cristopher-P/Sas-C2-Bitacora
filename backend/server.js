@@ -1,82 +1,36 @@
+// backend/server.js - Punto de entrada simplificado
 require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
+const app = require('./app');
+const config = require('./config/app.config');
+const { setupGlobalErrorHandlers } = require('./middleware/errorHandler');
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-process.on('uncaughtException', (error) => {
-    console.error('🔥 UNCAUGHT EXCEPTION:', error);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('🔥 UNHANDLED REJECTION at:', promise, 'reason:', reason);
-});
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Servir archivos estáticos
-app.use(express.static(path.join(__dirname, '../frontend')));
-
-// Importar rutas
-const authRoutes = require('./routes/authRoutes');
-const llamadasRoutes = require('./routes/llamadasRoutes');
-const enviosC5Routes = require('./routes/enviosC5Routes');
-
-// Usar rutas
-app.use('/api/auth', authRoutes);
-app.use('/api/llamadas', llamadasRoutes);
-app.use('/api/c5', enviosC5Routes);
-
-// Ruta principal
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-// Ruta de estado
-app.get('/api/status', (req, res) => {
-    res.json({
-        status: 'online',
-        system: 'SAS C4 - Bitácora de Llamadas',
-        version: '1.0.0',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// Manejo de errores 404
-app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Ruta no encontrada'
-    });
-});
-
-// Manejo de errores del servidor
-app.use((err, req, res, next) => {
-    console.error('Server error:', err);
-    res.status(500).json({
-        success: false,
-        message: 'Error interno del servidor',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-});
+// Configurar manejadores globales de errores
+setupGlobalErrorHandlers();
 
 // Iniciar servidor
-app.listen(PORT, () => {
+const server = app.listen(config.PORT, () => {
     console.log('='.repeat(50));
-    console.log('🚀 SAS C4 - Bitácora de Llamadas');
+    console.log(`🚀 ${config.APP_NAME}`);
     console.log('='.repeat(50));
-    console.log(`✅ Servidor: http://localhost:${PORT}`);
-    console.log(`📊 Entorno: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🗄️  Base de datos: ${process.env.DB_NAME || 'sas_c4_db'}`);
+    console.log(`✅ Servidor: http://localhost:${config.PORT}`);
+    console.log(`📊 Entorno: ${config.NODE_ENV}`);
+    console.log(`🗄️  Base de datos: ${config.DB_NAME}`);
     console.log('👥 Usuarios disponibles:');
-    console.log('   admin / password123 (Administrador)');
-    console.log('   matutino / password123 (Turno Matutino)');
-    console.log('   vespertino / password123 (Turno Vespertino)');
-    console.log('   nocturno / password123 (Turno Nocturno)');
+    config.MOCK_USERS.forEach(user => {
+        console.log(`   ${user.username} / ${user.password} (${user.turno})`);
+    });
+    console.log('='.repeat(50));
+    console.log(`💡 System info: http://localhost:${config.PORT}/api/system-info`);
     console.log('='.repeat(50));
 });
+
+// Manejo de cierre limpio
+process.on('SIGTERM', () => {
+    console.log('🔄 Recibida señal SIGTERM, cerrando servidor...');
+    server.close(() => {
+        console.log('✅ Servidor cerrado');
+        process.exit(0);
+    });
+});
+
+module.exports = server;
