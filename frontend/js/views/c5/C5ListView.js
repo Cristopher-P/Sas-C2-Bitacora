@@ -10,16 +10,12 @@ class C5ListView {
     }
 
     async render(container) {
-        this.originalContainer = container; 
+        this.container = container;
         
-        this.expandedContainer = document.createElement('div');
-        this.expandedContainer.className = 'c5-expanded-view view-bleed view-shell view-form';
-        
-        this.originalContainer.innerHTML = '';
-        this.originalContainer.appendChild(this.expandedContainer);
-        
-        this.container = this.expandedContainer;
+        // Usar contenedor principal directamente
+        this.container.className = 'c5-expanded-view view-bleed view-shell view-form';
         this.container.innerHTML = this.getTemplate();
+        
         this.bindEvents();
         
         await this.cargarReportes();
@@ -159,17 +155,7 @@ getTemplate() {
 }
 
     cleanup() {
-        if (this.expandedContainer && this.expandedContainer.parentNode) {
-            this.expandedContainer.parentNode.removeChild(this.expandedContainer);
-        }
-        
-        if (this.originalContainer) {
-            this.originalContainer.innerHTML = '';
-        }
-        
-        this.expandedContainer = null;
-        this.originalContainer = null;
-        this.container = this.originalContainer;
+        // Limpiar recursos si es necesario
     }
 
     bindEvents() {

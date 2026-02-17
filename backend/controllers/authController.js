@@ -5,15 +5,13 @@ const User = require('../models/User');
 
 class AuthController {
     static async login(req, res) {
-        console.log("========================================");
-        console.log("📡 INTENTO DE LOGIN RECIBIDO");
-        console.log("Usuario:", req.body.username);
-        console.log("========================================");
+
 
         try {
             const { username, password } = req.body;
 
             if (!username || !password) {
+
                 return res.status(400).json({
                     success: false,
                     message: 'Usuario y contraseña son requeridos'
@@ -24,7 +22,7 @@ class AuthController {
             const user = await User.findByUsername(username);
             
             if (!user) {
-                console.log("❌ Usuario no encontrado");
+
                 return res.status(401).json({
                     success: false,
                     message: 'Credenciales incorrectas'
@@ -52,7 +50,7 @@ class AuthController {
             }
             
             if (!validPassword) {
-                console.log("❌ Contraseña incorrecta");
+
                 return res.status(401).json({
                     success: false,
                     message: 'Credenciales incorrectas'
@@ -73,6 +71,8 @@ class AuthController {
                 process.env.JWT_SECRET || 'secreto_super_seguro',
                 { expiresIn: '8h' }
             );
+
+
 
             res.json({
                 success: true,

@@ -1,4 +1,6 @@
+// backend/server.js - Punto de entrada simplificado
 require('dotenv').config();
+<<<<<<< HEAD
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -241,19 +243,39 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor
 const server = app.listen(PORT, '0.0.0.0', () => {
+=======
+const app = require('./app');
+const config = require('./config/app.config');
+const { setupGlobalErrorHandlers } = require('./middleware/errorHandler');
+
+// Configurar manejadores globales de errores
+setupGlobalErrorHandlers();
+
+// Iniciar servidor
+const server = app.listen(config.PORT, () => {
+>>>>>>> develop
     console.log('='.repeat(50));
-    console.log('🚀 SAS C4 - Bitácora de Llamadas');
+    console.log(`🚀 ${config.APP_NAME}`);
     console.log('='.repeat(50));
+<<<<<<< HEAD
     console.log(`✅ Servidor: http://localhost:${PORT}`);
     console.log(`📊 Entorno: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🗄️  Base de datos: ${process.env.MYSQLDATABASE || 'sas_c4_db'}`);
+=======
+    console.log(`✅ Servidor: http://localhost:${config.PORT}`);
+    console.log(`📊 Entorno: ${config.NODE_ENV}`);
+    console.log(`🗄️  Base de datos: ${config.DB_NAME}`);
+>>>>>>> develop
     console.log('👥 Usuarios disponibles:');
-    console.log('   admin / password123 (Administrador)');
-    console.log('   matutino / password123 (Turno Matutino)');
-    console.log('   vespertino / password123 (Turno Vespertino)');
-    console.log('   nocturno / password123 (Turno Nocturno)');
+    config.MOCK_USERS.forEach(user => {
+        console.log(`   ${user.username} / ${user.password} (${user.turno})`);
+    });
     console.log('='.repeat(50));
+<<<<<<< HEAD
     console.log('💡 Para verificar estado: http://localhost:' + PORT + '/api/system-info');
+=======
+    console.log(`💡 System info: http://localhost:${config.PORT}/api/system-info`);
+>>>>>>> develop
     console.log('='.repeat(50));
 });
 

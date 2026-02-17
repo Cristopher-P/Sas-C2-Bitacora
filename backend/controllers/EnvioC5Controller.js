@@ -4,7 +4,7 @@ class EnvioC5Controller {
     // Crear nuevo reporte C5
     static async crearReporte(req, res) {
         try {
-            console.log('📝 Creando nuevo reporte C5:', req.body);
+
             
             const { 
                 fecha_envio, 
@@ -43,11 +43,11 @@ class EnvioC5Controller {
                 usuario_id
             };
 
-            console.log('📦 Datos para guardar:', datosEnvio);
+
 
             const resultado = await EnvioC5.create(datosEnvio);
             
-            console.log(' Reporte guardado en MySQL:', resultado.folio_c4);
+
 
             res.status(201).json({
                 success: true,
@@ -79,7 +79,7 @@ class EnvioC5Controller {
     // Obtener todos los reportes
     static async obtenerReportes(req, res) {
         try {
-            console.log('📋 Obteniendo reportes C5');
+
             
             const filtros = {};
             
@@ -97,7 +97,7 @@ class EnvioC5Controller {
             // Obtener reportes de la base de datos
             const reportes = await EnvioC5.findAll(filtros);
             
-            console.log(` Encontrados ${reportes.length} reportes`);
+
 
             res.json({
                 success: true,
@@ -119,7 +119,7 @@ class EnvioC5Controller {
         try {
             const { folio_c4, folio_c5 } = req.body;
             
-            console.log(`📝 Registrando folio C5: ${folio_c5} para C4: ${folio_c4}`);
+
             
             if (!folio_c4 || !folio_c5) {
                 return res.status(400).json({

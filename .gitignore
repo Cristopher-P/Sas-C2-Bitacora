@@ -41,3 +41,16 @@ Desktop.ini
 # Temporary files
 _temp_*
 *.tmp 
+
+# Cypress
+cypress/
+cypress/videos/
+cypress/screenshots/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/

@@ -1,0 +1,12 @@
+node_modules
+.git
+.gitignore
+.env
+.DS_Store
+npm-debug.log
+Dockerfile
+.dockerignore
+README.md
+INSTALACION.md
+GUIA_USO.md
+cypress

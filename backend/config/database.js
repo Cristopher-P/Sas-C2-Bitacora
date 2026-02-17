@@ -4,6 +4,7 @@ const mysql = require('mysql2');
 let isDBConnected = false;
 let pool = null;
 
+<<<<<<< HEAD
 // Configuración de MySQL
 const config = {
     host: process.env.MYSQLHOST || process.env.MYSQL_HOST || 'crossover.proxy.rlwy.net',
@@ -15,6 +16,9 @@ const config = {
     connectTimeout: 5000, // timeout 5 segundos
     charset: 'utf8mb4'
 };
+=======
+
+>>>>>>> develop
 
 console.log('🔧 Configuración MySQL:', {
     host: config.host,
@@ -23,6 +27,7 @@ console.log('🔧 Configuración MySQL:', {
     user: config.user
 });
 
+<<<<<<< HEAD
 // Intentar crear pool
 try {
     pool = mysql.createPool(config);
@@ -55,6 +60,14 @@ setInterval(() => {
                 connection.release();
             }
         });
+=======
+// Probar conexión
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ Error conectando a MySQL:', err.message);
+    } else {
+        connection.release();
+>>>>>>> develop
     }
 }, 30000);
 

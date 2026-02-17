@@ -27,7 +27,7 @@ class BuscarView {
                 </div>
                 <div class="page-divider"></div>
                 
-                <div class="card empty-state">
+                <div class="empty-state">
                     <i class="fas fa-search fa-4x text-muted mb-3"></i>
                     <h3>Búsqueda en Desarrollo</h3>
                     <p class="text-muted" style="max-width: 500px; margin: 0 auto 30px;">
