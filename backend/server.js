@@ -13,7 +13,10 @@ const server = app.listen(config.PORT, () => {
     console.log(`🚀 ${config.APP_NAME}`);
     console.log('='.repeat(50));
     console.log(`✅ Servidor: http://localhost:${config.PORT}`);
-    console.log(`📊 Entorno: ${config.NODE_ENV}`);
+    
+    // Log connection info (sanitized)
+    const dbHost = process.env.MYSQLHOST || process.env.DB_HOST || 'localhost';
+    console.log(`🔌 DB Host: ${dbHost}`);
     console.log(`🗄️  Base de datos: ${config.DB_NAME}`);
     console.log('👥 Usuarios disponibles:');
     config.MOCK_USERS.forEach(user => {
