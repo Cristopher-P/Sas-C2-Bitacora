@@ -5,14 +5,15 @@ class LlamadaBitacora {
     static async create(llamadaData) {
         const sql = `
             INSERT INTO llamadas_bitacora 
-            (fecha, turno, hora, motivo, ubicacion, colonia,
-             seguimiento, razonamiento, motivo_radio_operacion,
+            (folio_sistema, fecha, turno, hora, motivo, ubicacion, colonia,
+             seguimiento, razonamiento, descripcion_detallada, motivo_radio_operacion,
              salida, detenido, vehiculo, numero_telefono,
-             peticionario, agente, telefono_agente, usuario_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             peticionario, agente, telefono_agente, folio_c5, conclusion)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
         const [result] = await pool.execute(sql, [
+            llamadaData.folio_sistema,
             llamadaData.fecha,
             llamadaData.turno,
             llamadaData.hora,
@@ -21,6 +22,7 @@ class LlamadaBitacora {
             llamadaData.colonia,
             llamadaData.seguimiento,
             llamadaData.razonamiento,
+            llamadaData.descripcion_detallada,
             llamadaData.motivo_radio_operacion,
             llamadaData.salida,
             llamadaData.detenido,
@@ -29,7 +31,8 @@ class LlamadaBitacora {
             llamadaData.peticionario,
             llamadaData.agente,
             llamadaData.telefono_agente,
-            llamadaData.usuario_id
+            llamadaData.folio_c5,
+            llamadaData.conclusion
         ]);
         
         return result.insertId;
@@ -38,9 +41,8 @@ class LlamadaBitacora {
     // Obtener llamada por ID
     static async findById(id) {
         const sql = `
-            SELECT lb.*, u.nombre_completo as supervisor
+            SELECT lb.*
             FROM llamadas_bitacora lb
-            JOIN usuarios u ON lb.usuario_id = u.id
             WHERE lb.id = ?
         `;
         
@@ -65,10 +67,12 @@ class LlamadaBitacora {
                 lb.salida,
                 lb.detenido,
                 lb.vehiculo,
-                u.nombre_completo as supervisor,
-                lb.hora_registro
+                lb.vehiculo,
+                lb.hora_registro,
+                lb.latitud,
+                lb.longitud,
+                lb.ubicacion_exacta
             FROM llamadas_bitacora lb
-            JOIN usuarios u ON lb.usuario_id = u.id
             WHERE 1=1
         `;
         
@@ -138,14 +142,148 @@ class LlamadaBitacora {
         return rows;
     }
 
+    // Obtener todas las llamadas sin JOIN (para incluir registros huérfanos)
+    static async findAllRaw(filtros = {}) {
+        let sql = `
+            SELECT 
+                lb.*
+            FROM llamadas_bitacora lb
+            WHERE 1=1
+        `;
+
+        const params = [];
+
+        if (filtros.fecha) {
+            sql += ' AND lb.fecha = ?';
+            params.push(filtros.fecha);
+        }
+
+        if (filtros.turno) {
+            sql += ' AND lb.turno = ?';
+            params.push(filtros.turno);
+        }
+
+        if (filtros.motivo) {
+            sql += ' AND lb.motivo LIKE ?';
+            params.push(`%${filtros.motivo}%`);
+        }
+
+        if (filtros.ubicacion) {
+            sql += ' AND lb.ubicacion LIKE ?';
+            params.push(`%${filtros.ubicacion}%`);
+        }
+
+        if (filtros.colonia) {
+            sql += ' AND lb.colonia LIKE ?';
+            params.push(`%${filtros.colonia}%`);
+        }
+
+        if (filtros.peticionario) {
+            sql += ' AND lb.peticionario LIKE ?';
+            params.push(`%${filtros.peticionario}%`);
+        }
+
+        if (filtros.agente) {
+            sql += ' AND lb.agente LIKE ?';
+            params.push(`%${filtros.agente}%`);
+        }
+
+        if (filtros.folio) {
+            sql += ' AND lb.folio_sistema LIKE ?';
+            params.push(`%${filtros.folio}%`);
+        }
+
+        if (filtros.salida) {
+            sql += ' AND lb.salida = ?';
+            params.push(filtros.salida);
+        }
+
+        if (filtros.detenido) {
+            sql += ' AND lb.detenido = ?';
+            params.push(filtros.detenido);
+        }
+
+        sql += ' ORDER BY lb.fecha DESC, lb.hora DESC';
+
+        if (filtros.limit) {
+            sql += ' LIMIT ?';
+            params.push(parseInt(filtros.limit));
+        }
+
+        const [rows] = await pool.execute(sql, params);
+        return rows;
+    }
+
+    // Contar todas las llamadas (sin JOIN) con filtros
+    static async countAllRaw(filtros = {}) {
+        let sql = `
+            SELECT COUNT(*) as total
+            FROM llamadas_bitacora lb
+            WHERE 1=1
+        `;
+
+        const params = [];
+
+        if (filtros.fecha) {
+            sql += ' AND lb.fecha = ?';
+            params.push(filtros.fecha);
+        }
+
+        if (filtros.turno) {
+            sql += ' AND lb.turno = ?';
+            params.push(filtros.turno);
+        }
+
+        if (filtros.motivo) {
+            sql += ' AND lb.motivo LIKE ?';
+            params.push(`%${filtros.motivo}%`);
+        }
+
+        if (filtros.ubicacion) {
+            sql += ' AND lb.ubicacion LIKE ?';
+            params.push(`%${filtros.ubicacion}%`);
+        }
+
+        if (filtros.colonia) {
+            sql += ' AND lb.colonia LIKE ?';
+            params.push(`%${filtros.colonia}%`);
+        }
+
+        if (filtros.peticionario) {
+            sql += ' AND lb.peticionario LIKE ?';
+            params.push(`%${filtros.peticionario}%`);
+        }
+
+        if (filtros.agente) {
+            sql += ' AND lb.agente LIKE ?';
+            params.push(`%${filtros.agente}%`);
+        }
+
+        if (filtros.folio) {
+            sql += ' AND lb.folio_sistema LIKE ?';
+            params.push(`%${filtros.folio}%`);
+        }
+
+        if (filtros.salida) {
+            sql += ' AND lb.salida = ?';
+            params.push(filtros.salida);
+        }
+
+        if (filtros.detenido) {
+            sql += ' AND lb.detenido = ?';
+            params.push(filtros.detenido);
+        }
+
+        const [rows] = await pool.execute(sql, params);
+        return rows[0]?.total || 0;
+    }
+
     // Obtener llamadas por rango de fechas
     static async findByDateRange(fechaInicio, fechaFin) {
         const sql = `
             SELECT 
-                lb.*,
-                u.nombre_completo as supervisor
+                lb.*
             FROM llamadas_bitacora lb
-            JOIN usuarios u ON lb.usuario_id = u.id
             WHERE lb.fecha BETWEEN ? AND ?
             ORDER BY lb.fecha DESC, lb.hora DESC
         `;

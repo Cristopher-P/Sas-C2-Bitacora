@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-console.log(' Configurando conexión MySQL...');
+
 
 // Configuración de la base de datos
 const pool = mysql.createPool({
@@ -21,12 +21,7 @@ const pool = mysql.createPool({
 pool.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Error conectando a MySQL:', err.message);
-        console.log('⚠️  Verifica:');
-        console.log('   1. MySQL está corriendo (sudo service mysql start)');
-        console.log('   2. Credenciales en .env son correctas');
-        console.log('   3. Base de datos existe');
     } else {
-        console.log('✅ Conectado a MySQL correctamente');
         connection.release();
     }
 });

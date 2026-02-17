@@ -5,11 +5,6 @@ const authMiddleware = require('../middleware/auth');
 
 // Todas las rutas requieren autenticación
 router.use(authMiddleware);
-
-// ==========================================
-// RUTAS PARA REPORTES C5
-// ==========================================
-
 // Crear nuevo reporte C5
 router.post('/crear', (req, res) => EnvioC5Controller.crearReporte(req, res));
 

@@ -4,20 +4,14 @@ const User = require('../models/User');
 
 class AuthController {
     static async login(req, res) {
-        // --- INICIO CÓDIGO DE DEPURACIÓN (ESPIAS) ---
-        console.log("========================================");
-        console.log("📡 INTENTO DE LOGIN RECIBIDO");
-        console.log("Tipo de contenido (Header):", req.get('Content-Type'));
-        console.log("Cuerpo (Body - Lo que enviaste):", req.body);
-        console.log("========================================");
-        // --- FIN CÓDIGO DE DEPURACIÓN ---
+
 
         try {
             const { username, password } = req.body;
 
             // Validación básica
             if (!username || !password) {
-                console.log("❌ Faltan datos (usuario o contraseña vacíos)");
+
                 return res.status(400).json({
                     success: false,
                     message: 'Usuario y contraseña son requeridos'
@@ -28,7 +22,7 @@ class AuthController {
             const user = await User.findByUsername(username);
             
             if (!user) {
-                console.log("❌ Usuario no encontrado en BD:", username);
+
                 return res.status(401).json({
                     success: false,
                     message: 'Credenciales incorrectas'
@@ -39,7 +33,7 @@ class AuthController {
             const validPassword = await bcrypt.compare(password, user.password);
             
             if (!validPassword) {
-                console.log("❌ Contraseña incorrecta para:", username);
+
                 return res.status(401).json({
                     success: false,
                     message: 'Credenciales incorrectas'
@@ -59,7 +53,7 @@ class AuthController {
                 { expiresIn: '8h' }
             );
 
-            console.log("✅ Login Exitoso para:", username);
+
 
             res.json({
                 success: true,

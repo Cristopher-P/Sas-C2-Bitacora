@@ -1,7 +1,70 @@
+const https = require('https');
 const LlamadaBitacora = require('../models/LlamadaBitacora');
 const { validationResult } = require('express-validator');
 
 class LlamadaController {
+    static async geocodificarDireccion(req, res) {
+        try {
+            const address = req.query.address || req.query.q;
+            if (!address) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'address es requerido'
+                });
+            }
+
+            const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&countrycodes=mx&q=${encodeURIComponent(address)}`;
+            const options = {
+                headers: {
+                    'User-Agent': 'SAS-C4-Bitacora/1.0 (local)',
+                    'Accept-Language': 'es'
+                }
+            };
+
+            https.get(url, options, (resp) => {
+                let data = '';
+                resp.on('data', (chunk) => {
+                    data += chunk;
+                });
+                resp.on('end', () => {
+                    if (resp.statusCode !== 200) {
+                        return res.status(502).json({
+                            success: false,
+                            message: 'Error en geocodificación'
+                        });
+                    }
+                    try {
+                        const resultados = JSON.parse(data);
+                        if (!Array.isArray(resultados) || resultados.length === 0) {
+                            return res.json({ success: false });
+                        }
+                        const lat = parseFloat(resultados[0].lat);
+                        const lng = parseFloat(resultados[0].lon);
+                        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                            return res.json({ success: false });
+                        }
+                        return res.json({ success: true, lat, lng, provider: 'nominatim' });
+                    } catch (error) {
+                        return res.status(500).json({
+                            success: false,
+                            message: 'Respuesta inválida de geocodificación'
+                        });
+                    }
+                });
+            }).on('error', () => {
+                res.status(500).json({
+                    success: false,
+                    message: 'Error consultando geocodificación'
+                });
+            });
+        } catch (error) {
+            console.error('Error geocodificando:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error al geocodificar'
+            });
+        }
+    }
     // Registrar nueva llamada
     static async registrarLlamada(req, res) {
         try {
@@ -13,6 +76,7 @@ class LlamadaController {
                 });
             }
 
+            // Desestructurar todos los posibles campos del frontend
             const {
                 fecha,
                 turno,
@@ -22,38 +86,47 @@ class LlamadaController {
                 colonia,
                 seguimiento,
                 razonamiento,
+                descripcion,  // 
                 motivo_radio_operacion,
                 salida,
                 detenido,
                 vehiculo,
                 numero_telefono,
-                peticionario,
-                agente,
-                telefono_agente
-            } = req.body;
-
-            const usuario_id = req.user.id;
-
-            // Registrar la llamada
-            const llamadaId = await LlamadaBitacora.create({
-                fecha,
-                turno: turno || req.user.turno,
-                hora,
-                motivo,
-                ubicacion,
-                colonia,
-                seguimiento,
-                razonamiento,
-                motivo_radio_operacion,
-                salida: salida || 'no',
-                detenido: detenido || 'no',
-                vehiculo,
-                numero_telefono,
+                telefono,      // 
                 peticionario,
                 agente,
                 telefono_agente,
-                usuario_id
-            });
+                folio_sistema,
+                folio
+            } = req.body;
+
+            //  CORRECTO: Crear objeto con valores por defecto
+            const datosLlamada = {
+                folio_sistema: folio_sistema || folio || null,
+                fecha: fecha || new Date().toISOString().split('T')[0],
+                turno: turno || (req.user ? req.user.turno : 'matutino'),
+                hora: hora || new Date().toTimeString().substring(0,5),
+                motivo: motivo || '',
+                ubicacion: ubicacion || '',
+                colonia: colonia || '',
+                seguimiento: seguimiento || 'Sin seguimiento',
+                razonamiento: razonamiento || descripcion || '',  // Aceptar ambos
+                descripcion_detallada: descripcion || razonamiento || '',
+                motivo_radio_operacion: motivo_radio_operacion || 'Llamada telefónica',
+                salida: salida || 'no',
+                detenido: detenido || 'no',
+                vehiculo: vehiculo || '',
+                numero_telefono: numero_telefono || telefono || '',  // Aceptar ambos
+                peticionario: peticionario || 'Anónimo',
+                agente: agente || '',
+                telefono_agente: telefono_agente || '',
+                folio_c5: '',
+                conclusion: '',
+                usuario_id: req.user ? req.user.id : 1
+            };
+
+            // ¡ESTA LÍNEA FALTABA! Crear en la base de datos
+            const llamadaId = await LlamadaBitacora.create(datosLlamada);
 
             // Obtener la llamada recién creada con su folio
             const llamada = await LlamadaBitacora.findById(llamadaId);
@@ -67,7 +140,9 @@ class LlamadaController {
             console.error('Error registrando llamada:', error);
             res.status(500).json({
                 success: false,
-                message: 'Error al registrar la llamada'
+                message: 'Error al registrar la llamada',
+                error: error.message,
+                code: error.code || null
             });
         }
     }
@@ -106,17 +181,20 @@ class LlamadaController {
             if (limit) filtros.limit = limit;
 
             let llamadas;
+            let totalDb = null;
             
             if (fecha_inicio && fecha_fin) {
                 llamadas = await LlamadaBitacora.findByDateRange(fecha_inicio, fecha_fin);
             } else {
-                llamadas = await LlamadaBitacora.findAll(filtros);
+                llamadas = await LlamadaBitacora.findAllRaw(filtros);
+                totalDb = await LlamadaBitacora.countAllRaw(filtros);
             }
 
             res.json({
                 success: true,
                 data: llamadas,
-                total: llamadas.length
+                total: llamadas.length,
+                total_db: totalDb
             });
         } catch (error) {
             console.error('Error obteniendo llamadas:', error);

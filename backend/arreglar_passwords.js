@@ -22,7 +22,7 @@ async function arreglar() {
     
     try {
         connection = await mysql.createConnection(dbConfig);
-        console.log('✅ Conectado. Actualizando contraseñas en tabla USUARIOS...\n');
+        console.log('Conectado. Actualizando contraseñas en tabla USUARIOS...\n');
 
         for (const user of usuarios) {
             // 1. Encriptar la contraseña "password123"
@@ -37,9 +37,9 @@ async function arreglar() {
             );
 
             if (result.affectedRows > 0) {
-                console.log(`✅ Usuario [${user.username}] actualizado correctamente.`);
+                console.log(` Usuario [${user.username}] actualizado correctamente.`);
             } else {
-                console.log(`⚠️  Usuario [${user.username}] no encontrado. (Verifica si el nombre es correcto)`);
+                console.log(`  Usuario [${user.username}] no encontrado. (Verifica si el nombre es correcto)`);
             }
         }
 

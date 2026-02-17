@@ -1,95 +1,215 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAS C4 - Dashboard</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/components.css">
+
+    <!-- LIBRERÍAS PARA PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
     <script>
+        // VERIFICACIÓN DE SESIÓN
         const token = localStorage.getItem('token');
-        if (!token) {
-            // Si no hay token, fuera de aquí. Regresa al login.
+        const user = localStorage.getItem('user');
+
+        if (!token || !user) {
             window.location.href = 'index.html';
         }
     </script>
 </head>
-<body style="background-color: #f0f2f5;">
 
-    <div id="app-container" style="display: flex; flex-direction: column; min-height: 100vh;">
-        
+<body>
+
+    <div id="app-container" class="app-container">
+        <!-- HEADER CON NAVBAR ESTILO DASHBOARD -->
         <header>
-            <div class="container">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="container header-container">
+                <div class="header-content">
+                    <!-- LOGO -->
                     <div class="logo">
                         <i class="fas fa-shield-alt"></i>
                         <h1>SAS C4 - Bitácora</h1>
                     </div>
-                    
-                <nav id="main-nav">
-    <ul>
-        <li><a href="#" id="nav-dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
-        <li><a href="#" id="nav-llamadas"><i class="fas fa-phone-plus"></i> Registrar</a></li>
-        <li><a href="#" id="nav-buscar"><i class="fas fa-search"></i> Buscar</a></li>
-        <!-- NUEVO: Botón para C5 -->
-        <li><a href="#" id="nav-c5" style="background: #25D366; color: white; border-radius: 4px; padding: 8px 12px;">
-            <i class="fab fa-whatsapp"></i> Enviar a C5
-        </a></li>
-        
-        <li id="user-info" style="color: #bbdefb; font-weight: bold; margin-left: 10px;"></li>
-        
-        <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
-    </ul>
-</nav>
+
+                    <!-- NAVBAR -->
+                    <nav id="main-nav">
+                        <ul>
+                            <li><a href="#" id="nav-dashboard">Dashboard</a></li>
+                            <li><a href="#" id="nav-llamadas">Registrar</a></li>
+
+                            <li><a href="#" id="nav-mapacalor">Mapa</a></li>
+                            <li><a href="#" id="nav-c5">Enviar a C5</a></li>
+                        </ul>
+                    </nav>
+
+                    <div class="header-actions">
+                        <!-- INFO USUARIO -->
+                        <div id="user-info">
+
+                            <span id="user-name">Cargando...</span>
+                        </div>
+
+                        <!-- BOTÓN SALIR -->
+                        <a href="#" id="logout-btn"><span>Salir</span></a>
+                    </div>
                 </div>
             </div>
         </header>
 
+        <!-- CONTENIDO PRINCIPAL -->
         <main>
             <div class="container">
                 <div id="content">
-                    <div style="text-align: center; margin-top: 50px;">
-                        <i class="fas fa-circle-notch fa-spin" style="font-size: 3rem; color: #667eea;"></i>
-                        <p>Cargando sistema...</p>
+                    <!-- App.js cargará las vistas aquí -->
+                    <div class="loading-container">
+
+                        <p>Cargando sistema operativo...</p>
                     </div>
                 </div>
             </div>
         </main>
 
-        <footer>
+        <!-- FOOTER INSTITUCIONAL - POSICIONADO EN LA PARTE INFERIOR -->
+        <div class="institutional-footer">
             <div class="container">
-                <p>Sistema de Bitácora de Llamadas SAS C4 &copy; 2024</p>
-                <p class="version">Versión 1.0.0</p>
+                <div class="footer-content">
+                    <div class="footer-details">
+                        <span id="copyright-text">© 2024 Sistema de Gestión de Emergencias</span>
+                        <span class="footer-divider">•</span>
+                        <span class="beta-badge">BETA 2.0</span>
+                    </div>
+                </div>
             </div>
-        </footer>
+        </div>
     </div>
 
-    <script src="js/LlamadasService.js"></script>
-    <script src="js/C5Service.js"></script>
-    <script src="js/main.js"></script>
+    <!-- SCRIPTS DE CONFIGURACIÓN -->
+    <script src="js/config/app.config.js"></script>
 
+    <!-- SCRIPTS DE UTILIDADES -->
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/utils/api.js"></script>
+    <script src="js/utils/formatters.js"></script>
+    <script src="js/utils/notifications.js"></script>
+    <script src="js/utils/exporters.js"></script>
+    <script src="js/utils/printManager.js"></script>
+
+    <!-- SCRIPTS DE COMPONENTES UI -->
+    <script src="js/components/ToastNotifications.js"></script>
+    <script src="js/components/ModalManager.js"></script>
+    <script src="js/components/LoadingOverlay.js"></script>
+    <script src="js/components/ConfirmDialog.js"></script>
+
+    <!-- SCRIPTS DE SERVICIOS -->
+    <script src="js/services/LlamadasService.js"></script>
+    <script src="js/services/C5Service.js"></script>
+
+    <!-- SCRIPTS DE VISTAS -->
+    <script src="js/views/DashboardView.js"></script>
+    <script src="js/views/MapaCalorView.js"></script>
+    <script src="js/views/LlamadasView.js"></script>
+
+    <script src="js/views/LoginView.js"></script>
+
+    <script src="js/views/c5/C5MainView.js"></script>
+    <script src="js/views/c5/C5NewView.js"></script>
+    <script src="js/views/c5/C5ListView.js"></script>
+    <script src="js/views/c5/C5SuccessView.js"></script>
+    <script src="js/views/c5/C5DetailsView.js"></script>
+    <script src="js/views/C5View.js"></script>
+
+    <!-- APP.JS ÚLTIMO -->
+    <script src="js/app.js"></script>
+
+    <!-- SCRIPT PARA INICIALIZAR FOOTER Y USUARIO -->
     <script>
-        // 1. Mostrar nombre del usuario logueado
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.username) {
-            // Agregamos un icono bonito antes del nombre
-            document.getElementById('user-info').innerHTML = `<i class="fas fa-user-circle"></i> ${user.username}`;
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Actualizar nombre de usuario
+            const user = localStorage.getItem('user');
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    const userName = userData.nombre || userData.username || 'Operador';
+                    const userTurno = userData.turno || 'General';
 
-        // 2. Hacer funcionar el botón de Cerrar Sesión
-        const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', (e) => {
+                    const userNameEl = document.getElementById('user-name');
+                    if (userNameEl) {
+                        userNameEl.textContent = `${userName} | Turno ${userTurno}`;
+                    }
+                } catch (e) {
+                    const userNameEl = document.getElementById('user-name');
+                    if (userNameEl) {
+                        userNameEl.textContent = 'Operador';
+                    }
+                }
+            }
+
+            // 2. Actualizar año de copyright
+            const currentYear = new Date().getFullYear();
+            const copyrightEl = document.getElementById('copyright-text');
+            if (copyrightEl) {
+                copyrightEl.textContent =
+                    `Sistema de Gestión de Emergencias © ${currentYear} - Todos los derechos reservados`;
+            }
+
+            // 3. Manejar botón de logout
+            document.getElementById('logout-btn')?.addEventListener('click', function (e) {
                 e.preventDefault();
-                if(confirm("¿Deseas cerrar sesión?")) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    window.location.href = 'index.html'; // Nos regresamos al login
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            });
+
+            // 4. Manejar navegación (si app.js no está cargado)
+            document.getElementById('nav-dashboard')?.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (window.app && window.app.loadView) {
+                    window.app.loadView('dashboard');
                 }
             });
-        }
+
+            document.getElementById('nav-llamadas')?.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (window.app && window.app.loadView) {
+                    window.app.loadView('llamadas');
+                }
+            });
+
+
+
+            document.getElementById('nav-c5')?.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (window.app && window.app.loadView) {
+                    window.app.loadView('c5');
+                }
+            });
+
+            // 5. Ajustar altura del contenido cuando se carga
+            function adjustContentHeight() {
+                const content = document.getElementById('content');
+                const main = document.querySelector('main');
+
+                if (content.children.length > 1 || content.innerHTML.includes('dashboard') ||
+                    content.innerHTML.includes('view')) {
+                    content.classList.add('loaded');
+                    main.style.minHeight = 'auto';
+                }
+            }
+
+            // Verificar cada segundo si se cargó contenido
+            setTimeout(adjustContentHeight, 1000);
+            setInterval(adjustContentHeight, 3000);
+        });
     </script>
 
 </body>
+
 </html>
