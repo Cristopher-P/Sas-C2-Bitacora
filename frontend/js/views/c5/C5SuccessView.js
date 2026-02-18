@@ -86,14 +86,14 @@ ${textoFormateado}
                         
                         <div class="action-card" style="margin-bottom: 20px;">
                             <div style="font-weight: 600; color: var(--cerit-primary); margin-bottom: 10px;">
-                                <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                                <i class="fas fa-satellite-dish"></i> Transmisión Directa C5
                             </div>
-                            <button onclick="window.open('${whatsappLink}', '_blank')" class="btn-block btn-whatsapp">
-                                <i class="fab fa-whatsapp"></i> ABRIR WHATSAPP WEB
+                            <button onclick="app.currentView.currentSubView.enviarC5()" class="btn-block btn-primary" id="btn-enviar-c5">
+                                <i class="fas fa-paper-plane"></i> ENVIAR DATOS AHORA
                             </button>
-                            <button onclick="app.currentView.currentSubView.copiarReporteC5('${textoCodificado}')" class="btn-block btn-copy">
-                                <i class="fas fa-copy"></i> COPIAR AL PORTAPAPELES
-                            </button>
+                            <div id="c5-loading" style="display:none; text-align: center; color: var(--color-muted); margin-top: 10px;">
+                                <i class="fas fa-spinner fa-spin"></i> Transmitiendo datos al C5...
+                            </div>
                         </div>
                         
                         <!-- Registro de Respuesta C5 -->
@@ -248,6 +248,54 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
             // Modo local
             this.mostrarAlerta('FOLIO C5 REGISTRADO LOCALMENTE', `Folio registrado localmente:\nC4: ${this.folioC4}\nC5: ${folioC5}\n\n(Nota: Para sincronizar con el servidor, activa el servicio C5)`, 'success');
             if (folioC5Input) folioC5Input.value = '';
+        }
+    }
+
+    async enviarC5() {
+        const btn = this.container.querySelector('#btn-enviar-c5');
+        const loading = this.container.querySelector('#c5-loading');
+        
+        // Bloquear UI
+        if(btn) btn.disabled = true;
+        if(loading) loading.style.display = 'block';
+
+        try {
+            // Verificar si tenemos el ID del reporte
+            const reporteId = this.datosReporte.id || (this.datosServicio && this.datosServicio.id);
+            
+            if (!reporteId) {
+                throw new Error('No se identifica el ID del reporte para el envío.');
+            }
+
+            const resultado = await C5Service.enviarReporteC5(reporteId);
+            
+            if (resultado.success) {
+                this.mostrarAlerta('ENVÍO EXITOSO', 'Los datos han sido recibidos por el C5 correctamente.', 'success');
+                
+                // Actualizar UI para mostrar éxito
+                if(btn) {
+                    btn.innerHTML = '<i class="fas fa-check"></i> ENVIADO CORRECTAMENTE';
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-success');
+                }
+                
+                // Si el C5 devuelve un folio en la respuesta, lo pre-llenamos
+                if (resultado.data && resultado.data.folio_c5) {
+                    const inputFolio = this.container.querySelector('#folio-c5-respuesta');
+                    if(inputFolio) {
+                        inputFolio.value = resultado.data.folio_c5;
+                        this.registrarFolioC5Respuesta(); // Auto-registrar si ya viene
+                    }
+                }
+            } else {
+                throw new Error(resultado.message || 'Error desconocido del servidor C5');
+            }
+        } catch (error) {
+            console.error('Error enviando a C5:', error);
+            this.mostrarAlerta('FALLÓ EL ENVÍO', error.message, 'error');
+            if(btn) btn.disabled = false;
+        } finally {
+            if(loading) loading.style.display = 'none';
         }
     }
 

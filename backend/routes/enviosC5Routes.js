@@ -23,6 +23,9 @@ router.post('/registrar-folio-c5', (req, res) => EnvioC5Controller.registrarFoli
 // Generar formato WhatsApp
 router.get('/:id/whatsapp', (req, res) => EnvioC5Controller.generarFormatoWhatsApp(req, res));
 
+// Enviar reporte directamente a C5
+router.post('/:id/enviar', (req, res) => EnvioC5Controller.enviarReporteC5(req, res));
+
 // Pendientes
 router.get('/pendientes/listar', (req, res) => EnvioC5Controller.obtenerPendientes(req, res));
 

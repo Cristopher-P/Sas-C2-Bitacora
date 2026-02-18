@@ -142,6 +142,37 @@ class C5Service {
             };
         }
     }
+
+    // Enviar reporte directamente a C5
+    static async enviarReporteC5(id) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('No autenticado');
+            }
+
+            const response = await fetch(`${this.apiBaseUrl}/${id}/enviar`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || `Error ${response.status}`);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error enviando a C5:', error);
+            return { 
+                success: false, 
+                message: error.message || 'Error de conexión' 
+            };
+        }
+    }
     
     // Abrir WhatsApp
     static abrirWhatsApp(texto, numero = null) {

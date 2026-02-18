@@ -235,6 +235,62 @@ class EnvioC5Controller {
             });
         }
     }
+
+    // Enviar reporte a C5 (Vía AWS SQS)
+    static async enviarReporteC5(req, res) {
+        try {
+            const { id } = req.params;
+            const AWSService = require('../services/AWSService'); // Importar servicio AWS
+            
+            // 1. Obtener datos del reporte
+            const reporte = await EnvioC5.findById(id);
+            
+            if (!reporte) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Reporte no encontrado'
+                });
+            }
+
+            // 2. Preparar payload para C5
+            const payload = {
+                folio_c4: reporte.folio_c4,
+                fecha: reporte.fecha_envio,
+                hora: reporte.hora_envio,
+                ubicacion: reporte.ubicacion,
+                motivo: reporte.motivo,
+                descripcion: reporte.descripcion,
+                agente: reporte.agente,
+                operador: req.user ? req.user.username : 'SISTEMA',
+                meta: {
+                    source: 'SAS-C4',
+                    version: '1.0',
+                    timestamp: new Date().toISOString()
+                }
+            };
+
+            // 3. Enviar a C5 (SQS)
+            console.log(`📤 Enviando reporte a cola SQS`);
+            
+            const resultado = await AWSService.enviarReporte(payload);
+            
+            // 4. Responder al cliente
+            res.json({
+                success: true,
+                message: 'Reporte encolado exitosamente para envío a C5',
+                data: {
+                    sqsMessageId: resultado.messageId
+                }
+            });
+
+        } catch (error) {
+            console.error('🔥 Error enviando a C5 (SQS):', error.message);
+            res.status(500).json({
+                success: false,
+                message: `Error al encolar reporte: ${error.message}`
+            });
+        }
+    }
 }
 
 module.exports = EnvioC5Controller;

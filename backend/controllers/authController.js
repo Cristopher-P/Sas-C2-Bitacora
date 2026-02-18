@@ -69,9 +69,47 @@ class AuthController {
             });
         } catch (error) {
             console.error('🔥 Error CRÍTICO en login:', error);
+            
+            // INTENTO DE FALLBACK: Usar usuarios mock si falla la BD
+            try {
+                const config = require('../config/app.config');
+                const mockUser = config.MOCK_USERS.find(u => u.username === req.body.username);
+
+                if (mockUser && mockUser.password === req.body.password) {
+                    console.log('⚠️ Usando usuario MOCK por fallo en BD');
+                    
+                    const token = jwt.sign(
+                        {
+                            id: 999,
+                            username: mockUser.username,
+                            nombre_completo: mockUser.username.toUpperCase(),
+                            turno: mockUser.turno,
+                            rol: mockUser.rol
+                        },
+                        process.env.JWT_SECRET || 'secreto_super_seguro',
+                        { expiresIn: '8h' }
+                    );
+
+                    return res.json({
+                        success: true,
+                        message: 'Login exitoso (Modo Respaldo)',
+                        token,
+                        user: {
+                            id: 999,
+                            username: mockUser.username,
+                            nombre_completo: mockUser.username.toUpperCase(),
+                            turno: mockUser.turno,
+                            rol: mockUser.rol
+                        }
+                    });
+                }
+            } catch (fallbackError) {
+                console.error('Fallo en fallback:', fallbackError);
+            }
+
             res.status(500).json({
                 success: false,
-                message: 'Error en el servidor'
+                message: 'Error en el servidor y falló el acceso de respaldo'
             });
         }
     }

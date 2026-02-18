@@ -4,7 +4,7 @@ module.exports = {
     NODE_ENV: process.env.NODE_ENV || 'development',
     
     // Database
-    DB_NAME: process.env.MYSQLDATABASE || process.env.DB_NAME || 'railway',
+    DB_NAME: process.env.MYSQLDATABASE || process.env.DB_NAME || 'sas_c4_db',
     
     // Cors
     CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
@@ -23,5 +23,8 @@ module.exports = {
         { username: 'matutino', password: 'password123', turno: 'Matutino', rol: 'supervisor' },
         { username: 'vespertino', password: 'password123', turno: 'Vespertino', rol: 'supervisor' },
         { username: 'nocturno', password: 'password123', turno: 'Nocturno', rol: 'supervisor' }
-    ]
+    ],
+
+    // Integración C5
+    C5_API_URL: process.env.C5_API_URL || 'http://localhost:4000/api/recepcion/c4'
 };
