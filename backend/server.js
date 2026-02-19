@@ -23,6 +23,15 @@ const server = app.listen(config.PORT, () => {
     console.log('='.repeat(50));
     console.log(`💡 System info: http://localhost:${config.PORT}/api/system-info`);
     console.log('='.repeat(50));
+
+    // Iniciar Worker de Respuestas (AWS SQS)
+    try {
+        const ResponseWorker = require('./services/ResponseWorker');
+        const worker = new ResponseWorker();
+        worker.start();
+    } catch (err) {
+        console.error('⚠️ Error iniciando ResponseWorker:', err.message);
+    }
 });
 
 // Manejo de cierre limpio
