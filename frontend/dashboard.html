@@ -16,13 +16,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <script>
-        // VERIFICACIÓN DE SESIÓN
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
+        // VERIFICACIÓN DE SESIÓN MEJORADA (Gatekeeper)
+        (function () {
+            function checkSession() {
+                const token = localStorage.getItem('token');
+                const user = localStorage.getItem('user');
 
-        if (!token || !user) {
-            window.location.href = 'index.html';
-        }
+                if (!token || !user) {
+                    window.location.replace('index.html');
+                }
+            }
+
+            // Ejecutar al cargar y al volver atrás (bfcache)
+            window.addEventListener('pageshow', function (event) {
+                checkSession();
+            });
+
+            checkSession();
+        })();
     </script>
 </head>
 
@@ -165,7 +176,7 @@
                 e.preventDefault();
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = 'index.html';
+                window.location.replace('index.html');
             });
 
             // 4. Manejar navegación (si app.js no está cargado)

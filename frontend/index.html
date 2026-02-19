@@ -3,9 +3,52 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAS C4 - Iniciar Sesión</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <script>
+        // Gatekeeper: Verificar token local al cargar (para evitar bfcache navigation)
+        (function () {
+            function checkAuth() {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    // Si no hay token, redirigir al login inmediatamente
+                    // Usar replace para no guardar historia
+                    const path = window.location.pathname;
+                    if (path !== '/index.html' && path !== '/') {
+                        window.location.replace('index.html');
+                    } else {
+                        // Si estamos en login.html (o root que sirve login), mostrarlo
+                        document.body.style.display = 'flex';
+                    }
+                } else {
+                    // Si hay token, redirigir al dashboard si estamos en login
+                    if (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '/login.html') {
+                        window.location.replace('dashboard.html');
+                    }
+                    document.body.style.display = 'block'; // Dashboard usually block? No wait, this is index.html (login).
+                    // If we are authenticated but stayed on login page (e.g. strict check failed to redirect), verify token validity?
+                    // For now, if we are on login page and authenticated, we should probably redirect to dashboard.
+                }
+            }
+
+            // Ocultar body inicialmente hasta verificar (evita flash de contenido protegido)
+            // document.documentElement.style.display = 'none'; // Puede ser muy agresivo
+
+            window.addEventListener('pageshow', function (event) {
+                checkAuth();
+            });
+
+            // Ejecutar inmediatamente
+            checkAuth();
+        })();
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {

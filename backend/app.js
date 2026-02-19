@@ -7,11 +7,20 @@ const config = require('./config/app.config');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
+app.disable('etag'); // Deshabilitar ETag para evitar 304
 
 // Middleware básico
 app.use(cors({ origin: config.CORS_ORIGIN }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Middleware para prevenir caché (Logout seguro)
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
 
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, '../frontend')));
