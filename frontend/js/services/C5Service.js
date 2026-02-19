@@ -46,7 +46,7 @@ class C5Service {
                 throw new Error('No autenticado');
             }
 
-            let url = `${this.apiBaseUrl}/listar?`;
+            let url = `${this.apiBaseUrl}/listar?_t=${new Date().getTime()}&`;
             
             Object.keys(filtros).forEach(key => {
                 if (filtros[key]) {
@@ -56,7 +56,9 @@ class C5Service {
             
             const response = await fetch(url, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
                 }
             });
             

@@ -7,6 +7,7 @@ class C5ListView {
             estado: '',
             folio: ''
         };
+        this.refreshInterval = null; // Variable para guardar el intervalo
     }
 
     async render(container) {
@@ -19,6 +20,7 @@ class C5ListView {
         this.bindEvents();
         
         await this.cargarReportes();
+        this.startAutoRefresh(); // Iniciar auto-refresh después de la primera carga
     }
 
 // En el método getTemplate(), cambia el max-width del contenedor principal:
@@ -155,7 +157,7 @@ getTemplate() {
 }
 
     cleanup() {
-        // Limpiar recursos si es necesario
+        this.stopAutoRefresh(); // Limpiar intervalo al salir
     }
 
     bindEvents() {
@@ -218,8 +220,11 @@ getTemplate() {
         }
     }
 
-    async cargarReportes() {
+    async cargarReportes(isAutoRefresh = false) {
         try {
+            // Si es auto-refresh, no mostrar spinner ni borrar contenido si ya hay datos
+            // Solo actualizamos si la petición es exitosa
+            
             let reportes = [];
             
             if (typeof C5Service !== 'undefined') {
@@ -242,22 +247,66 @@ getTemplate() {
             this.actualizarEstadisticas();
             this.mostrarInfoFiltros();
             
+            if (isAutoRefresh) {
+                console.log(`[AutoRefresh] Datos actualizados: ${new Date().toLocaleTimeString()}`);
+                
+                // Indicador visual discreto de actualización
+                const totalBadge = this.container.querySelector('.fa-file-alt').parentElement;
+                if(totalBadge) {
+                    totalBadge.style.transition = 'background 0.3s';
+                    const originalBg = totalBadge.style.background;
+                    totalBadge.style.background = '#2ecc71'; // Green flash
+                    setTimeout(() => {
+                        totalBadge.style.background = originalBg; // Restore
+                    }, 500);
+                }
+            }
+            
         } catch (error) {
             console.error('Error cargando reportes:', error);
-            const container = this.container.querySelector('#tabla-reportes-container');
-            container.innerHTML = `
-                <div style="padding: 30px; text-align: center;">
-                    <div style="background: #ffeaea; border-left: 4px solid #e74c3c; padding: 15px; border-radius: 4px; display: inline-block;">
-                        <i class="fas fa-exclamation-triangle" style="color: #e74c3c; margin-right: 10px;"></i>
-                        <strong style="color: #c0392b;">Error cargando reportes:</strong> ${error.message}
+            
+            // Si es auto-refresh fallido, no interrumpimos al usuario con pantallas de error completas
+            // Solo mostramos error si es la carga inicial o manual
+            if (!isAutoRefresh) {
+                const container = this.container.querySelector('#tabla-reportes-container');
+                container.innerHTML = `
+                    <div style="padding: 30px; text-align: center;">
+                        <div style="background: #ffeaea; border-left: 4px solid #e74c3c; padding: 15px; border-radius: 4px; display: inline-block;">
+                            <i class="fas fa-exclamation-triangle" style="color: #e74c3c; margin-right: 10px;"></i>
+                            <strong style="color: #c0392b;">Error cargando reportes:</strong> ${error.message}
+                        </div>
+                        <br><br>
+                        <button onclick="app.currentView.cargarReportes()" 
+                                style="padding: 8px 20px; background: #3498db; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                            <i class="fas fa-redo"></i> Reintentar
+                        </button>
                     </div>
-                    <br><br>
-                    <button onclick="app.currentView.currentSubView.cargarReportes()" 
-                            style="padding: 8px 20px; background: #3498db; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-redo"></i> Reintentar
-                    </button>
-                </div>
-            `;
+                `;
+            }
+        }
+    }
+
+    startAutoRefresh() {
+        this.stopAutoRefresh(); // Asegurar que no haya duplicados
+        
+        // Intervalo de 5 segundos
+        this.refreshInterval = setInterval(() => {
+            // Solo recargar si la vista sigue activa en el DOM
+            if (document.body.contains(this.container)) {
+                this.cargarReportes(true);
+            } else {
+                this.stopAutoRefresh();
+            }
+        }, 5000); 
+        
+        console.log('[AutoRefresh] Iniciado');
+    }
+
+    stopAutoRefresh() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+            console.log('[AutoRefresh] Detenido');
         }
     }
 
