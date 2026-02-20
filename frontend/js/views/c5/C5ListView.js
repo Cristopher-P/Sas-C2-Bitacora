@@ -328,6 +328,8 @@ getTemplate() {
     renderizarTabla() {
         const container = this.container.querySelector('#tabla-reportes-container');
         
+        if (!container) return; // FIX: Prevent error if container is removed from DOM
+
         if (this.reportes.length === 0) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 50px 20px;">

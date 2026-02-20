@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAS C4 - Error Interno (500)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-container {
+            width: 100%;
+            max-width: 550px;
+            padding: 20px;
+        }
+
+        .error-box {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            border: 1px solid #ecf0f1;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .error-header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+        }
+
+        .error-header i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            color: #e74c3c;
+        }
+
+        .error-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .error-header h2 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .error-indicator {
+            background: #c0392b;
+            color: white;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .error-body {
+            padding: 40px 30px;
+        }
+
+        .error-body h3 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .error-body p {
+            color: #7f8c8d;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            box-shadow: 0 4px 6px rgba(44, 62, 80, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(44, 62, 80, 0.25);
+        }
+
+        .error-footer {
+            background: #f8f9fa;
+            padding: 20px;
+            border-top: 1px solid #ecf0f1;
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-container">
+        <div class="error-box">
+            <div class="error-header">
+                <i class="fas fa-bug"></i>
+                <h1>Error 500</h1>
+                <h2>Error Interno del Servidor</h2>
+            </div>
+            <div class="error-indicator">
+                <i class="fas fa-times-circle"></i> Falla Inesperada en Operación
+            </div>
+            <div class="error-body">
+                <h3>Error de Procesamiento</h3>
+                <p>El sistema experimentó un error inesperado de comunicación o procesamiento al intentar cargar esta
+                    página. Se ha registrado el incidente y los administradores han sido notificados.</p>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Volver al Inicio
+                </a>
+            </div>
+            <div class="error-footer">
+                <p>Sistema de Bitácora Operativa &copy; 2024</p>
+                <p style="margin-top: 5px; font-size: 0.8rem; color: #95a5a6;">SAS-C4 | Notificación Automática</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
