@@ -20,7 +20,7 @@ class C5ListView {
         this.bindEvents();
         
         await this.cargarReportes();
-        this.startAutoRefresh(); // Iniciar auto-refresh después de la primera carga
+        this.startWebSockets(); // Conectar WebSockets para recibir actualizaciones en tiempo real
     }
 
 // En el método getTemplate(), cambia el max-width del contenedor principal:
@@ -157,7 +157,7 @@ getTemplate() {
 }
 
     cleanup() {
-        this.stopAutoRefresh(); // Limpiar intervalo al salir
+        this.stopWebSockets(); // Desconectar socket al salir
     }
 
     bindEvents() {
@@ -220,9 +220,8 @@ getTemplate() {
         }
     }
 
-    async cargarReportes(isAutoRefresh = false) {
+    async cargarReportes(isWebSocketUpdate = false) {
         try {
-            // Si es auto-refresh, no mostrar spinner ni borrar contenido si ya hay datos
             // Solo actualizamos si la petición es exitosa
             
             let reportes = [];
@@ -247,11 +246,9 @@ getTemplate() {
             this.actualizarEstadisticas();
             this.mostrarInfoFiltros();
             
-            if (isAutoRefresh) {
-                console.log(`[AutoRefresh] Datos actualizados: ${new Date().toLocaleTimeString()}`);
-                
+            if (isWebSocketUpdate) {
                 // Indicador visual discreto de actualización
-                const totalBadge = this.container.querySelector('.fa-file-alt').parentElement;
+                const totalBadge = this.container.querySelector('.fa-file-alt')?.parentElement;
                 if(totalBadge) {
                     totalBadge.style.transition = 'background 0.3s';
                     const originalBg = totalBadge.style.background;
@@ -265,9 +262,8 @@ getTemplate() {
         } catch (error) {
             console.error('Error cargando reportes:', error);
             
-            // Si es auto-refresh fallido, no interrumpimos al usuario con pantallas de error completas
-            // Solo mostramos error si es la carga inicial o manual
-            if (!isAutoRefresh) {
+            // Solo mostramos error general si es carga inicial/manual (evitamos romper socket update)
+            if (!isWebSocketUpdate) {
                 const container = this.container.querySelector('#tabla-reportes-container');
                 container.innerHTML = `
                     <div style="padding: 30px; text-align: center;">
@@ -286,27 +282,38 @@ getTemplate() {
         }
     }
 
-    startAutoRefresh() {
-        this.stopAutoRefresh(); // Asegurar que no haya duplicados
+    startWebSockets() {
+        this.stopWebSockets(); // Asegurar conexión limpia
         
-        // Intervalo de 5 segundos
-        this.refreshInterval = setInterval(() => {
-            // Solo recargar si la vista sigue activa en el DOM
-            if (document.body.contains(this.container)) {
-                this.cargarReportes(true);
-            } else {
-                this.stopAutoRefresh();
-            }
-        }, 5000); 
+        // Conectar a Socket.io en la misma URL del frontend (o API URL si existe variable global)
+        const socketUrl = (typeof window.API_URL !== 'undefined') ? window.API_URL.replace('/api', '') : window.location.origin;
         
-        console.log('[AutoRefresh] Iniciado');
+        if (typeof io !== 'undefined') {
+            this.socket = io(socketUrl);
+            
+            this.socket.on('connect', () => {
+                console.log('[WebSockets] Conectado en tiempo real (ID: ' + this.socket.id + ')');
+            });
+
+            this.socket.on('reportes_actualizados', (data) => {
+                // Solo recargar si la vista sigue activa en el DOM
+                if (document.body.contains(this.container)) {
+                    this.cargarReportes(true);
+                } else {
+                    this.stopWebSockets();
+                }
+            });
+
+            this.socket.on('disconnect', () => {
+                console.log('[WebSockets] Desconectado del servidor');
+            });
+        }
     }
 
-    stopAutoRefresh() {
-        if (this.refreshInterval) {
-            clearInterval(this.refreshInterval);
-            this.refreshInterval = null;
-            console.log('[AutoRefresh] Detenido');
+    stopWebSockets() {
+        if (this.socket) {
+            this.socket.disconnect();
+            this.socket = null;
         }
     }
 

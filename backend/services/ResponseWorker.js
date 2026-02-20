@@ -3,9 +3,10 @@ const { Consumer } = require('sqs-consumer');
 const EnvioC5 = require('../models/EnvioC5');
 
 class ResponseWorker {
-    constructor() {
+    constructor(io) {
         this.queueUrl = process.env.AWS_SQS_RESPONSE_QUEUE_URL;
         this.isRunning = false;
+        this.io = io; // Guardar referencia a socket.io
 
         // Cliente SQS
         this.sqsClient = new SQSClient({
@@ -58,6 +59,15 @@ class ResponseWorker {
                 console.log(`🔄 Actualizando Folio C4: ${body.folio_c4} con C5: ${body.folio_c5}`);
                 await EnvioC5.registrarFolioC5(body.folio_c4, body.folio_c5);
                 console.log('✅ Base de datos actualizada correctamente');
+                
+                // Emitir evento por WebSockets para recargar la UI en los clientes
+                if (this.io) {
+                    this.io.emit('reportes_actualizados', {
+                        accion: 'folio_asignado',
+                        folio_c4: body.folio_c4,
+                        folio_c5: body.folio_c5
+                    });
+                }
             }
 
         } catch (error) {

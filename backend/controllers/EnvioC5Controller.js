@@ -47,7 +47,14 @@ class EnvioC5Controller {
 
             const resultado = await EnvioC5.create(datosEnvio);
             
-
+            // Emitir actualización vía WebSockets
+            const io = req.app.get('socketio');
+            if (io) {
+                io.emit('reportes_actualizados', {
+                    accion: 'nuevo_reporte',
+                    folio_c4: resultado.folio_c4
+                });
+            }
 
             res.status(201).json({
                 success: true,
@@ -132,6 +139,16 @@ class EnvioC5Controller {
             const resultado = await EnvioC5.registrarFolioC5(folio_c4, folio_c5);
             
             if (resultado > 0) {
+                // Emitir actualización vía WebSockets
+                const io = req.app.get('socketio');
+                if (io) {
+                    io.emit('reportes_actualizados', {
+                        accion: 'folio_asignado_manual',
+                        folio_c4,
+                        folio_c5
+                    });
+                }
+
                 res.json({
                     success: true,
                     message: 'Folio C5 registrado exitosamente',
