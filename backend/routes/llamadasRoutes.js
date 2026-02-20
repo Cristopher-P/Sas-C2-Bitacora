@@ -3,12 +3,12 @@ const router = express.Router();
 const LlamadaController = require('../controllers/LlamadaController');
 const authMiddleware = require('../middleware/auth');
 
-// Listado público para dashboard
+// Todas las rutas requieren autenticación
+router.use(authMiddleware);
+
+// Listado y geocodificación (ahora protegidas)
 router.get('/listar', LlamadaController.obtenerLlamadas);
 router.get('/geocode', LlamadaController.geocodificarDireccion);
-
-// Todas las rutas restantes requieren autenticación
-router.use(authMiddleware);
 
 // CRUD de llamadas
 router.post('/registrar', LlamadaController.registrarLlamada);
