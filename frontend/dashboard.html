@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/components.css">
 
+    <!-- URL Masking -->
+    <script>
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, "/");
+        }
+    </script>
+
     <!-- LIBRERÍAS PARA PDF Y SOCKETS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -40,7 +47,49 @@
 
 <body>
 
-    <div id="app-container" class="app-container">
+    <style>
+        /* Pantalla de carga inicial a pantalla completa */
+        #session-loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #2c3e50;
+        }
+
+        #session-loading-overlay i {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+
+        #session-loading-overlay h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        #session-loading-overlay p {
+            font-size: 1rem;
+            color: #7f8c8d;
+        }
+    </style>
+
+    <div id="session-loading-overlay">
+        <i class="fas fa-shield-alt fa-flip"></i>
+        <h2>SAS C4</h2>
+        <p>Verificando conexión segura...</p>
+    </div>
+
+    <div id="app-container" class="app-container" style="display: none;">
         <!-- HEADER CON NAVBAR ESTILO DASHBOARD -->
         <header>
             <div class="container header-container">
@@ -104,42 +153,42 @@
     </div>
 
     <!-- SCRIPTS DE CONFIGURACIÓN -->
-    <script src="js/config/app.config.js"></script>
+    <script src="js/config/app.config.js" defer></script>
 
     <!-- SCRIPTS DE UTILIDADES -->
-    <script src="js/utils/helpers.js"></script>
-    <script src="js/utils/api.js"></script>
-    <script src="js/utils/formatters.js"></script>
-    <script src="js/utils/notifications.js"></script>
-    <script src="js/utils/exporters.js"></script>
-    <script src="js/utils/printManager.js"></script>
+    <script src="js/utils/helpers.js" defer></script>
+    <script src="js/utils/api.js" defer></script>
+    <script src="js/utils/formatters.js" defer></script>
+    <script src="js/utils/notifications.js" defer></script>
+    <script src="js/utils/exporters.js" defer></script>
+    <script src="js/utils/printManager.js" defer></script>
 
     <!-- SCRIPTS DE COMPONENTES UI -->
-    <script src="js/components/ToastNotifications.js"></script>
-    <script src="js/components/ModalManager.js"></script>
-    <script src="js/components/LoadingOverlay.js"></script>
-    <script src="js/components/ConfirmDialog.js"></script>
+    <script src="js/components/ToastNotifications.js" defer></script>
+    <script src="js/components/ModalManager.js" defer></script>
+    <script src="js/components/LoadingOverlay.js" defer></script>
+    <script src="js/components/ConfirmDialog.js" defer></script>
 
     <!-- SCRIPTS DE SERVICIOS -->
-    <script src="js/services/LlamadasService.js"></script>
-    <script src="js/services/C5Service.js"></script>
+    <script src="js/services/LlamadasService.js" defer></script>
+    <script src="js/services/C5Service.js" defer></script>
 
     <!-- SCRIPTS DE VISTAS -->
-    <script src="js/views/DashboardView.js"></script>
-    <script src="js/views/MapaCalorView.js"></script>
-    <script src="js/views/LlamadasView.js"></script>
+    <script src="js/views/DashboardView.js" defer></script>
+    <script src="js/views/MapaCalorView.js" defer></script>
+    <script src="js/views/LlamadasView.js" defer></script>
 
-    <script src="js/views/LoginView.js"></script>
+    <script src="js/views/LoginView.js" defer></script>
 
-    <script src="js/views/c5/C5MainView.js"></script>
-    <script src="js/views/c5/C5NewView.js"></script>
-    <script src="js/views/c5/C5ListView.js"></script>
-    <script src="js/views/c5/C5SuccessView.js"></script>
-    <script src="js/views/c5/C5DetailsView.js"></script>
-    <script src="js/views/C5View.js"></script>
+    <script src="js/views/c5/C5MainView.js" defer></script>
+    <script src="js/views/c5/C5NewView.js" defer></script>
+    <script src="js/views/c5/C5ListView.js" defer></script>
+    <script src="js/views/c5/C5SuccessView.js" defer></script>
+    <script src="js/views/c5/C5DetailsView.js" defer></script>
+    <script src="js/views/C5View.js" defer></script>
 
     <!-- APP.JS ÚLTIMO -->
-    <script src="js/app.js"></script>
+    <script src="js/app.js" defer></script>
 
     <!-- SCRIPT PARA INICIALIZAR FOOTER Y USUARIO -->
     <script>

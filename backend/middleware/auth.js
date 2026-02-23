@@ -11,7 +11,8 @@ const authMiddleware = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        // Usar un fallback idéntico al de authController para prevenir Token Inválido en AWS
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto_super_seguro');
         req.user = decoded;
         next();
     } catch (error) {

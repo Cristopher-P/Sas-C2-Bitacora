@@ -559,6 +559,16 @@ class MapaCalorView {
             await this.cargarLeafletHeat();
         }
         
+        // DESTROY EXISTING MAP INSTANCE BEFORE CREATING A NEW ONE TO AVOID CONTAINERS ERRORS
+        if (this.mapa !== null) {
+            this.mapa.remove();
+            this.mapa = null;
+        }
+
+        // ASEGURARNOS DE QUE EL CONTENEDOR EXISTE EN EL DOM ANTES DE INICIALIZAR L.MAP
+        const mapContainer = document.getElementById('mapa-tehuacan');
+        if (!mapContainer) return; // Si el usuario cambió de vista rápido, el DOM no existe
+        
         this.mapa = L.map('mapa-tehuacan', {
             center: [this.coordenadasTehuacan.lat, this.coordenadasTehuacan.lng],
             zoom: this.coordenadasTehuacan.zoom,
@@ -571,7 +581,10 @@ class MapaCalorView {
             maxZoom: 19
         }).addTo(this.mapa);
         
-        document.getElementById('loading-mapa').style.display = 'none';
+        const loadingMap = document.getElementById('loading-mapa');
+        if (loadingMap) {
+            loadingMap.style.display = 'none';
+        }
     }
     
     cargarLeafletCSS() {
@@ -1935,9 +1948,19 @@ class MapaCalorView {
     
     cleanup() {
         document.body.classList.remove('mapa-fullscreen');
-        if (this.mapa) {
-            this.mapa.remove();
-            this.mapa = null;
+        
+        try {
+            if (this.mapa) {
+                this.mapa.remove();
+                this.mapa = null;
+            }
+            // Remove the reference from the map container itself if Leaflet left it hanging
+            const mapContainer = document.getElementById('mapa-tehuacan');
+            if (mapContainer && mapContainer._leaflet_id) {
+                mapContainer._leaflet_id = null;
+            }
+        } catch (e) {
+            console.warn("Advertencia al limpiar Mapa", e);
         }
         
         if (this.intervaloActualizacion) {

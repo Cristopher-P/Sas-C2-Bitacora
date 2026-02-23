@@ -2,6 +2,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// Registrar hora de inicio del servidor para invalidar tokens viejos (como C5)
+const SERVER_START_TIME = Date.now();
+
 class AuthController {
     static async login(req, res) {
 
@@ -127,6 +130,16 @@ class AuthController {
 
             const token = authHeader.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto_super_seguro');
+            
+            // Simular comportamiento de Sesión C5: Invalida tokens creados antes del reinicio del servidor
+            const serverStartSeconds = Math.floor(SERVER_START_TIME / 1000);
+            if (decoded.iat && decoded.iat < serverStartSeconds) {
+                console.log(`Token rechazado: Creado en ${decoded.iat}, Servidor inició en ${serverStartSeconds}`);
+                return res.status(401).json({
+                    success: false,
+                    message: 'Sesión expirada por reinicio del servidor'
+                });
+            }
             
             req.user = decoded;
             next();

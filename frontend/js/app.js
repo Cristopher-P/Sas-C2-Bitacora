@@ -11,35 +11,48 @@ class App {
     }
 
     async init() {
-        // 1. Verificar sesión (ya hay validación en HTML, pero por seguridad)
-        const userStr = localStorage.getItem('user');
+        // 1. Verificar si hay token en localStorage
         const token = localStorage.getItem('token');
         
-        if (!userStr || !token) {
+        if (!token) {
             window.location.href = 'index.html';
             return;
         }
-        
+
+        // 2. Validar sesión ESTRICTAMENTE con el backend
         try {
-            this.currentUser = JSON.parse(userStr);
+            // Utilizamos el cliente API ya configurado que inyectará el token automáticamente
+            const response = await window.API.get('/auth/profile');
+            if (response && response.success && response.user) {
+                this.currentUser = response.user;
+                // Mantener sincronizado el localStorage por si otras vistas lo leen directamente
+                localStorage.setItem('user', JSON.stringify(this.currentUser));
+
+                // Ocultar overlay de carga y mostrar la UI ahora que estamos seguros que la sesión es válida
+                const loadingOverlay = document.getElementById('session-loading-overlay');
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
+
+                const appContainer = document.getElementById('app-container');
+                if (appContainer) appContainer.style.display = 'flex';
+            } else {
+                throw new Error('Validación de perfil fallida');
+            }
         } catch (error) {
-            console.error('Error parsing user data:', error);
-            localStorage.clear();
+            console.warn('Sesión inválida o expirada. Forzando cierre.');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('lastView');
             window.location.href = 'index.html';
             return;
         }
         
-        // 2. Configurar Interfaz Inicial
+        // 3. Configurar Interfaz Inicial
         this.updateUserInfo();
         this.setupEventListeners();
         
-        // 3. Cargar vista inicial (recuperar última vista o Dashboard por defecto)
-        const lastView = localStorage.getItem('lastView');
-        if (lastView) {
-            await this.loadView(lastView);
-        } else {
-            await this.loadView('dashboard');
-        }
+        // 3. Cargar vista inicial (forzar Dashboard por defecto siempre)
+        localStorage.removeItem('lastView'); // Limpiar cualquier vista guardada previa
+        await this.loadView('dashboard');
     }
 
     updateUserInfo() {

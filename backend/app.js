@@ -5,9 +5,17 @@ const cors = require('cors');
 const path = require('path');
 const config = require('./config/app.config');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
+const helmet = require('helmet');
+const compression = require('compression');
 
 const app = express();
 app.disable('etag'); // Deshabilitar ETag para evitar 304
+
+// Middleware de Seguridad y Optimización
+app.use(helmet({
+    contentSecurityPolicy: false // Desactivar CSP por ahora para evitar conflictos con scripts inline/externos en dev/producción
+})); // Configura cabeceras HTTP de seguridad
+app.use(compression()); // Comprime las respuestas HTTP
 
 // Middleware básico
 app.use(cors({ origin: config.CORS_ORIGIN }));
