@@ -1,30 +1,19 @@
 const EnvioC5 = require('../models/EnvioC5');
 
 class EnvioC5Controller {
-    // Crear nuevo reporte C5
-    static async crearReporte(req, res) {
+    static async crearReporte(req, res, next) {
         try {
-
-            
-            const { 
-                fecha_envio, 
-                hora_envio, 
-                motivo, 
-                ubicacion, 
-                descripcion, 
-                agente = '', 
+            const {
+                fecha_envio,
+                hora_envio,
+                motivo,
+                ubicacion,
+                descripcion,
+                agente = '',
                 conclusion = '',
                 metodo_envio = 'whatsapp',
                 numero_destino = ''
             } = req.body;
-
-            // Validación básica
-            if (!fecha_envio || !hora_envio || !motivo || !ubicacion || !descripcion) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Faltan campos requeridos: fecha, hora, motivo, ubicación y descripción'
-                });
-            }
 
             // Usar usuario autenticado o default
             const usuario_id = req.user?.id || 1; // Si tienes autenticación
@@ -46,7 +35,7 @@ class EnvioC5Controller {
 
 
             const resultado = await EnvioC5.create(datosEnvio);
-            
+
             // Emitir actualización vía WebSockets
             const io = req.app.get('socketio');
             if (io) {
@@ -75,11 +64,8 @@ class EnvioC5Controller {
 
         } catch (error) {
             console.error('🔥 Error creando reporte C5:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Error al crear reporte C5',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
-            });
+            // Delega el error al Error Handler Centralizado
+            next(error);
         }
     }
 
@@ -87,14 +73,14 @@ class EnvioC5Controller {
     static async obtenerReportes(req, res) {
         try {
 
-            
+
             const filtros = {};
-            
+
             // Filtrar por estado si se proporciona
             if (req.query.estado) {
                 filtros.estado = req.query.estado;
             }
-            
+
             // Filtrar por fecha si se proporciona
             if (req.query.fecha) {
                 filtros.fecha_desde = req.query.fecha;
@@ -103,7 +89,7 @@ class EnvioC5Controller {
 
             // Obtener reportes de la base de datos
             const reportes = await EnvioC5.findAll(filtros);
-            
+
 
 
             res.json({
@@ -125,9 +111,9 @@ class EnvioC5Controller {
     static async registrarFolioC5(req, res) {
         try {
             const { folio_c4, folio_c5 } = req.body;
-            
 
-            
+
+
             if (!folio_c4 || !folio_c5) {
                 return res.status(400).json({
                     success: false,
@@ -137,7 +123,7 @@ class EnvioC5Controller {
 
             // Actualizar en la base de datos
             const resultado = await EnvioC5.registrarFolioC5(folio_c4, folio_c5);
-            
+
             if (resultado > 0) {
                 // Emitir actualización vía WebSockets
                 const io = req.app.get('socketio');
@@ -174,9 +160,9 @@ class EnvioC5Controller {
     static async obtenerReporte(req, res) {
         try {
             const { folioC4 } = req.params;
-            
+
             const reporte = await EnvioC5.findByFolioC4(folioC4);
-            
+
             if (!reporte) {
                 return res.status(404).json({
                     success: false,
@@ -202,7 +188,7 @@ class EnvioC5Controller {
     static async obtenerPendientes(req, res) {
         try {
             const reportes = await EnvioC5.getPendientes();
-            
+
             res.json({
                 success: true,
                 data: reportes,
@@ -222,9 +208,9 @@ class EnvioC5Controller {
     static async generarFormatoWhatsApp(req, res) {
         try {
             const { id } = req.params;
-            
+
             const reporte = await EnvioC5.findById(id);
-            
+
             if (!reporte) {
                 return res.status(404).json({
                     success: false,
@@ -258,10 +244,10 @@ class EnvioC5Controller {
         try {
             const { id } = req.params;
             const AWSService = require('../services/AWSService'); // Importar servicio AWS
-            
+
             // 1. Obtener datos del reporte
             const reporte = await EnvioC5.findById(id);
-            
+
             if (!reporte) {
                 return res.status(404).json({
                     success: false,
@@ -288,9 +274,9 @@ class EnvioC5Controller {
 
             // 3. Enviar a C5 (SQS)
             console.log(`📤 Enviando reporte a cola SQS`);
-            
+
             const resultado = await AWSService.enviarReporte(payload);
-            
+
             // 4. Responder al cliente
             res.json({
                 success: true,

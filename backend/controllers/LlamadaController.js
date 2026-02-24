@@ -70,9 +70,9 @@ class LlamadaController {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
-                return res.status(400).json({ 
-                    success: false, 
-                    errors: errors.array() 
+                return res.status(400).json({
+                    success: false,
+                    errors: errors.array()
                 });
             }
 
@@ -105,7 +105,7 @@ class LlamadaController {
                 folio_sistema: folio_sistema || folio || null,
                 fecha: fecha || new Date().toISOString().split('T')[0],
                 turno: turno || (req.user ? req.user.turno : 'matutino'),
-                hora: hora || new Date().toTimeString().substring(0,5),
+                hora: hora || new Date().toTimeString().substring(0, 5),
                 motivo: motivo || '',
                 ubicacion: ubicacion || '',
                 colonia: colonia || '',
@@ -152,6 +152,7 @@ class LlamadaController {
         try {
             const {
                 fecha,
+                mes, // NUEVO PARÁMETRO: ej '2026-02'
                 turno,
                 motivo,
                 ubicacion,
@@ -169,6 +170,7 @@ class LlamadaController {
             let filtros = {};
 
             if (fecha) filtros.fecha = fecha;
+            if (mes) filtros.mes_objetivo = mes + '-01'; // Enviarlo compatible como fecha (YYYY-MM-DD) al modelo
             if (turno) filtros.turno = turno;
             if (motivo) filtros.motivo = motivo;
             if (ubicacion) filtros.ubicacion = ubicacion;
@@ -182,7 +184,7 @@ class LlamadaController {
 
             let llamadas;
             let totalDb = null;
-            
+
             if (fecha_inicio && fecha_fin) {
                 llamadas = await LlamadaBitacora.findByDateRange(fecha_inicio, fecha_fin);
             } else {
@@ -205,11 +207,13 @@ class LlamadaController {
         }
     }
 
-    // Obtener una llamada específica
+    // Obtener una llamada específica (Peligro: Asume tabla actual si no se provee info extra por params de momento)
+    // Para una solución perfecta, la UI tendría que mandar la fecha o mes de la tabla donde está
     static async obtenerLlamada(req, res) {
         try {
             const { id } = req.params;
-            
+            const { mes } = req.query; // opcional para buscar en pasados
+
             if (!id) {
                 return res.status(400).json({
                     success: false,
@@ -217,7 +221,8 @@ class LlamadaController {
                 });
             }
 
-            const llamada = await LlamadaBitacora.findById(id);
+            let targetTableName = mes ? LlamadaBitacora.getTableName(mes + '-01') : null;
+            const llamada = await LlamadaBitacora.findById(id, targetTableName);
 
             if (!llamada) {
                 return res.status(404).json({
@@ -252,7 +257,10 @@ class LlamadaController {
                 });
             }
 
-            const actualizado = await LlamadaBitacora.update(id, datos);
+            // Para modificar, si envían la fecha vieja podemos saber en qué tabla estaba, si no asumimos actual
+            const tableName = datos.fecha ? LlamadaBitacora.getTableName(datos.fecha) : null;
+
+            const actualizado = await LlamadaBitacora.update(id, tableName, datos);
 
             if (actualizado === 0) {
                 return res.status(404).json({
@@ -261,7 +269,7 @@ class LlamadaController {
                 });
             }
 
-            const llamadaActualizada = await LlamadaBitacora.findById(id);
+            const llamadaActualizada = await LlamadaBitacora.findById(id, tableName);
 
             res.json({
                 success: true,
@@ -281,6 +289,7 @@ class LlamadaController {
     static async eliminarLlamada(req, res) {
         try {
             const { id } = req.params;
+            const { fecha } = req.query; // Debe enviar la fecha del elemento a eliminar para buscarlo en la tabla correcta
 
             if (!id) {
                 return res.status(400).json({
@@ -289,12 +298,13 @@ class LlamadaController {
                 });
             }
 
-            const eliminado = await LlamadaBitacora.delete(id);
+            const tableName = fecha ? LlamadaBitacora.getTableName(fecha) : null;
+            const eliminado = await LlamadaBitacora.delete(id, tableName);
 
             if (eliminado === 0) {
                 return res.status(404).json({
                     success: false,
-                    message: 'Llamada no encontrada'
+                    message: 'Llamada no encontrada en el sistema actual'
                 });
             }
 

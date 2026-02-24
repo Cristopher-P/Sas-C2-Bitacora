@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const EnvioC5Controller = require('../controllers/EnvioC5Controller');
 const authMiddleware = require('../middleware/auth');
+const { validarCreacion } = require('../middleware/validators/envioC5Validator');
 
 // Todas las rutas requieren autenticación
 router.use(authMiddleware);
 // Crear nuevo reporte C5
-router.post('/crear', (req, res) => EnvioC5Controller.crearReporte(req, res));
+router.post('/crear', validarCreacion, (req, res, next) => EnvioC5Controller.crearReporte(req, res, next));
 
 // Obtener todos los reportes
 router.get('/listar', (req, res) => EnvioC5Controller.obtenerReportes(req, res));

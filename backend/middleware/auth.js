@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
-    
+
     if (!token) {
         return res.status(401).json({
             success: false,
@@ -11,7 +11,12 @@ const authMiddleware = (req, res, next) => {
     }
 
     try {
-        // Usar un fallback idéntico al de authController para prevenir Token Inválido en AWS
+        // Usar un fallback idéntico al de authController en dev, pero prohibido en producción
+        if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+            console.error('CRITICAL: JWT_SECRET no está definido en el entorno de producción.');
+            return res.status(500).json({ success: false, message: 'Configuración de servidor incompleta (JWT_SECRET)' });
+        }
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto_super_seguro');
         req.user = decoded;
         next();
