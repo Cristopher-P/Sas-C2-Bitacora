@@ -9,11 +9,11 @@ class C5SuccessView {
 
     render(container) {
         this.container = container;
-        
+
         const textoFormateado = this.formatearReporteC5();
         const textoCodificado = encodeURIComponent(textoFormateado);
         const whatsappLink = `https://wa.me/?text=${textoCodificado}`;
-        
+
         // Usar contenedor consistente con LlamadasView y estilos C5
         this.container.innerHTML = this.getTemplate(textoFormateado, textoCodificado, whatsappLink);
         this.bindEvents();
@@ -24,11 +24,11 @@ class C5SuccessView {
             <div class="fade-in c5-container">
                 <!-- Encabezado -->
                 <div class="c5-header">
-                    <div style="flex: 1;">
+                    <div class="header-info">
                         <div class="c5-title">
                             <i class="fas fa-check-circle" style="color: var(--cerit-success);"></i> REPORTE GENERADO
                         </div>
-                        <div style="color: var(--color-muted); font-size: 0.9rem; margin-top: 5px;">
+                        <div class="operator-info">
                             <i class="fas fa-user-shield"></i> Operador: ${this.currentUser || 'OPERADOR'}
                         </div>
                     </div>
@@ -59,11 +59,11 @@ class C5SuccessView {
                 <div class="c5-grid">
                     
                     <!-- Columna Izquierda: Vista Previa -->
-                    <div class="c5-card" style="padding: 20px;">
+                    <div class="c5-card section-preview">
                         <div class="section-title">
                             <i class="fas fa-eye"></i> VISTA PREVIA DEL REPORTE
                         </div>
-                        <p style="font-size: 0.9rem; color: var(--color-muted); margin-bottom: 15px;">
+                        <p class="section-subtitle">
                             Formato listo para enviar al Centro de Control:
                         </p>
                         
@@ -79,29 +79,29 @@ ${textoFormateado}
                     </div>
 
                     <!-- Columna Derecha: Acciones y Respuesta -->
-                    <div class="c5-card" style="padding: 20px;">
+                    <div class="c5-card section-actions">
                         <div class="section-title">
                             <i class="fas fa-paper-plane"></i> ENVÍO Y SEGUIMIENTO
                         </div>
                         
-                        <div class="action-card" style="margin-bottom: 20px;">
-                            <div style="font-weight: 600; color: var(--cerit-primary); margin-bottom: 10px;">
+                        <div class="action-card action-transmission">
+                            <div class="transmission-title">
                                 <i class="fas fa-satellite-dish"></i> Transmisión Directa C5
                             </div>
                             <button onclick="app.currentView.currentSubView.enviarC5()" class="btn-block btn-primary" id="btn-enviar-c5">
                                 <i class="fas fa-paper-plane"></i> ENVIAR DATOS AHORA
                             </button>
-                            <div id="c5-loading" style="display:none; text-align: center; color: var(--color-muted); margin-top: 10px;">
+                            <div id="c5-loading" class="loading-indicator" style="display:none;">
                                 <i class="fas fa-spinner fa-spin"></i> Transmitiendo datos al C5...
                             </div>
                         </div>
                         
                         <!-- Registro de Respuesta C5 -->
                         <div class="response-area">
-                            <div style="font-weight: 600; color: var(--cerit-warning); margin-bottom: 5px;">
+                            <div class="response-title">
                                 <i class="fas fa-exchange-alt"></i> REGISTRAR FOLIO C5
                             </div>
-                            <p style="font-size: 0.85rem; color: var(--color-muted); margin-bottom: 10px;">
+                            <p class="response-subtitle">
                                 Ingresa el folio que devuelve el operador del C5:
                             </p>
                             
@@ -111,8 +111,7 @@ ${textoFormateado}
                                        placeholder="Ej: 123456"
                                        autocomplete="off">
                                 <button onclick="app.currentView.currentSubView.registrarFolioC5Respuesta()" 
-                                        class="btn btn-primary" 
-                                        style="padding: 8px 15px; background: var(--cerit-warning); border: none;">
+                                        class="btn btn-primary btn-save">
                                     <i class="fas fa-save"></i>
                                 </button>
                             </div>
@@ -145,7 +144,7 @@ ${textoFormateado}
                 this.controller.showMain();
             });
         }
-        
+
         // Permitir Enter en input de folio C5
         const folioInput = this.container.querySelector('#folio-c5-respuesta');
         if (folioInput) {
@@ -192,7 +191,7 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
     imprimirReporteC5() {
         const ventana = window.open('', '_blank');
         const textoFormateado = this.formatearReporteC5();
-        
+
         ventana.document.write(`
             <!DOCTYPE html>
             <html>
@@ -223,13 +222,13 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
     registrarFolioC5Respuesta() {
         const folioC5Input = this.container.querySelector('#folio-c5-respuesta');
         const folioC5 = folioC5Input?.value.trim();
-        
+
         if (!folioC5) {
             this.mostrarAlerta('⚠️ CAMPO REQUERIDO', 'Por favor, ingresa el folio que devolvió el C5', 'error');
             if (folioC5Input) folioC5Input.focus();
             return;
         }
-        
+
         if (typeof C5Service !== 'undefined') {
             C5Service.registrarFolioC5(this.folioC4, folioC5)
                 .then(resultado => {
@@ -254,35 +253,35 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
     async enviarC5() {
         const btn = this.container.querySelector('#btn-enviar-c5');
         const loading = this.container.querySelector('#c5-loading');
-        
+
         // Bloquear UI
-        if(btn) btn.disabled = true;
-        if(loading) loading.style.display = 'block';
+        if (btn) btn.disabled = true;
+        if (loading) loading.style.display = 'block';
 
         try {
             // Verificar si tenemos el ID del reporte
             const reporteId = this.datosReporte.id || (this.datosServicio && this.datosServicio.id);
-            
+
             if (!reporteId) {
                 throw new Error('No se identifica el ID del reporte para el envío.');
             }
 
             const resultado = await C5Service.enviarReporteC5(reporteId);
-            
+
             if (resultado.success) {
                 this.mostrarAlerta('ENVÍO EXITOSO', 'Los datos han sido recibidos por el C5 correctamente.', 'success');
-                
+
                 // Actualizar UI para mostrar éxito
-                if(btn) {
+                if (btn) {
                     btn.innerHTML = '<i class="fas fa-check"></i> ENVIADO CORRECTAMENTE';
                     btn.classList.remove('btn-primary');
                     btn.classList.add('btn-success');
                 }
-                
+
                 // Si el C5 devuelve un folio en la respuesta, lo pre-llenamos
                 if (resultado.data && resultado.data.folio_c5) {
                     const inputFolio = this.container.querySelector('#folio-c5-respuesta');
-                    if(inputFolio) {
+                    if (inputFolio) {
                         inputFolio.value = resultado.data.folio_c5;
                         this.registrarFolioC5Respuesta(); // Auto-registrar si ya viene
                     }
@@ -293,15 +292,15 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
         } catch (error) {
             console.error('Error enviando a C5:', error);
             this.mostrarAlerta('FALLÓ EL ENVÍO', error.message, 'error');
-            if(btn) btn.disabled = false;
+            if (btn) btn.disabled = false;
         } finally {
-            if(loading) loading.style.display = 'none';
+            if (loading) loading.style.display = 'none';
         }
     }
 
     mostrarAlerta(titulo, mensaje, tipo = 'info') {
         const color = tipo === 'error' ? 'var(--color-danger)' : tipo === 'success' ? 'var(--color-success)' : 'var(--color-info)';
-        
+
         const alertDiv = document.createElement('div');
         // Simplificar estilos usando variables CSS
         alertDiv.style.cssText = `
@@ -312,7 +311,7 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
             z-index: 1001; min-width: 300px;
             animation: fadeIn 0.3s ease;
         `;
-        
+
         const iconClass = tipo === 'error' ? 'exclamation-triangle' : tipo === 'success' ? 'check-circle' : 'info-circle';
         const iconColor = tipo === 'error' ? '#dc3545' : '#28a745';
 
@@ -331,7 +330,7 @@ CONCLUSIÓN: ${this.datosReporte.conclusion || 'Sin conclusión'}
                 </button>
             </div>
         `;
-        
+
         document.body.appendChild(alertDiv);
         setTimeout(() => {
             if (alertDiv.parentNode) {

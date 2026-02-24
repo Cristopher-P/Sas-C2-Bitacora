@@ -15,7 +15,7 @@ class DashboardView {
             estado: null,
             busqueda: null
         };
-        
+
         // Configuración de colores institucionales
         this.colors = {
             primary: '#003366',      // Azul policía principal
@@ -30,7 +30,7 @@ class DashboardView {
             warning: '#ffc107',      // Amarillo advertencia
             info: '#17a2b8'          // Azul información
         };
-        
+
         // Configuración para expansión
         this.expandedContainer = null;
         this.originalContainer = null;
@@ -52,21 +52,21 @@ class DashboardView {
     }
 
     async render(container) {
-        this.originalContainer = container; 
-        
+        this.originalContainer = container;
+
         // Crear contenedor expandido con fondo institucional
         this.expandedContainer = document.createElement('div');
         this.expandedContainer.className = 'dashboard-cerit-tehuacan view-bleed view-shell view-form';
-        
+
         this.originalContainer.innerHTML = '';
         this.originalContainer.appendChild(this.expandedContainer);
-        
+
         this.container = this.expandedContainer;
         this.container.innerHTML = this.getTemplate();
         this.bindEvents();
-        
+
         await this.loadData();
-        
+
         // Iniciar actualización automática de hora
         this.iniciarActualizacionHora();
     }
@@ -77,7 +77,7 @@ class DashboardView {
         const formattedDate = now.toLocaleDateString('es-MX', dateOptions);
         const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
         const formattedTime = now.toLocaleTimeString('es-MX', timeOptions);
-        
+
         return `
             <div class="cerit-dashboard view-shell--xl">
                 <!-- HEADER INSTITUCIONAL -->
@@ -371,28 +371,28 @@ class DashboardView {
             </style>
         `;
     }
-    
+
     generarOpcionesMeses() {
         if (!this.data || this.data.length === 0) {
-             // Fallback a los últimos 6 meses si no hay datos
-             const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 
-                           'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
-             let options = '';
-             for (let i = 0; i < 6; i++) {
-                 const fecha = new Date();
-                 fecha.setMonth(fecha.getMonth() - i);
-                 const año = fecha.getFullYear();
-                 const mes = fecha.getMonth() + 1;
-                 const valor = `${año}-${String(mes).padStart(2, '0')}`;
-                 const texto = `${meses[mes - 1]} ${año}`;
-                 options += `<option value="${valor}">${texto}</option>`;
-             }
-             return options;
+            // Fallback a los últimos 6 meses si no hay datos
+            const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+                'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+            let options = '';
+            for (let i = 0; i < 6; i++) {
+                const fecha = new Date();
+                fecha.setMonth(fecha.getMonth() - i);
+                const año = fecha.getFullYear();
+                const mes = fecha.getMonth() + 1;
+                const valor = `${año}-${String(mes).padStart(2, '0')}`;
+                const texto = `${meses[mes - 1]} ${año}`;
+                options += `<option value="${valor}">${texto}</option>`;
+            }
+            return options;
         }
 
         // Obtener meses únicos de los datos
         const mesesDisponibles = new Set();
-        
+
         this.data.forEach(item => {
             if (item.fecha) {
                 let fechaStr = item.fecha;
@@ -409,10 +409,10 @@ class DashboardView {
 
         // Convertir a array y ordenar descendente
         const mesesOrdenados = Array.from(mesesDisponibles).sort().reverse();
-        
-        const nombresMeses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 
-                             'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
-        
+
+        const nombresMeses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+            'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+
         let options = '';
         mesesOrdenados.forEach(mesAnio => {
             const [año, mes] = mesAnio.split('-');
@@ -422,7 +422,7 @@ class DashboardView {
                 options += `<option value="${mesAnio}">${texto}</option>`;
             }
         });
-        
+
         // Si no hay meses disponibles (por formato de fecha incorrecto), mostrar el mes actual
         if (options === '') {
             const hoy = new Date();
@@ -430,29 +430,29 @@ class DashboardView {
             const texto = `${nombresMeses[hoy.getMonth()]} ${hoy.getFullYear()}`;
             options = `<option value="${mesActual}">${texto}</option>`;
         }
-        
+
         return options;
     }
-    
+
     cleanup() {
         if (this.expandedContainer && this.expandedContainer.parentNode) {
             this.expandedContainer.parentNode.removeChild(this.expandedContainer);
         }
-        
+
         if (this.originalContainer) {
             this.originalContainer.innerHTML = '';
         }
-        
+
         // Limpiar intervalos
         if (this.intervaloActualizacion) {
             clearInterval(this.intervaloActualizacion);
         }
-        
+
         this.expandedContainer = null;
         this.originalContainer = null;
         this.container = this.originalContainer;
     }
-    
+
     bindEvents() {
         // Botón nueva llamada
         const btnNueva = this.container.querySelector('#btn-nueva-llamada');
@@ -461,7 +461,7 @@ class DashboardView {
                 this.appController.loadView('llamadas');
             });
         }
-        
+
         // Botón emergencia
         const btnEmergencia = this.container.querySelector('#btn-emergencia');
         if (btnEmergencia) {
@@ -469,7 +469,7 @@ class DashboardView {
                 this.iniciarEmergencia();
             });
         }
-        
+
         // Botón actualizar
         const btnActualizar = this.container.querySelector('#btn-actualizar');
         if (btnActualizar) {
@@ -477,7 +477,7 @@ class DashboardView {
                 this.recargarDatosForzados();
             });
         }
-        
+
         // Botón exportar
         const btnExportar = this.container.querySelector('#btn-exportar-excel');
         if (btnExportar) {
@@ -485,7 +485,7 @@ class DashboardView {
                 this.exportarAExcel();
             });
         }
-        
+
         // Botón imprimir
         const btnImprimir = this.container.querySelector('#btn-imprimir');
         if (btnImprimir) {
@@ -493,7 +493,7 @@ class DashboardView {
                 this.imprimirReporte();
             });
         }
-        
+
         // Botón reporte mensual
         const btnReporteMensual = this.container.querySelector('#btn-reporte-mensual');
         if (btnReporteMensual) {
@@ -501,7 +501,7 @@ class DashboardView {
                 this.generarReporteMensual();
             });
         }
-        
+
         // Botón mapa calor
         const btnMapaCalor = this.container.querySelector('#btn-mapa-calor');
         if (btnMapaCalor) {
@@ -509,7 +509,7 @@ class DashboardView {
                 this.mostrarMapaCalor();
             });
         }
-        
+
         // Toggle filtros
         const btnToggleFiltros = this.container.querySelector('#btn-toggle-filtros');
         if (btnToggleFiltros) {
@@ -517,14 +517,14 @@ class DashboardView {
                 this.toggleFiltrosDetallados();
             });
         }
-        
+
         // Filtros
         const filtroBusqueda = this.container.querySelector('#filtro-busqueda');
         const filtroEstado = this.container.querySelector('#filtro-estado');
         const filtroMes = this.container.querySelector('#filtro-mes');
         const filtroTurno = this.container.querySelector('#filtro-turno');
         const filtroFecha = this.container.querySelector('#filtro-fecha');
-        
+
         // Filtro búsqueda con debounce
         if (filtroBusqueda) {
             let timeout;
@@ -536,14 +536,14 @@ class DashboardView {
                 }, 300);
             });
         }
-        
+
         if (filtroEstado) {
             filtroEstado.addEventListener('change', () => {
                 this.filtrosActivos.estado = filtroEstado.value || null;
                 this.aplicarFiltros();
             });
         }
-        
+
         if (filtroMes) {
             filtroMes.addEventListener('change', () => {
                 this.filtrosActivos.mes = filtroMes.value || null;
@@ -551,21 +551,21 @@ class DashboardView {
                 this.mostrarEstadisticasMes(filtroMes.value);
             });
         }
-        
+
         if (filtroTurno) {
             filtroTurno.addEventListener('change', () => {
                 this.filtrosActivos.turno = filtroTurno.value || null;
                 this.aplicarFiltros();
             });
         }
-        
+
         if (filtroFecha) {
             filtroFecha.addEventListener('change', () => {
                 this.filtrosActivos.fecha = filtroFecha.value || null;
                 this.aplicarFiltros();
             });
         }
-        
+
         // Botón aplicar filtros
         const btnAplicarFiltros = this.container.querySelector('#btn-aplicar-filtros');
         if (btnAplicarFiltros) {
@@ -573,7 +573,7 @@ class DashboardView {
                 this.aplicarFiltros();
             });
         }
-        
+
         // Botón limpiar filtros
         const btnLimpiarFiltros = this.container.querySelector('#btn-limpiar-filtros');
         if (btnLimpiarFiltros) {
@@ -582,65 +582,65 @@ class DashboardView {
             });
         }
     }
-    
+
     async loadData() {
         try {
             // Actualizar hora
             this.actualizarHora();
-            
+
             // Actualizar última actualización
             this.actualizarUltimaActualizacion();
-            
+
             // Cargar tabla
             await this.fetchAndRenderTable();
-            
+
             // Mostrar estadísticas iniciales
             this.calcularEstadisticasDesdeDatos();
-            
+
         } catch (error) {
             console.error('Error loading dashboard data:', error);
             this.mostrarAlerta('ERROR', 'Error cargando datos del dashboard', 'error');
         }
     }
-    
+
     iniciarActualizacionHora() {
         // Actualizar reloj cada segundo
         this.intervaloActualizacion = setInterval(() => {
             this.actualizarHora();
         }, 1000);
     }
-    
+
     actualizarHora() {
         if (!this.container) return;
-        
+
         const ahora = new Date();
-        const horaStr = ahora.toLocaleTimeString('es-MX', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
+        const horaStr = ahora.toLocaleTimeString('es-MX', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
         });
-        
+
         if (!this.container) return;
         const reloj = this.container.querySelector('#reloj-institucional');
         if (reloj) {
             reloj.textContent = horaStr;
         }
-        
+
         // Actualizar cada minuto para estadísticas
         if (!this.horaActualizacion || ahora.getMinutes() !== this.horaActualizacion.getMinutes()) {
             this.horaActualizacion = ahora;
             this.actualizarEstadisticasTiempoReal();
         }
     }
-    
+
     actualizarUltimaActualizacion() {
         const ahora = new Date();
-        const horaStr = ahora.toLocaleTimeString('es-MX', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
+        const horaStr = ahora.toLocaleTimeString('es-MX', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
         });
-        
+
         if (!this.container) return;
         const elemento = this.container.querySelector('#ultima-actualizacion');
         if (elemento) {
@@ -695,24 +695,36 @@ class DashboardView {
         const fechaHora = new Date(`${fechaStr}T${horaStr}`);
         return isNaN(fechaHora) ? 0 : fechaHora.getTime();
     }
-    
+
     async fetchAndRenderTable() {
         const container = this.obtenerContenedorTabla();
         if (!container) {
             console.error('No se encontró el contenedor de la tabla de llamadas.');
             return;
         }
-        
+
         try {
             let llamadas = [];
-            
+
             if (typeof LlamadasService !== 'undefined') {
-                const response = await LlamadasService.obtenerLlamadas({ include_all: '1' });
-                
+                // Modificación: Por defecto, pedir solo el mes actual o el filtrado, NO TODO.
+                let params = {};
+                if (this.filtrosActivos.mes) {
+                    params.mes = this.filtrosActivos.mes;
+                } else if (this.filtrosActivos.fecha) {
+                    params.fecha = this.filtrosActivos.fecha;
+                } else {
+                    const hoy = new Date();
+                    params.mes = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+                }
+
+                // Si hay otros filtros backend (limit, turno, etc) se pueden pasar aquí si se quiere delegar al DB
+                const response = await LlamadasService.obtenerLlamadas(params);
+
                 if (response) {
                     window._lastTotalDb = response.total_db;
                 }
-                
+
                 if (response && response.success) {
                     llamadas = response.data || [];
                 } else {
@@ -733,20 +745,21 @@ class DashboardView {
             }
 
             this.data = llamadas;
-            
+
             // Renderizar tabla
             this.renderizarTabla();
-            
+
             // Actualizar contador
             this.actualizarContadorRegistros();
-            
+
             // Recalcular estadísticas con los nuevos datos
             this.calcularEstadisticasDesdeDatos();
 
             // ACTUALIZACIÓN DE MESES Y ESTADÍSTICAS MENSUALES
-            this.actualizarSelectorMeses();
+            // Ya no generamos los meses a partir de los datos porque solo pedimos un mes a la vez.
+            // this.actualizarSelectorMeses(); // Deshabilitado para no pispar meses históricos de las opciones.
             this.inicializarEstadisticasMes();
-            
+
         } catch (error) {
             console.error("Error crítico al cargar datos:", error);
             if (!container) return;
@@ -767,14 +780,14 @@ class DashboardView {
             `;
         }
     }
-    
+
     renderizarTabla() {
         const container = this.obtenerContenedorTabla();
         if (!container) {
             console.error('No se encontró el contenedor de la tabla de llamadas.');
             return;
         }
-        
+
         if (this.data.length === 0) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px;">
@@ -791,22 +804,22 @@ class DashboardView {
                     </button>
                 </div>
             `;
-            
+
             document.getElementById('btn-crear-primero')?.addEventListener('click', () => {
                 this.appController.loadView('llamadas');
             });
-            
+
             return;
         }
-        
+
         // Aplicar filtros
         let llamadasFiltradas = this.aplicarFiltrosADatos(this.data);
-        
+
         // Ordenar por fecha y hora descendente
         llamadasFiltradas.sort((a, b) => {
             return this.obtenerTimestamp(b) - this.obtenerTimestamp(a);
         });
-        
+
         // Crear tabla
         const tableId = 'tabla-llamadas-cerit';
         container.innerHTML = `
@@ -937,14 +950,14 @@ class DashboardView {
                 </table>
             </div>
         `;
-        
+
         this.bindTableEvents();
         this.actualizarContadorRegistros(llamadasFiltradas.length);
     }
-    
+
     getFilaTablaCERIT(llamada, index) {
         llamada = (llamada && typeof llamada === 'object') ? llamada : {};
-        
+
         // Normalización de datos principal
         const hora = llamada.hora || llamada.hr_rec || '00:00';
         const turno = llamada.turno || llamada.turn || 'NO ASIG.';
@@ -974,12 +987,12 @@ class DashboardView {
         const idFormateado = (fechaHora && !isNaN(fechaHora))
             ? `${String(fechaHora.getDate()).padStart(2, '0')}${String(fechaHora.getMonth() + 1).padStart(2, '0')}${String(fechaHora.getFullYear()).slice(-2)}${String(fechaHora.getHours()).padStart(2, '0')}${String(fechaHora.getMinutes()).padStart(2, '0')}`
             : '--';
-        
+
         // Determinar estado
         let estadoColor = this.colors.gray;
         let estadoTexto = 'REGISTRADO';
         let estadoIcon = 'fas fa-file-alt';
-        
+
         if (llamada.conclusion) {
             estadoColor = this.colors.accentGreen;
             estadoTexto = 'CONCLUIDO';
@@ -989,12 +1002,12 @@ class DashboardView {
             estadoTexto = 'SEGUIMIENTO';
             estadoIcon = 'fas fa-exclamation-circle';
         }
-        
+
         // Colores para turno
         let turnoColor = this.colors.gray;
         let turnoTexto = turno.toUpperCase();
         let turnoIcon = 'fas fa-clock';
-        
+
         if (turno.toLowerCase() === 'matutino') {
             turnoColor = '#f6d365';
             turnoIcon = 'fas fa-sun';
@@ -1005,18 +1018,18 @@ class DashboardView {
             turnoColor = '#4ecdc4';
             turnoIcon = 'fas fa-moon';
         }
-        
+
         const horaDisplay = horaStr || '--:--';
         const fechaDisplay = fechaStr ? `${fechaStr.substring(8, 10)}/${fechaStr.substring(5, 7)}` : '--/--';
-        
+
         const procedencia = llamada.procedencia || llamada.motivo_radio_operacion || '--';
         const grupo = llamada.grupo_tipo || llamada.agente || peticionario;
 
         // Acortar textos
-        const motivoCorto = motivo && motivo.length > 25 ? 
+        const motivoCorto = motivo && motivo.length > 25 ?
             motivo.substring(0, 25) + '...' : motivo || '--';
-        
-        const ubicacionCorta = ubicacion && ubicacion.length > 20 ? 
+
+        const ubicacionCorta = ubicacion && ubicacion.length > 20 ?
             ubicacion.substring(0, 20) + '...' : ubicacion || '--';
 
         const descripcionCorta = descripcion && descripcion.length > 30 ?
@@ -1024,7 +1037,7 @@ class DashboardView {
 
         const razonamientoCorto = razonamiento && razonamiento.length > 25 ?
             razonamiento.substring(0, 25) + '...' : razonamiento || '--';
-        
+
         return `
     <tr data-id="${llamada.id || index}" 
         data-folio="${llamada.folio_sistema || ''}"
@@ -1098,10 +1111,10 @@ class DashboardView {
     </tr>
 `;
     }
-    
+
     formatearFolioCERIT(folio) {
         if (!folio) return '--';
-        
+
         // Si el folio es formato SAS-YYYYMMDD-NNN
         if (folio.startsWith('SAS-')) {
             try {
@@ -1109,12 +1122,12 @@ class DashboardView {
                 if (partes.length >= 3) {
                     const fechaCompleta = partes[1]; // 20260126
                     const numeroSecuencia = partes[2]; // 001
-                    
+
                     if (fechaCompleta.length === 8) {
                         const añoCorto = fechaCompleta.substring(2, 4); // 26
                         const mes = fechaCompleta.substring(4, 6); // 01
                         const dia = fechaCompleta.substring(6, 8); // 26
-                        
+
                         return `${dia}/${mes}/${añoCorto}-${numeroSecuencia}`;
                     }
                 }
@@ -1122,7 +1135,7 @@ class DashboardView {
                 console.error("Error formateando folio SAS:", e);
             }
         }
-        
+
         // Si ya está en formato numérico
         if (/^\d+$/.test(folio)) {
             if (folio.length >= 10) {
@@ -1134,10 +1147,10 @@ class DashboardView {
             }
             return folio;
         }
-        
+
         return folio;
     }
-    
+
     bindTableEvents() {
         if (!this.container) return;
 
@@ -1150,27 +1163,13 @@ class DashboardView {
             });
         });
     }
-    
+
     aplicarFiltrosADatos(datos) {
         let filtrados = [...datos];
-        
-        // Filtro por mes
-        if (this.filtrosActivos.mes) {
-            const [año, mes] = this.filtrosActivos.mes.split('-');
-            filtrados = filtrados.filter(item => {
-                if (!item.fecha) return false;
-                try {
-                    const fechaNormalizada = this.normalizarFecha(item.fecha);
-                    const fechaItem = new Date(fechaNormalizada || item.fecha);
-                    const añoItem = fechaItem.getFullYear();
-                    const mesItem = fechaItem.getMonth() + 1;
-                    return añoItem == año && mesItem == mes;
-                } catch (e) {
-                    return false;
-                }
-            });
-        }
-        
+
+        // Ya no filtramos por mes aquí porque el backend solo nos mandó los de este mes.
+        // Pero si el backend manda extra u otros filtros:
+
         // Filtro por fecha específica
         if (this.filtrosActivos.fecha) {
             filtrados = filtrados.filter(item => {
@@ -1179,7 +1178,7 @@ class DashboardView {
                 return fechaNormalizada === this.filtrosActivos.fecha;
             });
         }
-        
+
         // Filtro por turno
         if (this.filtrosActivos.turno) {
             filtrados = filtrados.filter(item => {
@@ -1187,7 +1186,7 @@ class DashboardView {
                 return item.turno.toLowerCase() === this.filtrosActivos.turno.toLowerCase();
             });
         }
-        
+
         // Filtro por estado
         if (this.filtrosActivos.estado) {
             if (this.filtrosActivos.estado === 'seguimiento') {
@@ -1198,11 +1197,11 @@ class DashboardView {
                 filtrados = filtrados.filter(item => !item.seguimiento && !item.conclusion);
             }
         }
-        
+
         // Filtro por búsqueda
         if (this.filtrosActivos.busqueda) {
             const busqueda = this.filtrosActivos.busqueda.toLowerCase();
-            filtrados = filtrados.filter(item => 
+            filtrados = filtrados.filter(item =>
                 (item.folio_sistema && item.folio_sistema.toLowerCase().includes(busqueda)) ||
                 (item.motivo && item.motivo.toLowerCase().includes(busqueda)) ||
                 (item.colonia && item.colonia.toLowerCase().includes(busqueda)) ||
@@ -1211,15 +1210,17 @@ class DashboardView {
                 (item.descripcion_detallada && item.descripcion_detallada.toLowerCase().includes(busqueda))
             );
         }
-        
+
         return filtrados;
     }
-    
-    aplicarFiltros() {
+
+    async aplicarFiltros() {
+        // Al cambiar de mes o dar click a aplicar, recargamos fuerte del backend porque depende del mes
+        await this.fetchAndRenderTable();
         this.renderizarTabla();
         this.mostrarInfoFiltros();
     }
-    
+
     limpiarFiltros() {
         // Resetear filtros
         this.filtrosActivos = {
@@ -1229,54 +1230,53 @@ class DashboardView {
             busqueda: null,
             fecha: null
         };
-        
+
         // Resetear inputs
         const filtroBusqueda = this.container.querySelector('#filtro-busqueda');
         const filtroEstado = this.container.querySelector('#filtro-estado');
         const filtroMes = this.container.querySelector('#filtro-mes');
         const filtroTurno = this.container.querySelector('#filtro-turno');
         const filtroFecha = this.container.querySelector('#filtro-fecha');
-        
+
         if (filtroBusqueda) filtroBusqueda.value = '';
         if (filtroEstado) filtroEstado.value = '';
         if (filtroMes) filtroMes.value = '';
         if (filtroTurno) filtroTurno.value = '';
         if (filtroFecha) filtroFecha.value = '';
-        
-        
-        this.renderizarTabla();
-        this.mostrarInfoFiltros();
+
+        // Aplicar filtros vacíos provocará que se haga fetch de hoy.
+        this.aplicarFiltros();
         const estadisticasMes = this.container.querySelector('#estadisticas-mes-contenido');
-            if (estadisticasMes) {
-                estadisticasMes.innerHTML = `
+        if (estadisticasMes) {
+            estadisticasMes.innerHTML = `
                     <div style="width: 40px; height: 40px; background: ${this.colors.border}; display: inline-block; border-radius: 4px; margin-bottom: 10px; opacity: 0.3;"></div>
                     <p>Selecciona un mes para ver estadísticas</p>
                     `;
-}
+        }
     }
-    
+
     mostrarInfoFiltros() {
         const filtrosActivos = Object.values(this.filtrosActivos).filter(f => f !== null);
-        
+
         if (filtrosActivos.length > 0) {
             console.log("Filtros activos:", this.filtrosActivos);
         }
     }
-    
+
     actualizarContadorRegistros(filtrados = null) {
         if (!this.container) return;
 
         const total = this.data.length;
         const mostrados = filtrados !== null ? filtrados : total;
-        
+
         const contador = this.container.querySelector('#contador-registros');
         const mostradosSpan = this.container.querySelector('#registros-mostrados');
         const totalesSpan = this.container.querySelector('#registros-totales');
-        
+
         if (contador) {
             if (mostradosSpan) mostradosSpan.textContent = mostrados;
             if (totalesSpan) totalesSpan.textContent = total;
-            
+
             if (mostrados < total) {
                 contador.innerHTML = `
                     
@@ -1290,13 +1290,13 @@ class DashboardView {
             }
         }
     }
-    
+
     toggleFiltrosDetallados() {
         if (!this.container) return;
 
         const filtrosDetallados = this.container.querySelector('#filtros-detallados');
         const btnToggle = this.container.querySelector('#btn-toggle-filtros');
-        
+
         if (filtrosDetallados.style.display === 'none' || filtrosDetallados.style.display === '') {
             filtrosDetallados.style.display = 'block';
             btnToggle.innerHTML = 'Menos filtros';
@@ -1309,7 +1309,7 @@ class DashboardView {
             btnToggle.style.color = this.colors.primary;
         }
     }
-    
+
     calcularEstadisticasDesdeDatos() {
         if (!this.data || this.data.length === 0) {
             this.actualizarEstadisticasUI({
@@ -1320,7 +1320,7 @@ class DashboardView {
                 pendientes: 0,
                 ultimaHora: 0
             });
-            
+
             this.actualizarEstadisticasPequeñasUI({
                 total: 0,
                 matutino: 0,
@@ -1330,16 +1330,16 @@ class DashboardView {
             });
             return;
         }
-        
+
         // Filtrar registros de hoy usando fecha local
         const hoy = new Date();
         const year = hoy.getFullYear();
         const month = String(hoy.getMonth() + 1).padStart(2, '0');
         const day = String(hoy.getDate()).padStart(2, '0');
         const hoyStr = `${year}-${month}-${day}`;
-        
 
-        
+
+
         const datosHoy = this.data.filter(item => {
             if (!item.fecha) return false;
             // Normalizar fecha del item
@@ -1351,7 +1351,7 @@ class DashboardView {
         });
 
 
-        
+
         // Calcular estadísticas
         const stats = {
             total: datosHoy.length,
@@ -1365,7 +1365,7 @@ class DashboardView {
         this.actualizarEstadisticasUI(stats);
         this.actualizarEstadisticasPequeñasUI(stats);
     }
-    
+
     actualizarEstadisticasPequeñasUI(stats) {
         const elementosPequeños = {
             'stat-total-pequeno': stats.total,
@@ -1374,7 +1374,7 @@ class DashboardView {
             'stat-nocturno-pequeno': stats.nocturno,
             'stat-pendientes-pequeno': stats.pendientes
         };
-        
+
         Object.entries(elementosPequeños).forEach(([id, valor]) => {
             const elemento = document.getElementById(id);
             if (elemento) {
@@ -1382,11 +1382,11 @@ class DashboardView {
             }
         });
     }
-    
+
     calcularRegistrosUltimaHora() {
         const ahora = new Date();
         const unaHoraAtras = new Date(ahora.getTime() - 60 * 60 * 1000);
-        
+
         return this.data.filter(item => {
             if (!item.fecha || !item.hora) return false;
             try {
@@ -1397,7 +1397,7 @@ class DashboardView {
             }
         }).length;
     }
-    
+
     actualizarEstadisticasUI(stats) {
         const elementos = {
             'stat-total': stats.total,
@@ -1407,7 +1407,7 @@ class DashboardView {
             'stat-pendientes': stats.pendientes,
             'stat-ultima-hora': stats.ultimaHora
         };
-        
+
         Object.entries(elementos).forEach(([id, valor]) => {
             const elemento = document.getElementById(id);
             if (elemento) {
@@ -1418,35 +1418,35 @@ class DashboardView {
             }
         });
     }
-    
+
     animarConteo(elemento, valorFinal) {
         const valorInicial = parseInt(elemento.textContent) || 0;
         const diferencia = valorFinal - valorInicial;
         if (diferencia === 0) return;
-        
+
         // Agregar clase de animación
         elemento.classList.add('stat-update');
         setTimeout(() => {
             elemento.classList.remove('stat-update');
         }, 500);
-        
+
         const duracion = 500;
         const paso = Math.ceil(diferencia / (duracion / 16));
-        
+
         let valorActual = valorInicial;
         const intervalo = setInterval(() => {
             valorActual += paso;
-            
-            if ((paso > 0 && valorActual >= valorFinal) || 
+
+            if ((paso > 0 && valorActual >= valorFinal) ||
                 (paso < 0 && valorActual <= valorFinal)) {
                 valorActual = valorFinal;
                 clearInterval(intervalo);
             }
-            
+
             elemento.textContent = valorActual;
         }, 16);
     }
-    
+
     actualizarEstadisticasTiempoReal() {
         if (this.data.length > 0) {
             const ultimaHora = this.calcularRegistrosUltimaHora();
@@ -1456,28 +1456,28 @@ class DashboardView {
             }
         }
     }
-    
-   mostrarEstadisticasMes(mesAnio) {
-    if (!this.container) return;
-    const container = this.container.querySelector('#estadisticas-mes-contenido');
-    if (!container) return;
-    
-    if (!mesAnio) {
-        container.innerHTML = `
+
+    mostrarEstadisticasMes(mesAnio) {
+        if (!this.container) return;
+        const container = this.container.querySelector('#estadisticas-mes-contenido');
+        if (!container) return;
+
+        if (!mesAnio) {
+            container.innerHTML = `
             <div style="width: 40px; height: 40px; background: ${this.colors.border}; display: inline-block; border-radius: 4px; margin-bottom: 10px; opacity: 0.3;"></div>
             <p>Selecciona un mes para ver estadísticas</p>
         `;
-        return;
-    }
-    
-    const datosMes = this.filtrarPorMes(mesAnio);
-    const stats = this.calcularEstadisticasMes(datosMes);
-    
-    // Formatear nombre del mes
-    const [año, mes] = mesAnio.split('-');
-    const nombreMes = new Date(año, mes - 1, 1).toLocaleDateString('es-MX', { month: 'long' }).toUpperCase();
-    
-    container.innerHTML = `
+            return;
+        }
+
+        const datosMes = this.filtrarPorMes(mesAnio);
+        const stats = this.calcularEstadisticasMes(datosMes);
+
+        // Formatear nombre del mes
+        const [año, mes] = mesAnio.split('-');
+        const nombreMes = new Date(año, mes - 1, 1).toLocaleDateString('es-MX', { month: 'long' }).toUpperCase();
+
+        container.innerHTML = `
         <div style="text-align: left;">
             <h5 style="color: ${this.colors.primary}; margin-bottom: 15px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
                 ${nombreMes} ${año}
@@ -1519,28 +1519,28 @@ class DashboardView {
             </div>
         </div>
     `;
-}
-    
+    }
+
     filtrarPorMes(mesAnio) {
         if (!mesAnio) return this.data;
-        
+
         const [año, mes] = mesAnio.split('-');
-        
+
         return this.data.filter(item => {
             if (!item.fecha) return false;
-            
+
             try {
                 const fechaItem = new Date(item.fecha);
                 const añoItem = fechaItem.getFullYear();
                 const mesItem = fechaItem.getMonth() + 1;
-                
+
                 return añoItem == año && mesItem == mes;
             } catch (e) {
                 return false;
             }
         });
     }
-    
+
     calcularEstadisticasMes(datosMes) {
         return {
             total: datosMes.length,
@@ -1551,22 +1551,22 @@ class DashboardView {
             concluidos: datosMes.filter(item => item.conclusion).length
         };
     }
-    
 
-    
+
+
     actualizarSelectorMeses() {
         if (!this.container) return;
         const selector = this.container.querySelector('#filtro-mes');
         if (selector) {
             // Guardar selección actual si existe
             const seleccionActual = selector.value;
-            
+
             // Generar nuevas opciones basadas en los datos cargados
             const opciones = this.generarOpcionesMeses();
-            
+
             // Mantener la opción "Todos los meses" y agregar las nuevas
             selector.innerHTML = '<option value="">Todos los meses</option>' + opciones;
-            
+
             // Restaurar selección si es posible, o dejar en blanco
             if (seleccionActual && selector.querySelector(`option[value="${seleccionActual}"]`)) {
                 selector.value = seleccionActual;
@@ -1581,34 +1581,34 @@ class DashboardView {
         if (!selector) return;
 
         let mesParaMostrar = '';
-        
+
         // Intentar obtener el primer mes disponible (el más reciente) del selector
         if (selector.options.length > 1) {
             // El índice 0 es "Todos los meses", el 1 debería ser el mes más reciente
             mesParaMostrar = selector.options[1].value;
         } else {
-             // Si no hay opciones (no hay datos), usar mes actual
-             const hoy = new Date();
-             mesParaMostrar = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+            // Si no hay opciones (no hay datos), usar mes actual
+            const hoy = new Date();
+            mesParaMostrar = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
         }
 
         this.mostrarEstadisticasMes(mesParaMostrar);
     }
 
     // ========== MÉTODOS DE ACCIÓN ==========
-    
+
     verDetallesCompletos(id) {
         const llamada = this.data.find(l => l.id == id);
         if (!llamada) return;
-        
+
         this.mostrarModalDetallesCERIT(llamada);
     }
-    
+
     mostrarModalDetallesCERIT(llamada) {
         // Normalizar fecha y hora para ID
         const fechaStr = this.normalizarFecha(llamada.fecha);
         const horaStr = this.normalizarHora(llamada.hora || llamada.hr_rec);
-        
+
         let idFormateado = '--';
         if (fechaStr) {
             const fechaLlamada = new Date(`${fechaStr}T${horaStr || '00:00'}`);
@@ -1616,7 +1616,7 @@ class DashboardView {
                 idFormateado = `${String(fechaLlamada.getDate()).padStart(2, '0')}${String(fechaLlamada.getMonth() + 1).padStart(2, '0')}${String(fechaLlamada.getFullYear()).slice(-2)}${String(fechaLlamada.getHours()).padStart(2, '0')}${String(fechaLlamada.getMinutes()).padStart(2, '0')}`;
             }
         }
-        
+
         const modalId = 'modal-reporte-cerit-' + Date.now();
         const modal = document.createElement('div');
         modal.id = modalId;
@@ -1625,7 +1625,7 @@ class DashboardView {
             background: rgba(0,0,0,0.85); z-index: 1000; display: flex; 
             align-items: center; justify-content: center; padding: 20px;
         `;
-        
+
         modal.innerHTML = `
             <div style="background: white; width: 95%; max-width: 900px; border-radius: 10px; overflow: hidden; border: 3px solid ${this.colors.primary}; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
                 <div style="background: linear-gradient(135deg, ${this.colors.primary} 0%, ${this.colors.secondary} 100%); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
@@ -1650,10 +1650,10 @@ class DashboardView {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
     }
-    
+
     getContenidoModalDetalles(llamada, idFormateado) {
         // Normalización de datos para compatibilidad con diferentes fuentes
         const datos = {
@@ -1806,12 +1806,12 @@ class DashboardView {
                     <div style="margin-bottom: 15px;">
                         <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Estado Actual</div>
                         <div>
-                            ${datos.conclusion ? 
-                                `<span style="padding: 8px 15px; background: ${this.colors.accentGreen}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">CONCLUIDO</span>` : 
-                                datos.seguimiento ? 
-                                `<span style="padding: 8px 15px; background: ${this.colors.accent}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">EN SEGUIMIENTO</span>` :
-                                `<span style="padding: 8px 15px; background: ${this.colors.gray}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">REGISTRADO</span>`
-                            }
+                            ${datos.conclusion ?
+                `<span style="padding: 8px 15px; background: ${this.colors.accentGreen}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">CONCLUIDO</span>` :
+                datos.seguimiento ?
+                    `<span style="padding: 8px 15px; background: ${this.colors.accent}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">EN SEGUIMIENTO</span>` :
+                    `<span style="padding: 8px 15px; background: ${this.colors.gray}; color: white; border-radius: 6px; font-weight: 700; font-size: 0.9rem;">REGISTRADO</span>`
+            }
                         </div>
                     </div>
                     ${datos.seguimiento ? `
@@ -1852,11 +1852,11 @@ class DashboardView {
             </div>
         `;
     }
-    
+
     iniciarEmergencia() {
         this.mostrarModalEmergencia();
     }
-    
+
     mostrarModalEmergencia() {
         const modal = document.createElement('div');
         modal.style.cssText = `
@@ -1864,7 +1864,7 @@ class DashboardView {
             background: rgba(220, 53, 69, 0.95); z-index: 2000; display: flex; 
             align-items: center; justify-content: center; padding: 20px;
         `;
-        
+
         modal.innerHTML = `
             <div style="background: white; width: 95%; max-width: 600px; border-radius: 10px; overflow: hidden; border: 3px solid #dc3545; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
                 <div style="background: #dc3545; color: white; padding: 25px; text-align: center;">
@@ -1946,42 +1946,42 @@ class DashboardView {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         // Añadir funciones a los botones
         modal.querySelector('button[onclick*="iniciarEmergenciaTipo(\'medica\')"]').onclick = () => {
             this.procesarEmergencia('medica');
             modal.remove();
         };
-        
+
         modal.querySelector('button[onclick*="iniciarEmergenciaTipo(\'seguridad\')"]').onclick = () => {
             this.procesarEmergencia('seguridad');
             modal.remove();
         };
-        
+
         modal.querySelector('button[onclick*="iniciarEmergenciaTipo(\'incendio\')"]').onclick = () => {
             this.procesarEmergencia('incendio');
             modal.remove();
         };
     }
-    
+
     procesarEmergencia(tipo) {
         const tipos = {
             'medica': { titulo: 'MÉDICA', icono: 'fas fa-ambulance', color: '#dc3545' },
             'seguridad': { titulo: 'DE SEGURIDAD', icono: 'fas fa-shield-alt', color: '#343a40' },
             'incendio': { titulo: 'INCENDIO', icono: 'fas fa-fire', color: '#fd7e14' }
         };
-        
+
         const tipoInfo = tipos[tipo] || tipos.medica;
-        
+
         this.mostrarAlerta(
             `🚨 PROTOCOLO ${tipoInfo.titulo} ACTIVADO`,
             `Se ha activado el protocolo de emergencia ${tipoInfo.titulo.toLowerCase()}. ` +
             `Notificando a todas las unidades disponibles y al mando superior.`,
             'emergencia'
         );
-        
+
         // Simular envío de alerta
         setTimeout(() => {
             this.mostrarAlerta(
@@ -1991,11 +1991,11 @@ class DashboardView {
             );
         }, 2000);
     }
-    
+
     async recargarDatosForzados() {
         try {
             this.mostrarAlerta('🔄 ACTUALIZANDO', 'Recargando datos del servidor...', 'info');
-            
+
             // Mostrar loading
             const container = this.container.querySelector('#tabla-llamadas-container');
             container.innerHTML = `
@@ -2005,49 +2005,49 @@ class DashboardView {
                     <p>Sincronizando con el servidor CERIT...</p>
                 </div>
             `;
-            
+
             // Limpiar cache si existe
             if (typeof LlamadasService !== 'undefined' && LlamadasService.limpiarCache) {
                 LlamadasService.limpiarCache();
             }
-            
+
             // Forzar recarga
             this.data = [];
             await this.fetchAndRenderTable();
-            
+
             // Actualizar última actualización
             this.actualizarUltimaActualizacion();
-            
+
             this.mostrarAlerta('✅ ACTUALIZADO', 'Datos cargados correctamente', 'success');
         } catch (error) {
             console.error('Error al recargar datos:', error);
             this.mostrarAlerta('❌ ERROR', 'No se pudieron cargar los datos', 'error');
         }
     }
-    
+
     exportarAExcel() {
         if (this.data.length === 0) {
             this.mostrarAlerta('⚠️ SIN DATOS', 'No hay datos para exportar', 'error');
             return;
         }
-        
+
         // Aplicar filtros actuales a los datos
         let datosExportar = this.aplicarFiltrosADatos(this.data);
-        
+
         if (datosExportar.length === 0) {
             this.mostrarAlerta('⚠️ SIN DATOS', 'No hay datos con los filtros actuales', 'error');
             return;
         }
-        
+
         // Crear CSV con los campos de la BD
         let csv = 'ID,Fecha,Hora,Turno,Folio Sistema,Motivo,Ubicación,Colonia,Peticionario,Teléfono,Seguimiento,Razonamiento,Conclusión,Descripción Detallada,Agente,Teléfono Agente,Folio C5,Estado\n';
-        
+
         datosExportar.forEach(item => {
             // Determinar estado
             let estado = 'REGISTRADO';
             if (item.seguimiento) estado = 'EN SEGUIMIENTO';
             if (item.conclusion) estado = 'CONCLUIDO';
-            
+
             const row = [
                 item.id || '',
                 item.fecha || '',
@@ -2068,44 +2068,44 @@ class DashboardView {
                 item.folio_c5 || '',
                 estado
             ];
-            
+
             csv += row.join(',') + '\n';
         });
-        
+
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-        
-        const fecha = new Date().toISOString().slice(0,10);
-        const hora = new Date().toTimeString().slice(0,8).replace(/:/g, '-');
-        
+
+        const fecha = new Date().toISOString().slice(0, 10);
+        const hora = new Date().toTimeString().slice(0, 8).replace(/:/g, '-');
+
         link.setAttribute('href', url);
         link.setAttribute('download', `reporte_cerit_${fecha}_${hora}.csv`);
         link.style.visibility = 'hidden';
-        
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        
-        this.mostrarAlerta('✅ EXPORTACIÓN COMPLETADA', 
-            `Se exportaron ${datosExportar.length} registros a Excel`, 
+
+        this.mostrarAlerta('✅ EXPORTACIÓN COMPLETADA',
+            `Se exportaron ${datosExportar.length} registros a Excel`,
             'success');
     }
-    
+
     imprimirReporte() {
         if (this.data.length === 0) {
             this.mostrarAlerta('⚠️ SIN DATOS', 'No hay datos para imprimir', 'error');
             return;
         }
-        
+
         // Aplicar filtros actuales
         let datosImprimir = this.aplicarFiltrosADatos(this.data);
-        
+
         if (datosImprimir.length === 0) {
             this.mostrarAlerta('⚠️ SIN DATOS', 'No hay datos con los filtros actuales', 'error');
             return;
         }
-        
+
         // Crear ventana de impresión
         const ventanaImpresion = window.open('', '_blank');
         ventanaImpresion.document.write(`
@@ -2165,7 +2165,7 @@ class DashboardView {
                             <tr>
                                 <td>${item.folio_sistema || ''}</td>
                                 <td>${item.fecha || ''}</td>
-                                <td>${item.hora ? item.hora.substring(0,5) : ''}</td>
+                                <td>${item.hora ? item.hora.substring(0, 5) : ''}</td>
                                 <td>${item.turno ? item.turno.toUpperCase() : ''}</td>
                                 <td>${item.motivo || ''}</td>
                                 <td>${item.ubicacion || ''}</td>
@@ -2200,11 +2200,11 @@ class DashboardView {
         `);
         ventanaImpresion.document.close();
     }
-    
+
     async generarReporteMensual() {
         // Verificar filtros activos para determinar mes
         let mesSeleccionado = this.filtrosActivos.mes;
-        
+
         // Si no hay mes seleccionado en filtros, preguntar o usar el actual
         if (!mesSeleccionado) {
             // Intentar obtener del filtro de mes en el DOM aunque no esté aplicado
@@ -2217,72 +2217,72 @@ class DashboardView {
                 mesSeleccionado = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
             }
         }
-        
+
         this.mostrarAlerta('📊 REPORTE MENSUAL', `Generando PDF para el mes ${mesSeleccionado}...`, 'info');
-        
+
         try {
             // Filtrar datos por el mes seleccionado
             const datosMes = this.filtrarPorMes(mesSeleccionado);
-            
+
             if (datosMes.length === 0) {
                 this.mostrarAlerta('⚠️ SIN DATOS', `No hay registros para el mes ${mesSeleccionado}`, 'warning');
                 return;
             }
-            
+
             // Verificar si jsPDF está disponible
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 throw new Error("La librería jsPDF no está cargada");
             }
-            
+
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            
+
             // Colores
             const primaryColor = [0, 51, 102]; // #003366
             const secondaryColor = [108, 117, 125]; // #6c757d
-            
+
             // Encabezado
             doc.setFillColor(...primaryColor);
             doc.rect(0, 0, 210, 40, 'F');
-            
+
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(22);
             doc.setFont("helvetica", "bold");
             doc.text("CERIT TEHUACÁN", 105, 20, { align: "center" });
-            
+
             doc.setFontSize(12);
             doc.setFont("helvetica", "normal");
             doc.text("CENTRO DE EMERGENCIA Y RESPUESTA INMEDIATA", 105, 30, { align: "center" });
-            
+
             // Info del reporte
             const [año, mes] = mesSeleccionado.split('-');
             const nombreMes = new Date(parseInt(año), parseInt(mes) - 1, 1)
                 .toLocaleDateString('es-MX', { month: 'long' }).toUpperCase();
-                
+
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(16);
             doc.setFont("helvetica", "bold");
             doc.text(`REPORTE MENSUAL DE OPERACIONES - ${nombreMes} ${año}`, 14, 55);
-            
+
             doc.setFontSize(10);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(...secondaryColor);
             doc.text(`Generado el: ${new Date().toLocaleDateString('es-MX')} ${new Date().toLocaleTimeString('es-MX')}`, 14, 62);
             doc.text(`Total de registros: ${datosMes.length}`, 14, 67);
             doc.text(`Operador solicitante: ${this.currentUser?.nombre || 'SISTEMA'}`, 14, 72);
-            
+
             // Estadísticas Resumen
             const stats = this.calcularEstadisticasMes(datosMes);
-            
+
             doc.setDrawColor(200, 200, 200);
             doc.setFillColor(245, 245, 245);
             doc.roundedRect(140, 50, 55, 35, 3, 3, 'FD');
-            
+
             doc.setFontSize(11);
             doc.setTextColor(...primaryColor);
             doc.setFont("helvetica", "bold");
             doc.text("RESUMEN", 145, 58);
-            
+
             doc.setFontSize(9);
             doc.setTextColor(0, 0, 0);
             doc.setFont("helvetica", "normal");
@@ -2290,7 +2290,7 @@ class DashboardView {
             doc.text(`Vespertino: ${stats.vespertino}`, 145, 70);
             doc.text(`Nocturno: ${stats.nocturno}`, 145, 75);
             doc.text(`Concluidos: ${stats.concluidos}`, 145, 80);
-            
+
             // Tabla de datos
             const tableData = datosMes.map(item => [
                 item.fecha || '',
@@ -2301,18 +2301,18 @@ class DashboardView {
                 item.ubicacion || '',
                 item.conclusion ? 'Conc.' : (item.seguimiento ? 'Seg.' : 'Reg.')
             ]);
-            
+
             doc.autoTable({
                 startY: 90,
                 head: [['Fecha', 'Hora', 'T', 'Folio', 'Motivo', 'Ubicación', 'Estado']],
                 body: tableData,
                 theme: 'grid',
-                headStyles: { 
+                headStyles: {
                     fillColor: primaryColor,
                     fontSize: 9,
                     halign: 'center'
                 },
-                bodyStyles: { 
+                bodyStyles: {
                     fontSize: 8,
                     overflow: 'linebreak'
                 },
@@ -2338,31 +2338,31 @@ class DashboardView {
                     doc.text(str, data.settings.margin.left, pageHeight - 10);
                 }
             });
-            
+
             // Guardar PDF
             doc.save(`Reporte_CERIT_${nombreMes}_${año}.pdf`);
-            
+
             this.mostrarAlerta('✅ REPORTE GENERADO', 'El PDF se ha descargado correctamente', 'success');
-            
+
         } catch (error) {
             console.error("Error generando PDF:", error);
             this.mostrarAlerta('❌ ERROR', `Error al generar PDF: ${error.message}`, 'error');
         }
     }
-    
+
     mostrarMapaCalor() {
-    // Cargar la vista del mapa de calor
-    if (this.appController && typeof this.appController.loadView === 'function') {
-        this.appController.loadView('mapacalor');
-    } else {
-        // Fallback si no hay appController
-        this.mostrarAlerta('🗺️ MAPA DE CALOR', 'Redirigiendo al mapa de calor...', 'info');
-        
-        // Simular redirección
-        setTimeout(() => {
-            this.mostrarAlerta('⚠️ ERROR', 'No se pudo cargar el mapa de calor. Asegúrate de que MapaCalorView.js esté incluido.', 'error');
-        }, 1000);
-    }
+        // Cargar la vista del mapa de calor
+        if (this.appController && typeof this.appController.loadView === 'function') {
+            this.appController.loadView('mapacalor');
+        } else {
+            // Fallback si no hay appController
+            this.mostrarAlerta('🗺️ MAPA DE CALOR', 'Redirigiendo al mapa de calor...', 'info');
+
+            // Simular redirección
+            setTimeout(() => {
+                this.mostrarAlerta('⚠️ ERROR', 'No se pudo cargar el mapa de calor. Asegúrate de que MapaCalorView.js esté incluido.', 'error');
+            }, 1000);
+        }
     }
     mostrarAlerta(titulo, mensaje, tipo = 'info') {
         const colores = {
@@ -2372,9 +2372,9 @@ class DashboardView {
             'warning': { bg: this.colors.warning, icon: 'fas fa-exclamation-circle' },
             'emergencia': { bg: this.colors.accentRed, icon: 'fas fa-bell' }
         };
-        
+
         const tipoInfo = colores[tipo] || colores.info;
-        
+
         const alertDiv = document.createElement('div');
         alertDiv.style.cssText = `
             position: fixed; top: 20px; right: 20px; 
@@ -2387,7 +2387,7 @@ class DashboardView {
             border-right: 1px solid #dee2e6;
             border-bottom: 1px solid #dee2e6;
         `;
-        
+
         alertDiv.innerHTML = `
             <div style="display: flex; align-items: flex-start; gap: 12px;">
                 <div style="background: ${tipoInfo.bg}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
@@ -2405,9 +2405,9 @@ class DashboardView {
                 </button>
             </div>
         `;
-        
+
         document.body.appendChild(alertDiv);
-        
+
         // Auto-remover después de 5 segundos
         setTimeout(() => {
             if (alertDiv.parentNode) {
@@ -2419,7 +2419,7 @@ class DashboardView {
                 }, 300);
             }
         }, 5000);
-        
+
         // Agregar estilos de animación si no existen
         if (!document.querySelector('#alert-animations')) {
             const style = document.createElement('style');
@@ -2437,13 +2437,13 @@ class DashboardView {
             document.head.appendChild(style);
         }
     }
-    
+
     getDatosEjemploCERIT() {
         const hoy = new Date();
         const año = hoy.getFullYear().toString().substring(2);
         const mes = String(hoy.getMonth() + 1).padStart(2, '0');
         const dia = String(hoy.getDate()).padStart(2, '0');
-        
+
         return [
             {
                 id: 1,
