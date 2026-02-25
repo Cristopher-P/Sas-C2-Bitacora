@@ -1,6 +1,5 @@
-/* Estilos para componentes UI */
 
-/* Toast Notifications */
+
 .toast-container {
     position: fixed;
     top: 20px;
@@ -63,7 +62,6 @@
     color: var(--text-primary);
 }
 
-/* Loading Overlay */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -93,7 +91,6 @@
     text-align: center;
 }
 
-/* Confirm Dialog */
 .confirm-dialog-overlay {
     position: fixed;
     top: 0;
@@ -179,7 +176,6 @@
     background: #c82333;
 }
 
-/* Modal Manager */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -245,7 +241,6 @@
     justify-content: flex-end;
 }
 
-/* Tooltips */
 .tooltip {
     position: absolute;
     background: var(--bg-tertiary);

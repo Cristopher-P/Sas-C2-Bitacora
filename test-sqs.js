@@ -23,7 +23,7 @@ async function testConnection() {
 
     try {
         const result = await AWSService.enviarReporte(testMessage);
-        
+
         if (result.success) {
             console.log('\n✅ ¡ÉXITO! Mensaje enviado correctamente.');
             console.log(`🆔 Message ID: ${result.messageId}`);

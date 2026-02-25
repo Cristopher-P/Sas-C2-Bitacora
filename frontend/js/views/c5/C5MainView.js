@@ -3,21 +3,21 @@ class C5MainView {
         this.currentUser = currentUser;
         this.controller = controller;
         this.colors = {
-            primary: '#003366',      // Azul policía principal
-            secondary: '#0a4d8c',    // Azul más claro
-            accent: '#ff6b35',       // Naranja
-            accentGreen: '#28a745',  // Verde
-            accentRed: '#dc3545',    // Rojo
-            light: '#f8f9fa',        // Fondo claro
-            dark: '#212529',         // Texto oscuro
-            gray: '#6c757d',         // Texto secundario
-            border: '#dee2e6'        // Bordes
+            primary: '#003366',
+            secondary: '#0a4d8c',
+            accent: '#ff6b35',
+            accentGreen: '#28a745',
+            accentRed: '#dc3545',
+            light: '#f8f9fa',
+            dark: '#212529',
+            gray: '#6c757d',
+            border: '#dee2e6'
         };
     }
 
     render(container) {
         this.container = container;
-        // Usar contenedor base del dashboard
+
         this.container.className = 'dashboard-cerit-tehuacan view-bleed view-shell';
         this.container.innerHTML = this.getTemplate();
         this.bindEvents();
@@ -59,7 +59,7 @@ class C5MainView {
 
                 <!-- DASHBOARD GRID -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
-                    
+
                     <!-- Tarjeta Nuevo Reporte -->
                     <div class="action-card card-c5-new" style="background: white; border-radius: 12px; border: 1px solid ${this.colors.border}; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; position: relative;">
                         <div style="height: 6px; background: linear-gradient(90deg, ${this.colors.accentRed}, #ff8a80);"></div>
@@ -125,7 +125,7 @@ class C5MainView {
     }
 
     bindEvents() {
-        // Efectos hover para tarjetas
+
         const cards = this.container.querySelectorAll('.action-card');
         cards.forEach(card => {
             card.addEventListener('mouseenter', () => {
@@ -136,7 +136,7 @@ class C5MainView {
                 const text = card.querySelector('span');
                 if(text) text.style.borderColor = 'currentColor';
             });
-            
+
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'translateY(0)';
                 card.style.boxShadow = 'none';
@@ -148,7 +148,6 @@ class C5MainView {
             });
         });
 
-        // Navegación
         const btnNew = this.container.querySelector('.card-c5-new');
         if(btnNew) {
             btnNew.addEventListener('click', () => {
@@ -163,7 +162,6 @@ class C5MainView {
             });
         }
 
-        // Botón volver
         const btnBack = this.container.querySelector('.btn-back-to-dashboard');
         if(btnBack) {
             btnBack.addEventListener('click', () => {
@@ -173,7 +171,7 @@ class C5MainView {
     }
 
     cleanup() {
-        // Limpiar event listeners
+
     }
 }
 

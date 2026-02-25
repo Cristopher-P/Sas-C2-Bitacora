@@ -10,8 +10,7 @@ class C5DetailsView {
         this.container = container;
         this.container.innerHTML = this.getTemplate();
         this.bindEvents();
-        
-        // Cargar detalles del reporte
+
         await this.cargarDetalles();
     }
 
@@ -27,7 +26,7 @@ class C5DetailsView {
                     </div>
                 </div>
                 <div class="page-divider page-divider--danger"></div>
-                
+
                 <div id="detalles-container" class="card empty-state">
                     <i class="fas fa-spinner fa-spin fa-2x"></i><br>Cargando detalles del reporte ${this.folioC4}...
                 </div>
@@ -36,7 +35,7 @@ class C5DetailsView {
     }
 
     bindEvents() {
-        // Botón volver
+
         const backBtn = this.container.querySelector('.btn-back-to-list');
         if (backBtn) {
             backBtn.addEventListener('click', () => {
@@ -48,17 +47,15 @@ class C5DetailsView {
     async cargarDetalles() {
         try {
             let reporte = null;
-            
-            // Intentar obtener del servicio
+
             if (typeof C5Service !== 'undefined') {
-                // Buscar en la lista de reportes o hacer petición específica
+
                 const resultado = await C5Service.obtenerReportes();
                 if (resultado.success) {
                     reporte = resultado.data.find(r => r.folio_c4 === this.folioC4);
                 }
             }
-            
-            // Si no se encuentra, usar datos de ejemplo
+
             if (!reporte) {
                 reporte = {
                     folio_c4: this.folioC4,
@@ -75,10 +72,10 @@ class C5DetailsView {
                     created_at: '2024-01-26 14:35:00'
                 };
             }
-            
+
             this.reporte = reporte;
             this.renderizarDetalles();
-            
+
         } catch (error) {
             console.error('Error cargando detalles:', error);
             const container = this.container.querySelector('#detalles-container');
@@ -96,17 +93,17 @@ class C5DetailsView {
 
     renderizarDetalles() {
         const container = this.container.querySelector('#detalles-container');
-        
+
         let badgeColor = '#6c757d';
         if (this.reporte.estado === 'recibido') badgeColor = '#28a745';
         if (this.reporte.estado === 'enviado') badgeColor = '#ffc107';
         if (this.reporte.estado === 'pendiente') badgeColor = '#dc3545';
-        
+
         let metodoIcon = 'fas fa-question';
         if (this.reporte.metodo_envio === 'whatsapp') metodoIcon = 'fab fa-whatsapp';
         if (this.reporte.metodo_envio === 'radio') metodoIcon = 'fas fa-broadcast-tower';
         if (this.reporte.metodo_envio === 'telefono') metodoIcon = 'fas fa-phone';
-        
+
         container.innerHTML = `
             <div style="background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow: hidden;">
                 <div style="background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%); color: white; padding: 20px;">
@@ -124,7 +121,7 @@ class C5DetailsView {
                         </div>
                     </div>
                 </div>
-                
+
                 <div style="padding: 25px;">
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 25px;">
                         <div class="detail-card">
@@ -133,14 +130,14 @@ class C5DetailsView {
                                 ${this.reporte.fecha_envio} a las ${this.reporte.hora_envio?.substring(0,5) || ''} hrs
                             </p>
                         </div>
-                        
+
                         <div class="detail-card">
                             <h5><i class="fas fa-exclamation-circle"></i> Motivo</h5>
                             <p style="font-size: 1.1rem; margin: 10px 0; font-weight: bold;">
                                 ${this.reporte.motivo}
                             </p>
                         </div>
-                        
+
                         <div class="detail-card">
                             <h5><i class="fas fa-map-marker-alt"></i> Ubicación</h5>
                             <p style="font-size: 1.1rem; margin: 10px 0;">
@@ -148,25 +145,25 @@ class C5DetailsView {
                             </p>
                         </div>
                     </div>
-                    
+
                     <div style="margin-bottom: 25px;">
                         <h5><i class="fas fa-file-alt"></i> Descripción</h5>
                         <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 10px; border-left: 4px solid #3498db;">
                             <p style="margin: 0; line-height: 1.6;">${this.reporte.descripcion || 'Sin descripción'}</p>
                         </div>
                     </div>
-                    
+
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px;">
                         <div class="detail-card">
                             <h5><i class="fas fa-user-shield"></i> Agente</h5>
                             <p>${this.reporte.agente || 'No especificado'}</p>
                         </div>
-                        
+
                         <div class="detail-card">
                             <h5><i class="fas fa-check-circle"></i> Conclusión</h5>
                             <p>${this.reporte.conclusion || 'Sin conclusión'}</p>
                         </div>
-                        
+
                         <div class="detail-card">
                             <h5><i class="fas fa-exchange-alt"></i> Folio C5</h5>
                             <p style="font-family: monospace; font-weight: bold;">
@@ -174,7 +171,7 @@ class C5DetailsView {
                             </p>
                         </div>
                     </div>
-                    
+
                     <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
                         <h5><i class="fas fa-history"></i> Información Adicional</h5>
                         <div style="display: flex; justify-content: space-between; color: #666; font-size: 0.9rem;">
@@ -198,7 +195,7 @@ class C5DetailsView {
                     </div>
                 </div>
             </div>
-            
+
             <style>
                 .detail-card {
                     background: #f8f9fa;
@@ -219,19 +216,17 @@ class C5DetailsView {
                 }
             </style>
         `;
-        
-        // Bind additional events
+
         this.bindDetailsEvents();
     }
 
     bindDetailsEvents() {
-        // Botón reenviar WhatsApp
+
         const btnReenviar = this.container.querySelector('[onclick*="reenviarWhatsApp"]');
         if (btnReenviar) {
             btnReenviar.onclick = () => this.reenviarWhatsApp();
         }
-        
-        // Botón registrar folio C5
+
         const btnRegistrar = this.container.querySelector('[onclick*="registrarFolioC5"]');
         if (btnRegistrar) {
             btnRegistrar.onclick = () => this.registrarFolioC5();
@@ -242,20 +237,20 @@ class C5DetailsView {
         const texto = this.formatearReporteParaWhatsApp();
         const textoCodificado = encodeURIComponent(texto);
         const whatsappLink = `https://wa.me/?text=${textoCodificado}`;
-        
+
         window.open(whatsappLink, '_blank');
     }
 
     registrarFolioC5() {
         const folioC5 = prompt(`Ingresa el folio que devolvió C5 para:\n\nFolio C4: ${this.reporte.folio_c4}`);
         if (!folioC5) return;
-        
+
         if (typeof C5Service !== 'undefined') {
             C5Service.registrarFolioC5(this.reporte.folio_c4, folioC5)
                 .then(resultado => {
                     if (resultado.success) {
                         alert(`Folio C5 registrado exitosamente:\n\nC4: ${this.reporte.folio_c4}\nC5: ${folioC5}`);
-                        this.cargarDetalles(); // Recargar detalles
+                        this.cargarDetalles();
                     } else {
                         alert(`⚠️ Error: ${resultado.message}`);
                     }
@@ -282,7 +277,7 @@ CONCLUSIÓN: ${this.reporte.conclusion || ''}
     }
 
     cleanup() {
-        // Limpiar event listeners
+
     }
 }
 

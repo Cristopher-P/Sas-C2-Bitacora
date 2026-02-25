@@ -1,4 +1,4 @@
-/* frontend/css/c5-views.css */
+
 
 .c5-container {
     padding: 20px;
@@ -160,14 +160,12 @@
     padding-top: 20px;
 }
 
-/* Modificadores para responsive */
 @media (max-width: 900px) {
     .c5-grid {
         grid-template-columns: 1fr;
     }
 }
 
-/* Nuevas clases extraídas de la vista de éxito */
 .section-preview {
     padding: 20px;
 }

@@ -1,14 +1,14 @@
-// Loading Overlay
+
 class LoadingOverlay {
     constructor() {
         this.overlay = null;
     }
-    
+
     show(message = 'Cargando...') {
         if (this.overlay) {
             this.hide();
         }
-        
+
         this.overlay = document.createElement('div');
         this.overlay.className = 'loading-overlay fade-in';
         this.overlay.innerHTML = `
@@ -17,11 +17,11 @@ class LoadingOverlay {
                 <div class="loading-text">${message}</div>
             </div>
         `;
-        
+
         document.body.appendChild(this.overlay);
         document.body.style.overflow = 'hidden';
     }
-    
+
     hide() {
         if (this.overlay) {
             this.overlay.classList.add('fade-out');
@@ -32,8 +32,7 @@ class LoadingOverlay {
             }, 300);
         }
     }
-    
-    // Wrapper para operaciones async
+
     async wrap(promise, message = 'Cargando...') {
         this.show(message);
         try {

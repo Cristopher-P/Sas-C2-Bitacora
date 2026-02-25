@@ -19,18 +19,15 @@ const usuarios = [
 async function arreglar() {
     console.log('🔌 Conectando a la base de datos...');
     let connection;
-    
+
     try {
         connection = await mysql.createConnection(dbConfig);
         console.log('Conectado. Actualizando contraseñas en tabla USUARIOS...\n');
 
         for (const user of usuarios) {
-            // 1. Encriptar la contraseña "password123"
+
             const hashedPassword = await bcrypt.hash(user.pass, 10);
-            
-            // 2. Actualizar en la base de datos (CAMBIO AQUÍ: 'usuarios')
-            // Nota: Asumo que las columnas se llaman 'password' y 'username'.
-            // Si te da error de columna, avísame.
+
             const [result] = await connection.execute(
                 'UPDATE usuarios SET password = ? WHERE username = ?',
                 [hashedPassword, user.username]

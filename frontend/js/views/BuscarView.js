@@ -1,6 +1,4 @@
-/**
- * BUSCARVIEW.JS - Vista de búsqueda
- */
+
 
 class BuscarView {
     constructor(currentUser, appController) {
@@ -26,15 +24,15 @@ class BuscarView {
                     </div>
                 </div>
                 <div class="page-divider"></div>
-                
+
                 <div class="empty-state">
                     <i class="fas fa-search fa-4x text-muted mb-3"></i>
                     <h3>Búsqueda en Desarrollo</h3>
                     <p class="text-muted" style="max-width: 500px; margin: 0 auto 30px;">
-                        Esta función está siendo desarrollada. Pronto podrás buscar llamadas por fecha, 
+                        Esta función está siendo desarrollada. Pronto podrás buscar llamadas por fecha,
                         motivo, ubicación y otros criterios avanzados.
                     </p>
-                    
+
                     <div style="display: inline-flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
                         <button class="btn btn-secondary" onclick="app.goToDashboard()">
                             <i class="fas fa-home"></i> Volver al Dashboard
@@ -51,13 +49,13 @@ class BuscarView {
     bindEvents() {
         document.getElementById('btn-volver').addEventListener('click', () => {
             this.appController.goToDashboard();
-            
+
         });
             const filtroMes = this.container.querySelector('#filtro-mes');
     if (filtroMes) {
         filtroMes.addEventListener('change', () => {
             this.aplicarFiltros();
-            // Mostrar estadísticas del mes
+
             if (filtroMes.value) {
                 this.mostrarEstadisticasMes(filtroMes.value);
             } else {
@@ -65,8 +63,7 @@ class BuscarView {
             }
         });
     }
-    
-    // Botón exportar por mes
+
     const btnExportarMes = this.container.querySelector('#btn-exportar-mes');
     if (btnExportarMes) {
         btnExportarMes.addEventListener('click', () => {
@@ -82,7 +79,7 @@ class BuscarView {
     }
 
     cleanup() {
-        // Limpiar event listeners
+
     }
 }
 window.BuscarView = BuscarView;

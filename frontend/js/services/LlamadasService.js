@@ -1,26 +1,21 @@
-/**
- * LlamadasService.js - Servicio para manejar llamadas
- * Versión corregida (sin dependencia de Auth)
- */
+
 
 class LlamadasService {
     static apiBaseUrl = '/api/llamadas';
-    
-    // Método auxiliar para obtener headers de autenticación
+
     static getAuthHeaders() {
         const token = localStorage.getItem('token');
         const headers = {
             'Content-Type': 'application/json'
         };
-        
+
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
-        
+
         return headers;
     }
-    
-    // Registrar nueva llamada
+
     static async registrarLlamada(datosLlamada) {
         try {
             const headers = this.getAuthHeaders();
@@ -44,20 +39,18 @@ class LlamadasService {
             return { success: false, message: 'Error de conexión', error: error.message };
         }
     }
-    
-    // Obtener lista de llamadas
+
     static async obtenerLlamadas(filtros = {}) {
         try {
             const headers = this.getAuthHeaders();
             let url = `${this.apiBaseUrl}/listar?`;
-            
-            // Agregar filtros a la URL
+
             Object.keys(filtros).forEach(key => {
                 if (filtros[key]) {
                     url += `${key}=${encodeURIComponent(filtros[key])}&`;
                 }
             });
-            
+
             const response = await fetch(url, { headers });
             return await response.json();
         } catch (error) {
@@ -65,8 +58,7 @@ class LlamadasService {
             return { success: false, message: 'Error de conexión', data: [] };
         }
     }
-    
-    // Obtener una llamada específica
+
     static async obtenerLlamada(id) {
         try {
             const headers = this.getAuthHeaders();
@@ -77,8 +69,7 @@ class LlamadasService {
             return { success: false, message: 'Error de conexión' };
         }
     }
-    
-    // Actualizar llamada
+
     static async actualizarLlamada(id, datos) {
         try {
             const headers = this.getAuthHeaders();
@@ -87,15 +78,14 @@ class LlamadasService {
                 headers,
                 body: JSON.stringify(datos)
             });
-            
+
             return await response.json();
         } catch (error) {
             console.error('Error actualizando llamada:', error);
             return { success: false, message: 'Error de conexión' };
         }
     }
-    
-    // Eliminar llamada
+
     static async eliminarLlamada(id) {
         try {
             const headers = this.getAuthHeaders();
@@ -103,15 +93,14 @@ class LlamadasService {
                 method: 'DELETE',
                 headers
             });
-            
+
             return await response.json();
         } catch (error) {
             console.error('Error eliminando llamada:', error);
             return { success: false, message: 'Error de conexión' };
         }
     }
-    
-    // Obtener estadísticas
+
     static async obtenerEstadisticas(fechaInicio, fechaFin) {
         try {
             const headers = this.getAuthHeaders();
@@ -123,8 +112,7 @@ class LlamadasService {
             return { success: false, message: 'Error de conexión' };
         }
     }
-    
-    // Obtener datos para autocompletar
+
     static async obtenerAutocompletar() {
         try {
             const headers = this.getAuthHeaders();
@@ -132,18 +120,17 @@ class LlamadasService {
             return await response.json();
         } catch (error) {
             console.error('Error obteniendo autocompletar:', error);
-            return { 
-                success: false, 
-                motivos: [], 
-                ubicaciones: [], 
-                colonias: [], 
-                peticionarios: [], 
-                agentes: [] 
+            return {
+                success: false,
+                motivos: [],
+                ubicaciones: [],
+                colonias: [],
+                peticionarios: [],
+                agentes: []
             };
         }
     }
-    
-    // Exportar llamadas
+
     static async exportarLlamadas(fechaInicio, fechaFin) {
         try {
             const headers = this.getAuthHeaders();
@@ -155,8 +142,7 @@ class LlamadasService {
             return { success: false, message: 'Error de conexión' };
         }
     }
-    
-    // Obtener fecha y hora del servidor
+
     static async getServerDateTime() {
         try {
             const response = await fetch('/api/llamadas/fecha-servidor');
@@ -173,5 +159,4 @@ class LlamadasService {
     }
 }
 
-// Exportar para uso global
 window.LlamadasService = LlamadasService;

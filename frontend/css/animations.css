@@ -1,6 +1,5 @@
-/* Animaciones y Transiciones */
 
-/* Fade In/Out */
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -31,7 +30,6 @@
     animation: fadeOut 0.3s ease-in-out;
 }
 
-/* Slide */
 @keyframes slideInRight {
     from {
         transform: translateX(100%);
@@ -80,7 +78,6 @@
     animation: slideInUp 0.4s ease-out;
 }
 
-/* Pulse */
 @keyframes pulse {
 
     0%,
@@ -101,7 +98,6 @@
     animation: pulse 0.5s ease-in-out;
 }
 
-/* Spinner/Loading */
 @keyframes spin {
     from {
         transform: rotate(0deg);
@@ -122,7 +118,6 @@
     animation: spin 0.8s linear infinite;
 }
 
-/* Skeleton Loading */
 @keyframes skeleton-loading {
     0% {
         background-position: -200px 0;
@@ -154,7 +149,6 @@
     margin: 8px 0;
 }
 
-/* Progress Bar */
 @keyframes progress {
     0% {
         width: 0%;
@@ -179,7 +173,6 @@
     transition: width 0.3s ease;
 }
 
-/* Shake (para errores) */
 @keyframes shake {
 
     0%,
@@ -207,7 +200,6 @@
     animation: shake 0.5s;
 }
 
-/* Bounce */
 @keyframes bounce {
 
     0%,
@@ -231,7 +223,6 @@
     animation: bounce 1s;
 }
 
-/* Scale In */
 @keyframes scaleIn {
     from {
         transform: scale(0);
@@ -248,7 +239,6 @@
     animation: scaleIn 0.3s ease-out;
 }
 
-/* Glow */
 @keyframes glow {
 
     0%,
@@ -265,7 +255,6 @@
     animation: glow 2s ease-in-out infinite;
 }
 
-/* Hover transitions */
 .hover-lift {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -275,17 +264,14 @@
     box-shadow: 0 4px 12px var(--shadow-hover);
 }
 
-/* Smooth transitions */
 .smooth {
     transition: all 0.3s ease;
 }
 
-/* Entrada de modales */
 .modal-enter {
     animation: scaleIn 0.3s ease-out;
 }
 
-/* Toast notifications */
 @keyframes toast-in {
     from {
         transform: translateX(100%);

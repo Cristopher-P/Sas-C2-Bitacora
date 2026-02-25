@@ -1,7 +1,6 @@
-// backend/middleware/errorHandler.js
+
 const config = require('../config/app.config');
 
-// Manejo de errores 404
 function notFoundHandler(req, res) {
     res.status(404).json({
         success: false,
@@ -10,13 +9,12 @@ function notFoundHandler(req, res) {
     });
 }
 
-// Manejo de errores del servidor
 function errorHandler(err, req, res, next) {
     console.error('❌ Server error:', err);
-    
+
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Error interno del servidor';
-    
+
     res.status(statusCode).json({
         success: false,
         message: message,
@@ -24,7 +22,6 @@ function errorHandler(err, req, res, next) {
     });
 }
 
-// Manejo de excepciones no capturadas
 function setupGlobalErrorHandlers() {
     process.on('uncaughtException', (error) => {
         console.error('🔥 UNCAUGHT EXCEPTION:', error);

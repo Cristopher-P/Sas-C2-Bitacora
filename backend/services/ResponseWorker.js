@@ -6,9 +6,8 @@ class ResponseWorker {
     constructor(io) {
         this.queueUrl = process.env.AWS_SQS_RESPONSE_QUEUE_URL;
         this.isRunning = false;
-        this.io = io; // Guardar referencia a socket.io
+        this.io = io;
 
-        // Cliente SQS
         this.sqsClient = new SQSClient({
             region: process.env.AWS_REGION || 'us-east-2',
             credentials: {
@@ -24,7 +23,7 @@ class ResponseWorker {
             console.log('⚠️ AWS_SQS_RESPONSE_QUEUE_URL no definida. El worker de respuestas no iniciará.');
             return;
         }
-        
+
         console.log('🔌 Iniciando Response Worker (C4)...');
         console.log('🎯 Escuchando respuestas en:', this.queueUrl);
 
@@ -55,12 +54,11 @@ class ResponseWorker {
             console.log('📩 Respuesta recibida:', body);
 
             if (body.tipo === 'RESPUESTA_FOLIO' && body.folio_c4 && body.folio_c5) {
-                // Actualizar base de datos
+
                 console.log(`🔄 Actualizando Folio C4: ${body.folio_c4} con C5: ${body.folio_c5}`);
                 await EnvioC5.registrarFolioC5(body.folio_c4, body.folio_c5);
                 console.log('✅ Base de datos actualizada correctamente');
-                
-                // Emitir evento por WebSockets para recargar la UI en los clientes
+
                 if (this.io) {
                     this.io.emit('reportes_actualizados', {
                         accion: 'folio_asignado',
@@ -72,8 +70,7 @@ class ResponseWorker {
 
         } catch (error) {
             console.error('Error procesando respuesta:', error);
-            // No lanzamos error para que no se reencole infinitamente si es un error de formato
-            // Pero si es error de BD, tal vez sí deberíamos. Por ahora lo dejamos así.
+
         }
     }
 }

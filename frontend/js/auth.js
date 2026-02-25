@@ -10,7 +10,7 @@ class Auth {
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));

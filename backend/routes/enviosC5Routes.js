@@ -4,30 +4,22 @@ const EnvioC5Controller = require('../controllers/EnvioC5Controller');
 const authMiddleware = require('../middleware/auth');
 const { validarCreacion } = require('../middleware/validators/envioC5Validator');
 
-// Todas las rutas requieren autenticación
 router.use(authMiddleware);
-// Crear nuevo reporte C5
+
 router.post('/crear', validarCreacion, (req, res, next) => EnvioC5Controller.crearReporte(req, res, next));
 
-// Obtener todos los reportes
 router.get('/listar', (req, res) => EnvioC5Controller.obtenerReportes(req, res));
 
-// Obtener reporte específico
 router.get('/:id', (req, res) => EnvioC5Controller.obtenerReporte(req, res));
 
-// Actualizar estado
 router.put('/:id/estado', (req, res) => EnvioC5Controller.actualizarEstado(req, res));
 
-// Registrar folio C5 (respuesta del C5)
 router.post('/registrar-folio-c5', (req, res) => EnvioC5Controller.registrarFolioC5(req, res));
 
-// Generar formato WhatsApp
 router.get('/:id/whatsapp', (req, res) => EnvioC5Controller.generarFormatoWhatsApp(req, res));
 
-// Enviar reporte directamente a C5
 router.post('/:id/enviar', (req, res) => EnvioC5Controller.enviarReporteC5(req, res));
 
-// Pendientes
 router.get('/pendientes/listar', (req, res) => EnvioC5Controller.obtenerPendientes(req, res));
 
 module.exports = router;

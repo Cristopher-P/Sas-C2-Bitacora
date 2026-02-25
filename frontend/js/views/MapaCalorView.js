@@ -1,7 +1,4 @@
-/**
- * MAPACALORVIEW.JS - Mapa de calor para incidencias en Tehuacán, Puebla
- * Sistema CERIT - Versión 2.0 - Diseño UX/UI Mejorado
- */
+
 
 class MapaCalorView {
     constructor(appController) {
@@ -16,88 +13,82 @@ class MapaCalorView {
             fechaFin: null,
             turno: null
         };
-        
-        // Configuración de colores mejorada (Inspirada en index.html)
+
         this.colors = {
-            primary: '#2c3e50',      // Dark blue from login header
-            primaryLight: '#34495e', // Slightly lighter blue
-            primaryDark: '#1a252f',  // Darker shade
-            accent: '#e67e22',       // Orange accent
-            accentRed: '#e74c3c',    // Red for errors/alerts
-            accentGreen: '#27ae60',  // Green for success
-            warning: '#f1c40f',      // Yellow for warnings
-            info: '#3498db',         // Blue for info
-            dark: '#2c3e50',         // Dark text
-            light: '#f5f7fa',        // Light background
-            border: '#ecf0f1',       // Light border
-            text: '#2c3e50',         // Primary text
-            textLight: '#7f8c8d'     // Secondary text
+            primary: '#2c3e50',
+            primaryLight: '#34495e',
+            primaryDark: '#1a252f',
+            accent: '#e67e22',
+            accentRed: '#e74c3c',
+            accentGreen: '#27ae60',
+            warning: '#f1c40f',
+            info: '#3498db',
+            dark: '#2c3e50',
+            light: '#f5f7fa',
+            border: '#ecf0f1',
+            text: '#2c3e50',
+            textLight: '#7f8c8d'
         };
-        
-        // Coordenadas de Tehuacán, Puebla
+
         this.coordenadasTehuacan = {
             lat: 18.4614,
             lng: -97.3928,
             zoom: 13
         };
-        
-        // Tipos de incidencia mejorados con gradientes
+
         this.tiposIncidencia = {
-            'accidente': { 
-                color: '#ff6b35', 
+            'accidente': {
+                color: '#ff6b35',
                 gradient: 'linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%)',
-                icon: 'car-crash', 
+                icon: 'car-crash',
                 nombre: 'Accidentes',
                 descripcion: 'Choques y accidentes vehiculares'
             },
-            'robo': { 
-                color: '#dc3545', 
+            'robo': {
+                color: '#dc3545',
                 gradient: 'linear-gradient(135deg, #dc3545 0%, #e74c5d 100%)',
-                icon: 'shield-alt', 
+                icon: 'shield-alt',
                 nombre: 'Robos',
                 descripcion: 'Robos y asaltos reportados'
             },
-            'disturbio': { 
-                color: '#ffc107', 
+            'disturbio': {
+                color: '#ffc107',
                 gradient: 'linear-gradient(135deg, #ffc107 0%, #ffd34e 100%)',
-                icon: 'users', 
+                icon: 'users',
                 nombre: 'Disturbios',
                 descripcion: 'Alteraciones del orden público'
             },
-            'sospechoso': { 
-                color: '#6c757d', 
+            'sospechoso': {
+                color: '#6c757d',
                 gradient: 'linear-gradient(135deg, #6c757d 0%, #8a929a 100%)',
-                icon: 'user-secret', 
+                icon: 'user-secret',
                 nombre: 'Sospechosos',
                 descripcion: 'Personas o situaciones sospechosas'
             },
-            'vehiculo': { 
-                color: '#17a2b8', 
+            'vehiculo': {
+                color: '#17a2b8',
                 gradient: 'linear-gradient(135deg, #17a2b8 0%, #1fc6df 100%)',
-                icon: 'car', 
+                icon: 'car',
                 nombre: 'Vehículos',
                 descripcion: 'Vehículos abandonados o sospechosos'
             },
-            'medica': { 
-                color: '#28a745', 
+            'medica': {
+                color: '#28a745',
                 gradient: 'linear-gradient(135deg, #28a745 0%, #34ce57 100%)',
-                icon: 'ambulance', 
+                icon: 'ambulance',
                 nombre: 'Emergencias',
                 descripcion: 'Emergencias médicas'
             }
         };
-        
-        // Estado del panel lateral
-        this.panelAbierto = true;
-        
-        // Modo de vista del mapa
-        this.modoVista = 'calor'; // 'calor', 'marcadores', 'clusters'
 
-        // Control de geocodificación
+        this.panelAbierto = true;
+
+        this.modoVista = 'calor';
+
         this.geocodingDisponible = true;
         this.geocodingErrorNotificado = false;
     }
-    
+
     async render(container) {
         this.container = container;
         document.body.classList.add('mapa-fullscreen');
@@ -105,31 +96,30 @@ class MapaCalorView {
         await this.initMapa();
         this.bindEvents();
         this.iniciarAnimaciones();
-        
-        // Cargar datos iniciales
+
         await this.cargarDatosMapa();
     }
-    
+
     getTemplate() {
         return `
             <div class="mapa-calor-container" style="position: fixed; top: 80px; left: 0; width: 100%; height: calc(100vh - 80px); background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%); display: flex; flex-direction: column; overflow: hidden; z-index: 90; margin: 0; padding: 0;">
                 <!-- Header eliminado para dar más espacio al mapa -->
-                
+
                 <!-- Indicadores Flotantes (Top Center) -->
                 <!-- Indicadores de estado eliminados (EN VIVO, Geocodificando) para limpiar la vista -->
-                
+
                 <!-- Contenido Principal -->
                 <div class="mapa-layout" style="overflow: hidden; position: relative;">
                     <!-- Panel de Control Lateral Mejorado -->
-                    <div id="panel-control" class="panel-control-lateral mapa-panel" 
+                    <div id="panel-control" class="panel-control-lateral mapa-panel"
                          style="background: white; border-right: 1px solid ${this.colors.border}; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 2px 0 12px rgba(0,0,0,0.08); z-index: 50; position: relative;">
-                        
+
                         <!-- Botón toggle panel -->
-                        <button id="btn-toggle-panel" 
+                        <button id="btn-toggle-panel"
                                 style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; background: white; border: 1px solid ${this.colors.border}; border-left: none; border-radius: 0 10px 10px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 4px 0 12px rgba(0,0,0,0.1); transition: all 0.3s; z-index: 10;">
                             <i class="fas fa-chevron-left" style="color: ${this.colors.primary}; transition: transform 0.3s;"></i>
                         </button>
-                        
+
                         <div style="flex: 1; overflow-y: auto; padding: 20px;">
                             <!-- Tarjeta de Estadísticas Rápidas -->
                             <div class="stats-rapidas" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
@@ -141,7 +131,7 @@ class MapaCalorView {
                                         <div style="color: rgba(255,255,255,0.9); font-size: 0.8rem; margin-top: 3px;">Incidencias</div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="stat-card" style="background: linear-gradient(135deg, ${this.colors.accent} 0%, #ff8c5a 100%); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255,107,53,0.2); position: relative; overflow: hidden;">
                                     <div style="position: absolute; top: -10px; right: -10px; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
                                     <div style="position: relative; z-index: 1;">
@@ -151,20 +141,20 @@ class MapaCalorView {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Filtros Mejorados -->
                             <div class="seccion-filtros" style="margin-bottom: 25px;">
                                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
                                     <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 8px; font-weight: 700;">
                                         <i class="fas fa-sliders-h"></i> FILTROS
                                     </h4>
-                                    <button id="btn-limpiar-filtros-mapa" 
+                                    <button id="btn-limpiar-filtros-mapa"
                                             style="padding: 5px 12px; background: ${this.colors.light}; color: ${this.colors.text}; border: 1px solid ${this.colors.border}; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
                                             title="Limpiar todos los filtros">
                                         <i class="fas fa-eraser"></i> Limpiar
                                     </button>
                                 </div>
-                                
+
                                 <div style="display: flex; flex-direction: column; gap: 18px;">
                                     <!-- Rango de Fechas -->
                                     <div class="form-group-mapa">
@@ -182,17 +172,17 @@ class MapaCalorView {
                                                    placeholder="Hasta">
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Botón Aplicar Filtros -->
-                                    <button id="btn-aplicar-filtros-mapa" 
+                                    <button id="btn-aplicar-filtros-mapa"
                                             style="width: 100%; padding: 14px; background: linear-gradient(135deg, ${this.colors.primary} 0%, ${this.colors.primaryLight} 100%); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.95rem; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,51,102,0.3);">
                                         <i class="fas fa-filter"></i> APLICAR FILTROS
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <!-- Leyenda movida al mapa -->
-                            
+
                             <!-- Información Adicional -->
                             <div style="background: linear-gradient(135deg, ${this.colors.light} 0%, white 100%); padding: 15px; border-radius: 10px; border: 1px solid ${this.colors.border};">
                                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
@@ -204,7 +194,7 @@ class MapaCalorView {
                                     <span id="ultima-actualizacion-mapa" style="font-size: 0.9rem; color: ${this.colors.primary}; font-weight: 600;">Ahora mismo</span>
                                 </div>
                             </div>
-                            
+
                             <!-- Últimos Registros -->
                             <div class="seccion-ultimos" style="margin-top: 25px;">
                                 <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-weight: 700;">
@@ -219,34 +209,34 @@ class MapaCalorView {
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Mapa Principal -->
                     <div class="mapa-canvas" style="position: relative; background: ${this.colors.light};">
                         <div id="mapa-tehuacan" style="width: 100%; height: 100%;"></div>
-                        
+
                         <!-- Controles flotantes del mapa (Columna Vertical Derecha) -->
                         <div class="controles-flotantes" style="position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 400;">
-                        
+
                             <!-- Control de zoom personalizado -->
                             <div style="background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); overflow: hidden;">
-                                <button id="btn-zoom-in" 
+                                <button id="btn-zoom-in"
                                         style="width: 45px; height: 45px; background: white; border: none; border-bottom: 1px solid ${this.colors.border}; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
                                     <i class="fas fa-plus" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
                                 </button>
-                                <button id="btn-zoom-out" 
+                                <button id="btn-zoom-out"
                                         style="width: 45px; height: 45px; background: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
                                     <i class="fas fa-minus" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
                                 </button>
                             </div>
-                            
+
                             <!-- Control de ubicación -->
-                            <button id="btn-mi-ubicacion" 
+                            <button id="btn-mi-ubicacion"
                                     style="width: 45px; height: 45px; background: white; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                                 <i class="fas fa-crosshairs" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
                             </button>
-                            
+
                             <!-- Control pantalla completa -->
-                            <button id="btn-pantalla-completa" 
+                            <button id="btn-pantalla-completa"
                                     style="width: 45px; height: 45px; background: white; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                                 <i class="fas fa-expand" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
                             </button>
@@ -256,28 +246,28 @@ class MapaCalorView {
 
                             <!-- Modos de Vista (Apilados Verticalmente) -->
                             <div class="grupo-vistas-vertical" style="background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column;">
-                                <button class="btn-vista-mapa active" data-vista="calor" 
+                                <button class="btn-vista-mapa active" data-vista="calor"
                                         style="width: 45px; height: 45px; background: ${this.colors.light}; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.primary}; transition: all 0.3s; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid ${this.colors.border};"
                                         title="Mapa de calor">
                                     <i class="fas fa-fire"></i>
                                 </button>
-                                <button class="btn-vista-mapa" data-vista="marcadores" 
+                                <button class="btn-vista-mapa" data-vista="marcadores"
                                         style="width: 45px; height: 45px; background: white; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.textLight}; transition: all 0.3s; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid ${this.colors.border};"
                                         title="Marcadores">
                                     <i class="fas fa-map-pin"></i>
                                 </button>
-                                <button class="btn-vista-mapa" data-vista="clusters" 
+                                <button class="btn-vista-mapa" data-vista="clusters"
                                         style="width: 45px; height: 45px; background: white; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.textLight}; transition: all 0.3s; display: flex; align-items: center; justify-content: center;"
                                         title="Agrupación">
                                     <i class="fas fa-th"></i>
                                 </button>
                             </div>
                         </div>
-                        
+
                         <!-- Indicador de modo vista [ELIMINADO] -->
                         <!-- Se elimina para limpiar la vista. -->
                         <div id="indicador-modo-vista" style="display: none;"></div>
-                        
+
                         <!-- Leyenda Flotante (Top Center) -->
                         <div id="leyenda-flotante" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 6px 15px; border-radius: 30px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 400; max-width: 90%; overflow-x: auto;">
                             ${Object.entries(this.tiposIncidencia).map(([key, tipo]) => `
@@ -305,11 +295,11 @@ class MapaCalorView {
                     </div>
                 </div>
             </div>
-            
+
             ${this.getEstilos()}
         `;
     }
-    
+
     getEstilos() {
         return `
             <style>
@@ -349,58 +339,58 @@ class MapaCalorView {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                 }
-                
+
                 @keyframes progreso {
                     0% { width: 0%; transform: translateX(0); }
                     50% { width: 70%; }
                     100% { width: 100%; transform: translateX(100%); }
                 }
-                
+
                 @keyframes pulso {
                     0%, 100% { transform: scale(1); opacity: 1; }
                     50% { transform: scale(1.2); opacity: 0.7; }
                 }
-                
+
                 @keyframes fadeInUp {
                     from { opacity: 0; transform: translateY(20px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                
+
                 @keyframes fadeInRight {
                     from { opacity: 0; transform: translateX(20px); }
                     to { opacity: 1; transform: translateX(0); }
                 }
-                
+
                 @keyframes fadeOutRight {
                     from { opacity: 1; transform: translateX(0); }
                     to { opacity: 0; transform: translateX(20px); }
                 }
-                
+
                 .pulso-indicador {
                     animation: pulso 2s ease-in-out infinite;
                 }
-                
+
                 .pulso-pequeño {
                     animation: pulso 1.5s ease-in-out infinite;
                 }
-                
+
                 .stat-card {
                     animation: fadeInUp 0.5s ease-out;
                 }
-                
+
                 .stat-card:nth-child(2) {
                     animation-delay: 0.1s;
                 }
-                
+
                 .btn-accion-mapa:hover {
                     transform: translateY(-2px);
                     box-shadow: 0 6px 16px rgba(0,0,0,0.2) !important;
                 }
-                
+
                 .btn-accion-mapa:active {
                     transform: translateY(0);
                 }
-                
+
                 .btn-vista-mapa:hover {
                     background: ${this.colors.light} !important;
                     color: ${this.colors.primary};
@@ -410,76 +400,76 @@ class MapaCalorView {
                     background: ${this.colors.primary} !important;
                     color: white !important;
                 }
-                
+
                 .input-custom:focus {
                     outline: none;
                     border-color: ${this.colors.primary};
                     box-shadow: 0 0 0 3px rgba(0,51,102,0.1);
                 }
-                
+
                 .btn-turno.active {
                     background: ${this.colors.primary} !important;
                     color: white !important;
                     border-color: ${this.colors.primary} !important;
                 }
-                
+
                 .btn-turno:hover {
                     border-color: ${this.colors.primary};
                     transform: translateY(-2px);
                     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
                 }
-                
+
                 .leyenda-item:hover {
                     border-color: ${this.colors.primary};
                     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                     transform: translateX(5px);
                 }
-                
+
                 .controles-flotantes button:hover {
                     background: ${this.colors.light} !important;
                     transform: scale(1.1);
                 }
-                
+
                 .leaflet-popup-content-wrapper {
                     border-radius: 12px !important;
                     box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
                 }
-                
+
                 .leaflet-popup-tip {
                     box-shadow: 0 3px 6px rgba(0,0,0,0.1) !important;
                 }
-                
+
                 /* Scrollbar personalizado */
                 .panel-control-lateral::-webkit-scrollbar {
                     width: 6px;
                 }
-                
+
                 .panel-control-lateral::-webkit-scrollbar-track {
                     background: ${this.colors.light};
                 }
-                
+
                 .panel-control-lateral::-webkit-scrollbar-thumb {
                     background: ${this.colors.border};
                     border-radius: 3px;
                 }
-                
+
                 .panel-control-lateral::-webkit-scrollbar-thumb:hover {
                     background: ${this.colors.textLight};
                 }
-                
+
                 /* Animación de entrada para elementos */
                 .seccion-filtros,
                 .seccion-leyenda {
                     animation: fadeInUp 0.6s ease-out;
                 }
-                
+
                 /* Panel colapsado */
                 .panel-control-lateral.colapsado {
                     width: 0 !important;
                     padding: 0 !important;
                     border: none !important;
                 }
-                
+
                 .panel-control-lateral.colapsado #btn-toggle-panel i {
                     transform: rotate(180deg);
                 }
@@ -532,7 +522,7 @@ class MapaCalorView {
             </style>
         `;
     }
-    
+
     getEmojiForTipo(tipo) {
         const emojis = {
             'accidente': '🚗',
@@ -544,10 +534,10 @@ class MapaCalorView {
         };
         return emojis[tipo] || '📍';
     }
-    
+
     async initMapa() {
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         if (typeof L === 'undefined') {
             this.cargarLeafletCSS();
             await this.cargarLeafletJS();
@@ -558,35 +548,32 @@ class MapaCalorView {
         if (typeof L.heatLayer === 'undefined') {
             await this.cargarLeafletHeat();
         }
-        
-        // DESTROY EXISTING MAP INSTANCE BEFORE CREATING A NEW ONE TO AVOID CONTAINERS ERRORS
+
         if (this.mapa !== null) {
             this.mapa.remove();
             this.mapa = null;
         }
 
-        // ASEGURARNOS DE QUE EL CONTENEDOR EXISTE EN EL DOM ANTES DE INICIALIZAR L.MAP
         const mapContainer = document.getElementById('mapa-tehuacan');
-        if (!mapContainer) return; // Si el usuario cambió de vista rápido, el DOM no existe
-        
+        if (!mapContainer) return;
+
         this.mapa = L.map('mapa-tehuacan', {
             center: [this.coordenadasTehuacan.lat, this.coordenadasTehuacan.lng],
             zoom: this.coordenadasTehuacan.zoom,
-            zoomControl: false // Usaremos controles personalizados
+            zoomControl: false
         });
-        
-        // Capa base con estilo mejorado
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             maxZoom: 19
         }).addTo(this.mapa);
-        
+
         const loadingMap = document.getElementById('loading-mapa');
         if (loadingMap) {
             loadingMap.style.display = 'none';
         }
     }
-    
+
     cargarLeafletCSS() {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
@@ -595,7 +582,7 @@ class MapaCalorView {
         link.crossOrigin = '';
         document.head.appendChild(link);
     }
-    
+
     cargarLeafletJS() {
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
@@ -617,21 +604,19 @@ class MapaCalorView {
             document.head.appendChild(script);
         });
     }
-    
+
     bindEvents() {
-        // Botones de vista
+
         document.querySelectorAll('.btn-vista-mapa').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.cambiarModoVista(e.currentTarget.dataset.vista);
             });
         });
-        
-        // Botón toggle panel
+
         document.getElementById('btn-toggle-panel').addEventListener('click', () => {
             this.togglePanel();
         });
-        
-        // Botones de turno
+
         document.querySelectorAll('.btn-turno').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
@@ -639,35 +624,31 @@ class MapaCalorView {
                 document.getElementById('filtro-turno').value = e.currentTarget.dataset.turno;
             });
         });
-        
-        // Aplicar filtros
+
         document.getElementById('btn-aplicar-filtros-mapa').addEventListener('click', () => {
             this.aplicarFiltrosMapa();
         });
-        
-        // Limpiar filtros
+
         document.getElementById('btn-limpiar-filtros-mapa').addEventListener('click', () => {
             this.limpiarFiltrosMapa();
         });
-        
-        // Controles del mapa
+
         document.getElementById('btn-zoom-in').addEventListener('click', () => {
             this.mapa.zoomIn();
         });
-        
+
         document.getElementById('btn-zoom-out').addEventListener('click', () => {
             this.mapa.zoomOut();
         });
-        
+
         document.getElementById('btn-mi-ubicacion').addEventListener('click', () => {
             this.centrarEnTehuacan();
         });
-        
+
         document.getElementById('btn-pantalla-completa').addEventListener('click', () => {
             this.togglePantallaCompleta();
         });
-        
-        // Clicks en leyenda flotante para filtrar
+
         document.querySelectorAll('.leyenda-item-flotante').forEach(item => {
             item.addEventListener('click', (e) => {
                 const tipo = e.currentTarget.dataset.tipo;
@@ -677,16 +658,15 @@ class MapaCalorView {
             });
         });
     }
-    
+
     iniciarAnimaciones() {
-        // Animaciones simplificadas para evitar bugs visuales
-        // Aseguramos que todo sea visible inmediatamente o con una transición CSS simple
+
         const elementos = [
             '.stat-card',
             '.seccion-filtros',
             '.seccion-leyenda'
         ];
-        
+
         elementos.forEach(selector => {
             const els = document.querySelectorAll(selector);
             els.forEach(el => {
@@ -695,13 +675,13 @@ class MapaCalorView {
             });
         });
     }
-    
+
     togglePanel() {
         const panel = document.getElementById('panel-control');
         const icono = document.querySelector('#btn-toggle-panel i');
-        
+
         this.panelAbierto = !this.panelAbierto;
-        
+
         if (this.panelAbierto) {
             panel.style.width = '380px';
             panel.style.padding = '0';
@@ -711,28 +691,27 @@ class MapaCalorView {
             panel.style.padding = '0';
             icono.className = 'fas fa-chevron-right';
         }
-        
-        // Actualizar mapa
+
         setTimeout(() => {
             this.mapa.invalidateSize();
         }, 300);
     }
-    
+
     cambiarModoVista(modo) {
         this.modoVista = modo;
-        
+
         const nombres = {
             'calor': 'Mapa de Calor',
             'marcadores': 'Marcadores',
             'clusters': 'Agrupación'
         };
-        
+
         const iconos = {
             'calor': 'fa-fire',
             'marcadores': 'fa-map-pin',
             'clusters': 'fa-th'
         };
-        
+
         const indicadorIcono = document.querySelector('#indicador-modo-vista i');
         if (indicadorIcono) {
             indicadorIcono.className = `fas ${iconos[modo]}`;
@@ -743,12 +722,9 @@ class MapaCalorView {
         }
 
         this.syncBotonesModoVista(modo);
-        
-        // Aplicar modo de vista
+
         this.aplicarModoVista();
-        
-        // Notificación eliminada por solicitud del usuario
-        // this.mostrarNotificacionRapida(`Modo cambiado a: ${nombres[modo]}`);
+
     }
 
     syncBotonesModoVista(modo) {
@@ -756,17 +732,16 @@ class MapaCalorView {
             btn.classList.toggle('active', btn.dataset.vista === modo);
         });
     }
-    
+
     aplicarModoVista() {
         if (!this.mapa) {
             return;
         }
-        // Limpiar capas actuales
+
         this.limpiarMarcadores();
-        
-        // Aplicar según modo
+
         const datosFiltrados = this.aplicarFiltrosADatos(this.datosMapa || []);
-        
+
         switch(this.modoVista) {
             case 'calor':
                 this.mostrarMapaCalor(datosFiltrados);
@@ -779,7 +754,7 @@ class MapaCalorView {
                 break;
         }
     }
-    
+
     mostrarNotificacionRapida(mensaje) {
         const notif = document.createElement('div');
         notif.style.cssText = `
@@ -800,26 +775,26 @@ class MapaCalorView {
         `;
         notif.textContent = mensaje;
         document.body.appendChild(notif);
-        
+
         setTimeout(() => {
             notif.style.animation = 'fadeOutRight 0.3s ease-out';
             setTimeout(() => notif.remove(), 300);
         }, 2000);
     }
-    
+
     centrarEnTehuacan() {
         this.mapa.setView(
             [this.coordenadasTehuacan.lat, this.coordenadasTehuacan.lng],
             this.coordenadasTehuacan.zoom,
             { animate: true, duration: 1 }
         );
-        // this.mostrarNotificacionRapida('Centrado en Tehuacán');
+
     }
-    
+
     togglePantallaCompleta() {
         const elem = document.documentElement;
         const icono = document.querySelector('#btn-pantalla-completa i');
-        
+
         if (!document.fullscreenElement) {
             elem.requestFullscreen().then(() => {
                 icono.className = 'fas fa-compress';
@@ -830,20 +805,18 @@ class MapaCalorView {
             });
         }
     }
-    
+
     async cargarDatosMapa() {
         try {
             let datos = [];
-            
+
             if (typeof LlamadasService !== 'undefined') {
                 const response = await LlamadasService.obtenerLlamadas();
                 if (response && response.success) {
                     datos = response.data || [];
                 }
             }
-            
 
-            
             this.datosMapa = this.normalizarDatosMapa(datos);
             if (!Array.isArray(this.datosMapa)) {
                 this.datosMapa = [];
@@ -851,7 +824,7 @@ class MapaCalorView {
             this.aplicarModoVista();
             this.actualizarEstadisticas(this.datosMapa.length, this.datosMapa.length);
             this.actualizarContadoresTipo(this.datosMapa);
-            // Corregido: Actualizar explícitamente la lista de últimos registros al cargar
+
             this.actualizarUltimosRegistros(this.datosMapa);
 
             this.resolverCoordenadasIncidencias(this.datosMapa).then(() => {
@@ -861,15 +834,15 @@ class MapaCalorView {
             if (this.mapa) {
                 setTimeout(() => this.mapa.invalidateSize(), 100);
             }
-            
+
         } catch (error) {
             console.error('Error cargando datos del mapa:', error);
             this.mostrarAlerta('⚠️ ERROR', 'Error cargando datos del mapa', 'error');
         }
     }
-    
+
     actualizarEstadisticas(total, mostradas) {
-        // Animación de contador
+
         this.animarContador('total-incidencias', total);
         this.animarContador('mostradas-incidencias', mostradas);
 
@@ -879,7 +852,7 @@ class MapaCalorView {
                 new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
         }
     }
-    
+
     animarContador(elementOrId, valorFinal) {
         const elemento = typeof elementOrId === 'string'
             ? document.getElementById(elementOrId)
@@ -893,7 +866,7 @@ class MapaCalorView {
         }
         const duracion = 200;
         const incremento = (valorFinal - valorActual) / (duracion / 16);
-        
+
         let valor = valorActual;
         const intervalo = setInterval(() => {
             valor += incremento;
@@ -905,21 +878,19 @@ class MapaCalorView {
             }
         }, 16);
     }
-    
+
     actualizarContadoresTipo(datos) {
-        // Resetear contadores
+
         document.querySelectorAll('.contador-tipo').forEach(el => {
             el.textContent = '0';
         });
-        
-        // Contar por tipo
+
         const conteo = {};
         datos.forEach(incidencia => {
             const tipo = this.determinarTipoIncidencia(incidencia.motivo);
             conteo[tipo] = (conteo[tipo] || 0) + 1;
         });
-        
-        // Actualizar contadores
+
         Object.entries(conteo).forEach(([tipo, cantidad]) => {
             const elemento = document.querySelector(`.contador-tipo[data-tipo="${tipo}"]`);
             if (elemento) {
@@ -993,17 +964,15 @@ class MapaCalorView {
         return null;
     }
 
-
-
     validarCoordenadasTehuacan(lat, lng) {
-        // Límites geográficos aproximados de Tehuacán, Puebla
+
         const limites = {
             latMin: 18.40,
             latMax: 18.52,
             lngMin: -97.45,
             lngMax: -97.35
         };
-        
+
         return lat >= limites.latMin && lat <= limites.latMax &&
                lng >= limites.lngMin && lng <= limites.lngMax;
     }
@@ -1024,7 +993,6 @@ class MapaCalorView {
             return;
         }
 
-
         this.mostrarIndicadorGeocoding(true);
 
         const procesarLote = async (lote, index) => {
@@ -1038,19 +1006,16 @@ class MapaCalorView {
                     incidencia._coords = this.obtenerCoordenadasFallback(incidencia);
                 }
             }));
-            
-            // Actualizar progreso
+
             const procesados = Math.min((index + 1) * lote.length, pendientes.length);
             this.actualizarProgresoGeocoding(procesados, pendientes.length);
         };
 
-        // Respetar límites de Nominatim (1 req/seg)
         const tamañoLote = 1;
         for (let i = 0; i < pendientes.length; i += tamañoLote) {
             const lote = pendientes.slice(i, i + tamañoLote);
             await procesarLote(lote, i);
-            
-            // Delay de 1.1 segundos entre solicitudes para respetar límites de API
+
             if (i + tamañoLote < pendientes.length) {
                 await new Promise(resolve => setTimeout(resolve, 1100));
             }
@@ -1060,40 +1025,28 @@ class MapaCalorView {
 
     }
 
-
-
-
-
     async geocodificarIncidencia(incidencia) {
-        // Optimización: Usar solo métodos efectivos (Photon) y fallback simple
-        // para mejorar velocidad de carga y evitar loops de reintento lentos.
 
-        // 1. Construir query optimizado para Photon
-        // Photon prefiere: "Calle Número, Ciudad, Estado"
         let query = `${incidencia.calle || incidencia.ubicacion || ''}`;
         if (incidencia.numero) query += ` ${incidencia.numero}`;
-        query += ', Tehuacán, Puebla'; // Contexto simple
+        query += ', Tehuacán, Puebla';
 
-        // 2. Verificar caché en memoria
         if (this.coordenadasCache && this.coordenadasCache.has(query)) {
             return this.coordenadasCache.get(query);
         }
 
-
-
-        // 3. Consultar Photon API (Rápido y tolerante)
         try {
-            // Bias hacia Tehuacán (Lat 18.46, Lon -97.39)
+
             const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lat=18.46&lon=-97.39`;
-            
+
             const response = await fetch(photonUrl);
             if (response.ok) {
                 const data = await response.json();
                 if (data.features && data.features.length > 0) {
-                    const coordsData = data.features[0].geometry.coordinates; // [lon, lat]
+                    const coordsData = data.features[0].geometry.coordinates;
                     const lng = coordsData[0];
                     const lat = coordsData[1];
-                    
+
                     if (Number.isFinite(lat) && Number.isFinite(lng) && this.validarCoordenadasTehuacan(lat, lng)) {
                         const resultado = { lat, lng };
                         if (this.coordenadasCache) this.coordenadasCache.set(query, resultado);
@@ -1105,12 +1058,9 @@ class MapaCalorView {
             console.warn('Fallo Photon:', e);
         }
 
-        // 4. Fallback: Intentar solo Colonia si falla la calle específica
-        // Esto es mucho más rápido que probar 5 variantes en Nominatim
         if (incidencia.colonia && incidencia.colonia.trim()) {
             const queryColonia = `Colonia ${incidencia.colonia}, Tehuacán`;
-            
-            // Check cache para colonia
+
             if (this.coordenadasCache && this.coordenadasCache.has(queryColonia)) {
                 return this.coordenadasCache.get(queryColonia);
             }
@@ -1121,7 +1071,7 @@ class MapaCalorView {
                 if (response.ok) {
                     const data = await response.json();
                      if (data.features && data.features.length > 0) {
-                        const coordsData = data.features[0].geometry.coordinates; // [lon, lat]
+                        const coordsData = data.features[0].geometry.coordinates;
                         const lng = coordsData[0];
                         const lat = coordsData[1];
                         if (Number.isFinite(lat) && Number.isFinite(lng)) {
@@ -1131,18 +1081,15 @@ class MapaCalorView {
                         }
                     }
                 }
-            } catch (e) { /* Ignore */ }
+            } catch (e) {  }
         }
 
-        // Si todo falla, retornamos null y el sistema usará el fallback hash (matemático)
         return null;
     }
 
-
-
     mostrarIndicadorGeocoding(mostrar) {
         let indicador = document.getElementById('geocoding-indicator');
-        
+
         if (mostrar) {
             if (!indicador) {
                 indicador = document.createElement('div');
@@ -1256,12 +1203,12 @@ class MapaCalorView {
         }
         return Math.abs(hash);
     }
-    
+
     determinarTipoIncidencia(motivo) {
         if (!motivo) return 'accidente';
-        
+
         const motivoLower = motivo.toLowerCase();
-        
+
         if (motivoLower.includes('accidente') || motivoLower.includes('choque') || motivoLower.includes('vehicular')) {
             return 'accidente';
         } else if (motivoLower.includes('robo') || motivoLower.includes('asalto') || motivoLower.includes('hurto')) {
@@ -1275,10 +1222,10 @@ class MapaCalorView {
         } else if (motivoLower.includes('médica') || motivoLower.includes('herido') || motivoLower.includes('ambulancia')) {
             return 'medica';
         }
-        
+
         return 'accidente';
     }
-    
+
     mostrarMapaCalor(datos) {
         if (!this.mapa) return;
         const container = this.mapa.getContainer();
@@ -1295,7 +1242,7 @@ class MapaCalorView {
             const coords = this.obtenerCoordenadas(incidencia);
             return [coords.lat, coords.lng, 1];
         });
-        
+
         if (puntosCalor.length === 0) {
             return;
         }
@@ -1323,7 +1270,7 @@ class MapaCalorView {
             this.capasCalor.push(this.capaCalor);
         }
     }
-    
+
     mostrarMarcadores(datos) {
         if (!this.mapa) return;
         datos.forEach((incidencia, index) => {
@@ -1331,27 +1278,27 @@ class MapaCalorView {
             if (!Number.isFinite(coords.lat) || !Number.isFinite(coords.lng)) {
                 return;
             }
-            
+
             const tipo = this.determinarTipoIncidencia(incidencia.motivo);
             const tipoInfo = this.tiposIncidencia[tipo];
-            
+
             const marcador = this.crearMarcadorMejorado(coords.lat, coords.lng, tipoInfo, incidencia, index);
             marcador.addTo(this.mapa);
             this.marcadores.push(marcador);
         });
-        
+
         if (this.marcadores.length > 0) {
             const grupo = new L.FeatureGroup(this.marcadores);
             this.mapa.fitBounds(grupo.getBounds().pad(0.1));
         }
     }
-    
+
     mostrarClusters(datos) {
-        // Similar a mostrarMarcadores pero con agrupación
+
         this.mostrarMarcadores(datos);
-        // this.mostrarNotificacionRapida('Modo clusters activado');
+
     }
-    
+
     crearMarcadorMejorado(lat, lng, tipoInfo, incidencia, index) {
         const icono = L.divIcon({
             className: 'marcador-custom',
@@ -1367,34 +1314,31 @@ class MapaCalorView {
             iconAnchor: [20, 40],
             popupAnchor: [0, -40]
         });
-        
-        const marcador = L.marker([lat, lng], { 
+
+        const marcador = L.marker([lat, lng], {
             icon: icono,
-            draggable: true, // Permitir arrastrar para corregir ubicación
-            id_incidencia: incidencia.id // Para búsqueda inversa
+            draggable: true,
+            id_incidencia: incidencia.id
         });
-        
-        // Manejar evento de fin de arrastre
+
         marcador.on('dragend', async (event) => {
             const nuevaPosicion = event.target.getLatLng();
-            
-            // Preguntar confirmación antes de guardar
+
             const confirmar = confirm(`¿Deseas actualizar la ubicación exacta de este registro?\n\nNueva posición: ${nuevaPosicion.lat.toFixed(6)}, ${nuevaPosicion.lng.toFixed(6)}`);
-            
+
             if (confirmar) {
-                // Guardar en backend
+
                 try {
-                    const servicio = new LlamadasService(); // O usar window.LlamadasService estático
-                    // Nota: LlamadasService es estático en la implementación actual
+                    const servicio = new LlamadasService();
+
                     const resultado = await window.LlamadasService.actualizarLlamada(incidencia.id, {
                         latitud: nuevaPosicion.lat,
                         longitud: nuevaPosicion.lng,
-                        ubicacion_exacta: true // Flag opcional para indicar que fue corregido manualmente
+                        ubicacion_exacta: true
                     });
-                    
+
                     if (resultado.success) {
-                        // this.mostrarNotificacionRapida('✅ Ubicación actualizada correctamente');
-                        // Actualizar datos locales del marcador para que no rebote al recargar
+
                         incidencia.latitud = nuevaPosicion.lat;
                         incidencia.longitud = nuevaPosicion.lng;
                     } else {
@@ -1403,24 +1347,24 @@ class MapaCalorView {
                 } catch (error) {
                     console.error('Error actualizando ubicación:', error);
                     alert('❌ Error al guardar la nueva ubicación: ' + error.message);
-                    // Revertir a posición original
+
                     event.target.setLatLng([lat, lng]);
                 }
             } else {
-                // Revertir a posición original si cancela
+
                 event.target.setLatLng([lat, lng]);
             }
         });
-        
+
         const popupContent = this.crearPopupMejorado(tipoInfo, incidencia, index);
         marcador.bindPopup(popupContent, {
             maxWidth: 320,
             className: 'popup-mejorado'
         });
-        
+
         return marcador;
     }
-    
+
     crearPopupMejorado(tipoInfo, incidencia, index) {
         return `
             <div style="font-family: 'Segoe UI', sans-serif; min-width: 280px;">
@@ -1440,7 +1384,7 @@ class MapaCalorView {
                         <i class="fas fa-clock"></i> ${incidencia.hora ? incidencia.hora.substring(0,5) : 'N/A'}
                     </div>
                 </div>
-                
+
                 <div style="padding: 5px 0;">
                     <div style="margin-bottom: 12px;">
                         <div style="color: ${this.colors.textLight}; font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -1448,21 +1392,21 @@ class MapaCalorView {
                         </div>
                         <div style="font-weight: 600; color: ${this.colors.dark}; font-size: 0.95rem;">${incidencia.motivo || 'Sin especificar'}</div>
                     </div>
-                    
+
                     <div style="margin-bottom: 12px;">
                         <div style="color: ${this.colors.textLight}; font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">
                             <i class="fas fa-map-marker-alt"></i> Ubicación
                         </div>
                         <div style="color: ${this.colors.text}; font-size: 0.9rem;">${incidencia.ubicacion || 'Sin especificar'}</div>
                     </div>
-                    
+
                     <div style="margin-bottom: 12px;">
                         <div style="color: ${this.colors.textLight}; font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">
                             <i class="fas fa-home"></i> Colonia
                         </div>
                         <div style="color: ${this.colors.text}; font-size: 0.9rem;">${incidencia.colonia || 'Sin especificar'}</div>
                     </div>
-                    
+
                     <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: ${this.colors.light}; border-radius: 8px; margin-top: 12px;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-clock" style="color: ${this.colors.warning};"></i>
@@ -1476,7 +1420,7 @@ class MapaCalorView {
             </div>
         `;
     }
-    
+
     getEstadoBadge(incidencia) {
         if (incidencia.conclusion) {
             return `<span style="padding: 5px 12px; background: ${this.colors.accentGreen}; color: white; border-radius: 15px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
@@ -1492,65 +1436,59 @@ class MapaCalorView {
             </span>`;
         }
     }
-    
+
     limpiarMarcadores() {
         this.marcadores.forEach(marcador => {
             this.mapa.removeLayer(marcador);
         });
         this.marcadores = [];
-        
+
         this.capasCalor.forEach(capa => {
             this.mapa.removeLayer(capa);
         });
         this.capasCalor = [];
     }
-    
+
     aplicarFiltrosMapa() {
-        // Usar estado actual o default 'todos'
+
         const currentTipo = (this.filtrosActivos && this.filtrosActivos.tipo) ? this.filtrosActivos.tipo : 'todos';
-        
-        // Elementos de fecha aun existen
+
         const fechaInicio = document.getElementById('filtro-fecha-inicio') ? document.getElementById('filtro-fecha-inicio').value : '';
         const fechaFin = document.getElementById('filtro-fecha-fin') ? document.getElementById('filtro-fecha-fin').value : '';
-        
-        // Turno (ya no hay botones, lo manejamos interno si fuera necesario, o lo quitamos)
+
         const turno = (this.filtrosActivos && this.filtrosActivos.turno) ? this.filtrosActivos.turno : '';
-        
-        this.filtrosActivos = { 
-            tipo: currentTipo, 
-            fechaInicio, 
-            fechaFin, 
-            turno 
+
+        this.filtrosActivos = {
+            tipo: currentTipo,
+            fechaInicio,
+            fechaFin,
+            turno
         };
-        
+
         const datosFiltrados = this.aplicarFiltrosADatos(this.datosMapa || []);
-        
+
         this.aplicarModoVista();
         this.actualizarEstadisticas(this.datosMapa ? this.datosMapa.length : 0, datosFiltrados.length);
         this.actualizarContadoresTipo(datosFiltrados);
         this.actualizarUltimosRegistros(datosFiltrados);
-        this.actualizarUIFiltrosActivos(); // Asegurar que la leyenda refleje el estado
-        
-        // this.mostrarNotificacionRapida(`Filtros: ${datosFiltrados.length} registros`);
+        this.actualizarUIFiltrosActivos();
+
     }
 
-    // Implementación del método faltante para mostrar últimos registros
     actualizarUltimosRegistros(datos) {
         const contenedor = document.getElementById('lista-ultimos-registros');
         if (!contenedor) return;
-        
+
         contenedor.innerHTML = '';
-        
-        // Ordenar por fecha y hora descendente
+
         const ordenados = [...datos].sort((a, b) => {
             const fechaA = new Date(`${a.fecha}T${a.hora || '00:00:00'}`);
             const fechaB = new Date(`${b.fecha}T${b.hora || '00:00:00'}`);
             return fechaB - fechaA;
         });
-        
-        // Tomar los últimos 10
+
         const ultimos = ordenados.slice(0, 10);
-        
+
         if (ultimos.length === 0) {
             contenedor.innerHTML = `
                 <div style="text-align: center; color: ${this.colors.textLight}; padding: 20px; font-style: italic;">
@@ -1560,10 +1498,10 @@ class MapaCalorView {
             `;
             return;
         }
-        
+
         ultimos.forEach(incidencia => {
             const tipoInfo = this.tiposIncidencia[this.determinarTipoIncidencia(incidencia.motivo)];
-            
+
             const item = document.createElement('div');
             item.className = 'item-registro';
             item.style.cssText = `
@@ -1577,19 +1515,18 @@ class MapaCalorView {
                 border: 1px solid ${this.colors.border};
                 border-left-width: 4px;
             `;
-            
-            // Hover effect handled by CSS or inline listeners
-            item.onmouseenter = () => { 
-                item.style.transform = 'translateX(3px)'; 
+
+            item.onmouseenter = () => {
+                item.style.transform = 'translateX(3px)';
                 item.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
             };
-            item.onmouseleave = () => { 
-                item.style.transform = 'translateX(0)'; 
+            item.onmouseleave = () => {
+                item.style.transform = 'translateX(0)';
                 item.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
             };
-            
+
             item.onclick = () => this.centrarEnIncidencia(incidencia.id);
-            
+
             item.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
                     <span style="font-weight: 700; color: ${this.colors.text}; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
@@ -1608,7 +1545,7 @@ class MapaCalorView {
                     <span style="color: ${this.colors.textLight};">${incidencia.fecha}</span>
                 </div>
             `;
-            
+
             contenedor.appendChild(item);
         });
     }
@@ -1616,72 +1553,65 @@ class MapaCalorView {
     centrarEnIncidencia(id) {
         const incidencia = this.datosMapa.find(d => d.id == id);
         if (!incidencia) {
-            // this.mostrarNotificacionRapida('Registro no encontrado');
+
             return;
         }
 
-        // Usar la función centralizada para garantizar consistencia
         const coords = this.obtenerCoordenadas(incidencia);
-        
+
         if (!coords || !Number.isFinite(coords.lat) || !Number.isFinite(coords.lng)) {
-            // this.mostrarNotificacionRapida('Ubicación no disponible para este registro');
+
             return;
         }
 
         const { lat, lng } = coords;
-        
-        // 1. Mover mapa
+
         this.mapa.flyTo([lat, lng], 18, {
             animate: true,
             duration: 1.5
         });
 
-        // 2. Buscar y abrir marcador
         let marcadorEncontrado = null;
         this.mapa.eachLayer(layer => {
-            // Comparación robusta
+
             if (layer instanceof L.Marker && String(layer.options.id_incidencia) === String(id)) {
                 marcadorEncontrado = layer;
             }
         });
 
         if (marcadorEncontrado) {
-            // Si es cluster, usar función especial si existe
-            // Si no, intentar abrir
+
             setTimeout(() => {
                 if (marcadorEncontrado.__parent) {
-                    marcadorEncontrado.__parent.spiderfy(); 
+                    marcadorEncontrado.__parent.spiderfy();
                 }
                 marcadorEncontrado.openPopup();
-            }, 1000); 
+            }, 1000);
         } else {
-            // Si el marcador no está en el mapa (ej: filtrado o en cluster cerrado)
-            // Forzar vista de marcadores si estamos en calor?
+
             if (this.modoVista === 'calor') {
                 this.cambiarModoVista('marcadores');
-                // Reintentar centrado
+
                 setTimeout(() => this.centrarEnIncidencia(id), 500);
             }
         }
     }
 
-    // Método helper para activar filtro por tipo desde la leyenda flotante
     filtrarPorTipo(tipo) {
         if (!this.filtrosActivos) this.filtrosActivos = {};
-        
-        // Toggle: Si ya está activo, desactivar (mostrar todos), si no, activar
+
         if (this.filtrosActivos.tipo === tipo) {
             this.filtrosActivos.tipo = 'todos';
         } else {
             this.filtrosActivos.tipo = tipo;
         }
-        
+
         this.aplicarFiltrosMapa();
         this.actualizarUIFiltrosActivos();
     }
 
     actualizarUIFiltrosActivos() {
-        // Actualizar visualmente la leyenda flotante
+
         const tipoActivo = this.filtrosActivos.tipo || 'todos';
         document.querySelectorAll('.leyenda-item-flotante').forEach(item => {
             if (tipoActivo === 'todos') {
@@ -1700,94 +1630,92 @@ class MapaCalorView {
             }
         });
     }
-    
+
     aplicarFiltrosADatos(datos) {
         let filtrados = [...datos];
         const { tipo, fechaInicio, fechaFin, turno } = this.filtrosActivos;
-        
+
         if (tipo !== 'todos') {
             filtrados = filtrados.filter(incidencia => {
                 const tipoIncidencia = this.determinarTipoIncidencia(incidencia.motivo);
                 return tipoIncidencia === tipo;
             });
         }
-        
+
         if (fechaInicio) {
-            filtrados = filtrados.filter(incidencia => 
+            filtrados = filtrados.filter(incidencia =>
                 incidencia.fecha >= fechaInicio
             );
         }
-        
+
         if (fechaFin) {
-            filtrados = filtrados.filter(incidencia => 
+            filtrados = filtrados.filter(incidencia =>
                 incidencia.fecha <= fechaFin
             );
         }
-        
+
         if (turno) {
-            filtrados = filtrados.filter(incidencia => 
+            filtrados = filtrados.filter(incidencia =>
                 incidencia.turno && incidencia.turno.toLowerCase() === turno.toLowerCase()
             );
         }
-        
+
         return filtrados;
     }
-    
+
     limpiarFiltrosMapa() {
         document.getElementById('filtro-tipo').value = 'todos';
         document.getElementById('filtro-fecha-inicio').value = '';
         document.getElementById('filtro-fecha-fin').value = '';
         document.querySelectorAll('.btn-turno').forEach(btn => btn.classList.remove('active'));
         document.querySelector('.btn-turno[data-turno=""]').classList.add('active');
-        
+
         this.filtrosActivos = {
             tipo: 'todos',
             fechaInicio: null,
             fechaFin: null,
             turno: null
         };
-        
+
         this.aplicarModoVista();
         this.actualizarEstadisticas(this.datosMapa.length, this.datosMapa.length);
         this.actualizarContadoresTipo(this.datosMapa);
-        
-        // this.mostrarNotificacionRapida('Filtros limpiados');
+
     }
-    
+
     habilitarModoAgregarIncidencia() {
         this.mapa.doubleClickZoom.disable();
-        
+
         const agregarHandler = (e) => {
             this.mostrarModalAgregarIncidencia(e.latlng.lat, e.latlng.lng);
         };
-        
+
         this.mapa.on('dblclick', agregarHandler);
-        
+
         this.mostrarAlerta(
-            '📍 MODO AGREGAR INCIDENCIA', 
+            '📍 MODO AGREGAR INCIDENCIA',
             'Haz doble clic en cualquier punto del mapa para agregar una nueva incidencia',
             'info'
         );
-        
+
         return () => {
             this.mapa.off('dblclick', agregarHandler);
             this.mapa.doubleClickZoom.enable();
         };
     }
-    
+
     mostrarModalAgregarIncidencia(lat, lng) {
-        // [Código del modal igual que en la versión original, pero con estilos mejorados]
-        // this.mostrarNotificacionRapida('Modal de agregar incidencia (funcionalidad completa)');
+
     }
-    
+
     exportarMapaComoImagen() {
         this.mostrarAlerta(
-            'ℹ️ EXPORTAR MAPA', 
+            'ℹ️ EXPORTAR MAPA',
             'La función de exportación estará disponible próximamente',
             'info'
         );
     }
-    
+
     mostrarAlerta(titulo, mensaje, tipo = 'info') {
         const colores = {
             'info': { bg: this.colors.primary, icon: 'fas fa-info-circle' },
@@ -1795,20 +1723,20 @@ class MapaCalorView {
             'error': { bg: this.colors.accentRed, icon: 'fas fa-exclamation-triangle' },
             'warning': { bg: this.colors.warning, icon: 'fas fa-exclamation-circle' }
         };
-        
+
         const tipoInfo = colores[tipo] || colores.info;
-        
+
         const alertDiv = document.createElement('div');
         alertDiv.style.cssText = `
-            position: fixed; top: 90px; right: 20px; 
-            background: white; border-left: 4px solid ${tipoInfo.bg}; 
-            padding: 20px 25px; border-radius: 12px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15); 
+            position: fixed; top: 90px; right: 20px;
+            background: white; border-left: 4px solid ${tipoInfo.bg};
+            padding: 20px 25px; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
             z-index: 2000; min-width: 320px; max-width: 420px;
             animation: fadeInRight 0.4s ease-out;
             border: 1px solid ${this.colors.border};
         `;
-        
+
         alertDiv.innerHTML = `
             <div style="display: flex; align-items: flex-start; gap: 15px;">
                 <div style="width: 40px; height: 40px; background: ${tipoInfo.bg}; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px ${tipoInfo.bg}40;">
@@ -1818,15 +1746,15 @@ class MapaCalorView {
                     <div style="font-weight: 700; color: ${this.colors.dark}; margin-bottom: 6px; font-size: 1rem;">${titulo}</div>
                     <div style="color: ${this.colors.text}; font-size: 0.9rem; line-height: 1.5;">${mensaje}</div>
                 </div>
-                <button onclick="this.parentElement.parentElement.remove()" 
+                <button onclick="this.parentElement.parentElement.remove()"
                         style="background: none; border: none; color: ${this.colors.textLight}; cursor: pointer; padding: 0; font-size: 1.2rem; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; flex-shrink: 0;">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         `;
-        
+
         document.body.appendChild(alertDiv);
-        
+
         setTimeout(() => {
             if (alertDiv.parentNode) {
                 alertDiv.style.animation = 'fadeOutRight 0.3s ease-out';
@@ -1838,11 +1766,11 @@ class MapaCalorView {
             }
         }, 5000);
     }
-    
+
     generarDatosEjemploMapa() {
         const hoy = new Date();
         const fecha = hoy.toISOString().split('T')[0];
-        
+
         return [
             {
                 id: 1,
@@ -1856,7 +1784,7 @@ class MapaCalorView {
                 longitud: '-97.3930'
             },
             {
-                id: 10, // Added newer record for testing sort
+                id: 10,
                 fecha: fecha,
                 hora: '23:59:00',
                 turno: 'nocturno',
@@ -1945,16 +1873,16 @@ class MapaCalorView {
             }
         ];
     }
-    
+
     cleanup() {
         document.body.classList.remove('mapa-fullscreen');
-        
+
         try {
             if (this.mapa) {
                 this.mapa.remove();
                 this.mapa = null;
             }
-            // Remove the reference from the map container itself if Leaflet left it hanging
+
             const mapContainer = document.getElementById('mapa-tehuacan');
             if (mapContainer && mapContainer._leaflet_id) {
                 mapContainer._leaflet_id = null;
@@ -1962,11 +1890,11 @@ class MapaCalorView {
         } catch (e) {
             console.warn("Advertencia al limpiar Mapa", e);
         }
-        
+
         if (this.intervaloActualizacion) {
             clearInterval(this.intervaloActualizacion);
         }
-        
+
         this.marcadores = [];
         this.capasCalor = [];
         this.datosMapa = null;

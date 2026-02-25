@@ -15,10 +15,8 @@ class EnvioC5Controller {
                 numero_destino = ''
             } = req.body;
 
-            // Usar usuario autenticado o default
-            const usuario_id = req.user?.id || 1; // Si tienes autenticación
+            const usuario_id = req.user?.id || 1;
 
-            // Crear reporte usando el modelo
             const datosEnvio = {
                 fecha_envio,
                 hora_envio,
@@ -32,11 +30,8 @@ class EnvioC5Controller {
                 usuario_id
             };
 
-
-
             const resultado = await EnvioC5.create(datosEnvio);
 
-            // Emitir actualización vía WebSockets
             const io = req.app.get('socketio');
             if (io) {
                 io.emit('reportes_actualizados', {
@@ -64,33 +59,26 @@ class EnvioC5Controller {
 
         } catch (error) {
             console.error('🔥 Error creando reporte C5:', error);
-            // Delega el error al Error Handler Centralizado
+
             next(error);
         }
     }
 
-    // Obtener todos los reportes
     static async obtenerReportes(req, res) {
         try {
 
-
             const filtros = {};
 
-            // Filtrar por estado si se proporciona
             if (req.query.estado) {
                 filtros.estado = req.query.estado;
             }
 
-            // Filtrar por fecha si se proporciona
             if (req.query.fecha) {
                 filtros.fecha_desde = req.query.fecha;
                 filtros.fecha_hasta = req.query.fecha;
             }
 
-            // Obtener reportes de la base de datos
             const reportes = await EnvioC5.findAll(filtros);
-
-
 
             res.json({
                 success: true,
@@ -107,12 +95,9 @@ class EnvioC5Controller {
         }
     }
 
-    // Registrar folio C5 (respuesta del C5)
     static async registrarFolioC5(req, res) {
         try {
             const { folio_c4, folio_c5 } = req.body;
-
-
 
             if (!folio_c4 || !folio_c5) {
                 return res.status(400).json({
@@ -121,11 +106,10 @@ class EnvioC5Controller {
                 });
             }
 
-            // Actualizar en la base de datos
             const resultado = await EnvioC5.registrarFolioC5(folio_c4, folio_c5);
 
             if (resultado > 0) {
-                // Emitir actualización vía WebSockets
+
                 const io = req.app.get('socketio');
                 if (io) {
                     io.emit('reportes_actualizados', {
@@ -156,7 +140,6 @@ class EnvioC5Controller {
         }
     }
 
-    // Obtener reporte por folio C4
     static async obtenerReporte(req, res) {
         try {
             const { folioC4 } = req.params;
@@ -184,7 +167,6 @@ class EnvioC5Controller {
         }
     }
 
-    // Obtener reportes pendientes
     static async obtenerPendientes(req, res) {
         try {
             const reportes = await EnvioC5.getPendientes();
@@ -204,7 +186,6 @@ class EnvioC5Controller {
         }
     }
 
-    // Generar formato WhatsApp
     static async generarFormatoWhatsApp(req, res) {
         try {
             const { id } = req.params;
@@ -239,13 +220,11 @@ class EnvioC5Controller {
         }
     }
 
-    // Enviar reporte a C5 (Vía AWS SQS)
     static async enviarReporteC5(req, res) {
         try {
             const { id } = req.params;
-            const AWSService = require('../services/AWSService'); // Importar servicio AWS
+            const AWSService = require('../services/AWSService');
 
-            // 1. Obtener datos del reporte
             const reporte = await EnvioC5.findById(id);
 
             if (!reporte) {
@@ -255,7 +234,6 @@ class EnvioC5Controller {
                 });
             }
 
-            // 2. Preparar payload para C5
             const payload = {
                 folio_c4: reporte.folio_c4,
                 fecha: reporte.fecha_envio,
@@ -272,12 +250,10 @@ class EnvioC5Controller {
                 }
             };
 
-            // 3. Enviar a C5 (SQS)
             console.log(`📤 Enviando reporte a cola SQS`);
 
             const resultado = await AWSService.enviarReporte(payload);
 
-            // 4. Responder al cliente
             res.json({
                 success: true,
                 message: 'Reporte encolado exitosamente para envío a C5',

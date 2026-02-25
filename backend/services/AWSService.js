@@ -3,7 +3,7 @@ const appConfig = require('../config/app.config');
 
 class AWSService {
     constructor() {
-        // Inicializar cliente SQS con credenciales del .env
+
         this.sqsClient = new SQSClient({
             region: process.env.AWS_REGION || 'us-east-1',
             credentials: {
@@ -14,11 +14,6 @@ class AWSService {
         this.queueUrl = process.env.AWS_SQS_QUEUE_URL;
     }
 
-    /**
-     * Enviar reporte a la cola SQS
-     * @param {Object} reporte - Datos del reporte a enviar
-     * @returns {Promise<Object>} Resultado del envío
-     */
     async enviarReporte(reporte) {
         if (!this.queueUrl) {
             throw new Error('AWS_SQS_QUEUE_URL no está definida en las variables de entorno');
@@ -55,5 +50,4 @@ class AWSService {
     }
 }
 
-// Exportar una instancia única (Singleton)
 module.exports = new AWSService();

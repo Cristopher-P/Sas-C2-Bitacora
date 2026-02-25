@@ -1,13 +1,13 @@
-// Frontend - Gestor de impresión
+
 class PrintManager {
-    // Imprimir tabla
+
     static printTable(tableId, title = 'Reporte') {
         const table = document.getElementById(tableId);
         if (!table) {
             console.error('Tabla no encontrada:', tableId);
             return;
         }
-        
+
         const printWindow = window.open('', '', 'width=800,height=600');
         printWindow.document.write(`
             <!DOCTYPE html>
@@ -36,24 +36,23 @@ class PrintManager {
             </body>
             </html>
         `);
-        
+
         printWindow.document.close();
         printWindow.focus();
-        
+
         setTimeout(() => {
             printWindow.print();
             printWindow.close();
         }, 250);
     }
-    
-    // Imprimir contenido personalizado
+
     static printContent(elementId, title = 'Documento') {
         const element = document.getElementById(elementId);
         if (!element) {
             console.error('Elemento no encontrado:', elementId);
             return;
         }
-        
+
         const printWindow = window.open('', '', 'width=800,height=600');
         printWindow.document.write(`
             <!DOCTYPE html>
@@ -73,17 +72,16 @@ class PrintManager {
             </body>
             </html>
         `);
-        
+
         printWindow.document.close();
         printWindow.focus();
-        
+
         setTimeout(() => {
             printWindow.print();
             printWindow.close();
         }, 250);
     }
-    
-    // Vista previa antes de imprimir
+
     static showPrintPreview(content, title = 'Vista Previa') {
         const preview = window.open('', '', 'width=900,height=700');
         preview.document.write(`
@@ -93,21 +91,21 @@ class PrintManager {
                 <title>${title}</title>
                 <style>
                     body { font-family: Arial, sans-serif; padding: 20px; }
-                    .preview-header { 
-                        background: #f5f5f5; 
-                        padding: 10px; 
+                    .preview-header {
+                        background: #f5f5f5;
+                        padding: 10px;
                         border-bottom: 2px solid #333;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
                     }
                     .preview-content { padding: 20px; }
-                    button { 
-                        padding: 10px 20px; 
-                        background: #4472C4; 
-                        color: white; 
-                        border: none; 
-                        cursor: pointer; 
+                    button {
+                        padding: 10px 20px;
+                        background: #4472C4;
+                        color: white;
+                        border: none;
+                        cursor: pointer;
                         border-radius: 4px;
                     }
                     button:hover { background: #365a9c; }

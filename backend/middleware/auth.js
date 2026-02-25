@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
     }
 
     try {
-        // Usar un fallback idéntico al de authController en dev, pero prohibido en producción
+
         if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
             console.error('CRITICAL: JWT_SECRET no está definido en el entorno de producción.');
             return res.status(500).json({ success: false, message: 'Configuración de servidor incompleta (JWT_SECRET)' });

@@ -1,10 +1,10 @@
 const pool = require('../config/database');
 
 class LlamadaBitacora {
-    // Helper para obtener el nombre de la tabla basado en la fecha (YYYY-MM-DD o Date object)
+
     static getTableName(fecha) {
         if (!fecha) {
-            // Si no hay fecha, usar la actual
+
             const now = new Date();
             const mes = String(now.getMonth() + 1).padStart(2, '0');
             const año = now.getFullYear();
@@ -13,13 +13,13 @@ class LlamadaBitacora {
 
         let mes, año;
         if (typeof fecha === 'string') {
-            // Asume formato YYYY-MM-DD o similar
+
             const partes = fecha.split('-');
             if (partes.length >= 2) {
                 año = partes[0];
                 mes = partes[1];
             } else {
-                return 'llamadas_bitacora'; // Fallback
+                return 'llamadas_bitacora';
             }
         } else if (fecha instanceof Date) {
             mes = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -31,9 +31,8 @@ class LlamadaBitacora {
         return `llamadas_bitacora_${mes}_${año}`;
     }
 
-    // Helper para crear la tabla mensual si no existe
     static async ensureTableExists(tableName) {
-        // En MySQL, podemos usar CREATE TABLE IF NOT EXISTS basado en la estructura de una tabla master o definiéndola
+
         const sql = `
             CREATE TABLE IF NOT EXISTS ${tableName} (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -74,13 +73,12 @@ class LlamadaBitacora {
         }
     }
 
-    // Crear nueva llamada
     static async create(llamadaData) {
         const tableName = this.getTableName(llamadaData.fecha);
         await this.ensureTableExists(tableName);
 
         const sql = `
-            INSERT INTO ${tableName} 
+            INSERT INTO ${tableName}
             (folio_sistema, fecha, turno, hora, motivo, ubicacion, colonia,
              seguimiento, razonamiento, descripcion_detallada, motivo_radio_operacion,
              salida, detenido, vehiculo, numero_telefono,
@@ -115,37 +113,35 @@ class LlamadaBitacora {
         return { insertId: result.insertId, tableName: tableName };
     }
 
-    // Obtener llamada por ID de una tabla específica
     static async findById(id, tableName) {
         if (!tableName) {
-            // Si no sabemos la tabla, probamos con la del mes actual por defecto
+
             tableName = this.getTableName(new Date());
         }
 
         try {
-            // Verificamos rápido si la tabla existe capturando el error
+
             const sql = `SELECT lb.* FROM ${tableName} lb WHERE lb.id = ?`;
             const [rows] = await pool.execute(sql, [id]);
             return rows[0];
         } catch (error) {
-            // Si la tabla no existe, no hay registro
+
             if (error.code === 'ER_NO_SUCH_TABLE') return null;
             throw error;
         }
     }
 
-    // Obtener todas las llamadas con filtros de una tabla específica
     static async findAll(filtros = {}) {
-        // La tabla depende del filtro de fecha o mes aportado. Si no hay, usa el mes en curso.
+
         let targetDate = filtros.fecha || filtros.mes_objetivo || new Date();
         const tableName = this.getTableName(targetDate);
 
         try {
-            // Aseguramos que exista (para no crashear la primera vez del mes al cargar tabla vacía)
+
             await this.ensureTableExists(tableName);
 
             let sql = `
-                SELECT 
+                SELECT
                     lb.id,
                     lb.folio_sistema,
                     lb.fecha,
@@ -234,7 +230,6 @@ class LlamadaBitacora {
         }
     }
 
-    // Obtener todas las llamadas sin JOIN (Raw)
     static async findAllRaw(filtros = {}) {
         let targetDate = filtros.fecha || filtros.mes_objetivo || new Date();
         const tableName = this.getTableName(targetDate);
@@ -301,7 +296,6 @@ class LlamadaBitacora {
         }
     }
 
-    // Contar todas las llamadas
     static async countAllRaw(filtros = {}) {
         let targetDate = filtros.fecha || filtros.mes_objetivo || new Date();
         const tableName = this.getTableName(targetDate);
@@ -329,9 +323,8 @@ class LlamadaBitacora {
         }
     }
 
-    // Obtener llamadas por rango de fechas (Aviso: Si cruza meses, solo buscará en el mes de inicio por simplicidad por ahora)
     static async findByDateRange(fechaInicio, fechaFin) {
-        const tableName = this.getTableName(fechaInicio); // Toma el mes de la fecha inicial
+        const tableName = this.getTableName(fechaInicio);
 
         try {
             await this.ensureTableExists(tableName);
@@ -351,7 +344,6 @@ class LlamadaBitacora {
         }
     }
 
-    // Actualizar llamada
     static async update(id, tableName, datosActualizados) {
         if (!tableName) {
             tableName = this.getTableName(new Date());
@@ -381,7 +373,6 @@ class LlamadaBitacora {
         }
     }
 
-    // Eliminar llamada
     static async delete(id, tableName) {
         if (!tableName) {
             tableName = this.getTableName(new Date());
@@ -396,14 +387,13 @@ class LlamadaBitacora {
         }
     }
 
-    // Obtener estadísticas
     static async getEstadisticas(fechaInicio, fechaFin) {
         const tableName = this.getTableName(fechaInicio);
         try {
             await this.ensureTableExists(tableName);
 
             const sql = `
-                SELECT 
+                SELECT
                     fecha,
                     COUNT(*) as total_llamadas,
                     SUM(CASE WHEN salida = 'si' THEN 1 ELSE 0 END) as salidas,
@@ -424,7 +414,6 @@ class LlamadaBitacora {
         }
     }
 
-    // Obtener datos para autocompletar (Ojo: usa la del mes actual)
     static async getDatosAutocompletar() {
         const tableName = this.getTableName(new Date());
         try {
@@ -455,21 +444,20 @@ class LlamadaBitacora {
         }
     }
 
-    // Obtener total de llamadas por turno
     static async getTotalPorTurno(fecha) {
         const tableName = this.getTableName(fecha);
         try {
             await this.ensureTableExists(tableName);
 
             const sql = `
-                SELECT 
+                SELECT
                     turno,
                     COUNT(*) as total
                 FROM ${tableName}
                 WHERE fecha = ?
                 GROUP BY turno
-                ORDER BY 
-                    CASE turno 
+                ORDER BY
+                    CASE turno
                         WHEN 'matutino' THEN 1
                         WHEN 'vespertino' THEN 2
                         WHEN 'nocturno' THEN 3

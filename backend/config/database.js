@@ -4,9 +4,6 @@ const dotenv = require('dotenv');
 const path = require('path');
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-
-
-// Configuración de la base de datos
 const pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
@@ -18,7 +15,6 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// Probar conexión
 pool.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Error conectando a MySQL:', err.message);
@@ -27,5 +23,4 @@ pool.getConnection((err, connection) => {
     }
 });
 
-// Exportar pool con promesas
 module.exports = pool.promise();

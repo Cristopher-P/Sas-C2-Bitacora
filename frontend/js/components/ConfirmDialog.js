@@ -1,4 +1,4 @@
-// Confirm Dialog
+
 class ConfirmDialog {
     show(options = {}) {
         return new Promise((resolve) => {
@@ -7,10 +7,10 @@ class ConfirmDialog {
                 message = '¿Estás seguro de continuar?',
                 confirmText = 'Confirmar',
                 cancelText = 'Cancelar',
-                type = 'default', // default, danger, warning
+                type = 'default',
                 icon = '❓'
             } = options;
-            
+
             const overlay = document.createElement('div');
             overlay.className = 'confirm-dialog-overlay fade-in';
             overlay.innerHTML = `
@@ -24,12 +24,12 @@ class ConfirmDialog {
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(overlay);
-            
+
             const btnCancel = overlay.querySelector('.confirm-btn-cancel');
             const btnConfirm = overlay.querySelector('.confirm-btn-confirm');
-            
+
             const close = (result) => {
                 overlay.classList.add('fade-out');
                 setTimeout(() => {
@@ -37,7 +37,7 @@ class ConfirmDialog {
                     resolve(result);
                 }, 300);
             };
-            
+
             btnCancel.onclick = () => close(false);
             btnConfirm.onclick = () => close(true);
             overlay.onclick = (e) => {
@@ -45,11 +45,11 @@ class ConfirmDialog {
             };
         });
     }
-    
+
     async confirm(message, title) {
         return this.show({ message, title });
     }
-    
+
     async delete(itemName = 'este elemento') {
         return this.show({
             title: 'Confirmar eliminación',
@@ -59,7 +59,7 @@ class ConfirmDialog {
             icon: '🗑️'
         });
     }
-    
+
     async warning(message, title = 'Advertencia') {
         return this.show({
             title,

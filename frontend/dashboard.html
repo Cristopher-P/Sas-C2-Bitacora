@@ -7,19 +7,18 @@
     <title>C4 Dashboard - Send Center</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/c5-views.css">
 
-    <!-- URL Masking -->
     <script>
         if (window.history.replaceState) {
             window.history.replaceState(null, null, "/");
         }
     </script>
 
-    <!-- LIBRERÍAS PARA PDF Y SOCKETS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
@@ -90,73 +89,78 @@
         <p>Verificando conexión segura...</p>
     </div>
 
-    <div id="app-container" class="app-container" style="display: none;">
-        <!-- HEADER CON NAVBAR ESTILO DASHBOARD -->
-        <header>
-            <div class="container header-container">
-                <div class="header-content">
-                    <!-- LOGO -->
-                    <div class="logo">
+    <div id="app-container" class="app-container dashboard-layout" style="display: none;">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
                         <i class="fas fa-shield-alt"></i>
-                        <h1>SAS C4 - Bitácora</h1>
                     </div>
-
-                    <!-- NAVBAR -->
-                    <nav id="main-nav">
-                        <ul>
-                            <li><a href="#" id="nav-dashboard">Dashboard</a></li>
-                            <li><a href="#" id="nav-llamadas">Registrar</a></li>
-
-                            <li><a href="#" id="nav-mapacalor">Mapa</a></li>
-                            <li><a href="#" id="nav-c5">Enviar a C5</a></li>
-                        </ul>
-                    </nav>
-
-                    <div class="header-actions">
-                        <!-- INFO USUARIO -->
-                        <div id="user-info">
-
-                            <span id="user-name">Cargando...</span>
-                        </div>
-
-                        <!-- BOTÓN SALIR -->
-                        <a href="#" id="logout-btn"><span>Salir</span></a>
-                    </div>
+                    <h1>SAS C4</h1>
                 </div>
             </div>
-        </header>
 
-        <!-- CONTENIDO PRINCIPAL -->
-        <main>
-            <div class="container">
-                <div id="content">
-                    <!-- App.js cargará las vistas aquí -->
-                    <div class="loading-container">
+            <div class="sidebar-menu-category">MENÚ PRINCIPAL</div>
+            <nav class="sidebar-nav" id="main-nav">
+                <ul>
+                    <li><a href="#" id="nav-dashboard" class="active"><i class="fas fa-home"></i>
+                            <span>Dashboard</span></a></li>
+                    <li><a href="#" id="nav-llamadas"><i class="fas fa-headset"></i> <span>Registrar</span></a></li>
+                    <li><a href="#" id="nav-mapacalor"><i class="fas fa-map-marked-alt"></i> <span>Mapa Calor</span></a>
+                    </li>
+                    <li><a href="#" id="nav-c5"><i class="fas fa-satellite-dish"></i> <span>Enviar a C5</span></a></li>
+                </ul>
+            </nav>
 
-                        <p>Cargando sistema operativo...</p>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
                     </div>
+                    <div class="user-details">
+                        <span class="user-name" id="user-name">Cargando...</span>
+                        <span class="user-role">Operador Central</span>
+                    </div>
+                </div>
+                <a href="#" id="logout-btn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> <span>Cerrar Sesión</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="mobile-header">
+                <div class="logo-mobile">
+                    <i class="fas fa-shield-alt"></i> SAS C4
+                </div>
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <div class="content-wrapper">
+                <div id="content">
+
+                    <div class="loading-container">
+                        <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+                        <p style="margin-top: 15px;">Cargando sistema operativo...</p>
+                    </div>
+                </div>
+
+                <div class="institutional-footer"
+                    style="padding: 20px 0; border-top: 1px solid var(--border-soft); margin-top: auto; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                    <span>© 2026 Sistema de Gestión de Emergencias</span>
+                    <span style="margin: 0 10px;">•</span>
+                    <span style="font-weight: 600; color: var(--c-primary-dark);">BETA 2.0</span>
                 </div>
             </div>
         </main>
-
-        <!-- FOOTER INSTITUCIONAL - POSICIONADO EN LA PARTE INFERIOR -->
-        <div class="institutional-footer">
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-details">
-                        <span id="copyright-text">© 2024 Sistema de Gestión de Emergencias</span>
-                        <span class="footer-divider">•</span>
-                        <span class="beta-badge">BETA 2.0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- SCRIPTS DE CONFIGURACIÓN -->
     <script src="js/config/app.config.js" defer></script>
 
-    <!-- SCRIPTS DE UTILIDADES -->
     <script src="js/utils/helpers.js" defer></script>
     <script src="js/utils/api.js" defer></script>
     <script src="js/utils/formatters.js" defer></script>
@@ -164,17 +168,14 @@
     <script src="js/utils/exporters.js" defer></script>
     <script src="js/utils/printManager.js" defer></script>
 
-    <!-- SCRIPTS DE COMPONENTES UI -->
     <script src="js/components/ToastNotifications.js" defer></script>
     <script src="js/components/ModalManager.js" defer></script>
     <script src="js/components/LoadingOverlay.js" defer></script>
     <script src="js/components/ConfirmDialog.js" defer></script>
 
-    <!-- SCRIPTS DE SERVICIOS -->
     <script src="js/services/LlamadasService.js" defer></script>
     <script src="js/services/C5Service.js" defer></script>
 
-    <!-- SCRIPTS DE VISTAS -->
     <script src="js/views/DashboardView.js" defer></script>
     <script src="js/views/MapaCalorView.js" defer></script>
     <script src="js/views/LlamadasView.js" defer></script>
@@ -188,10 +189,8 @@
     <script src="js/views/c5/C5DetailsView.js" defer></script>
     <script src="js/views/C5View.js" defer></script>
 
-    <!-- APP.JS ÚLTIMO -->
     <script src="js/app.js" defer></script>
 
-    <!-- SCRIPT PARA INICIALIZAR FOOTER Y USUARIO -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // 1. Actualizar nombre de usuario
@@ -245,8 +244,6 @@
                 }
             });
 
-
-
             document.getElementById('nav-c5')?.addEventListener('click', function (e) {
                 e.preventDefault();
                 if (window.app && window.app.loadView) {
@@ -269,6 +266,15 @@
             // Verificar cada segundo si se cargó contenido
             setTimeout(adjustContentHeight, 1000);
             setInterval(adjustContentHeight, 3000);
+
+            // 6. Toggle Mobile Sidebar
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const sidebar = document.getElementById('sidebar');
+            if (mobileMenuBtn && sidebar) {
+                mobileMenuBtn.addEventListener('click', function () {
+                    sidebar.classList.toggle('mobile-open');
+                });
+            }
         });
     </script>
 

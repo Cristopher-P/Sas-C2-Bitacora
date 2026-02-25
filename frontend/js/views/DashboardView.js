@@ -1,8 +1,4 @@
-/**
- * DASHBOARDVIEW.JS - Vista profesional completa para CERIT Tehuacán
- * Centro de Emergencia y Respuesta Inmediata
- * Versión 2.3.1 - Sistema SAS-C4
- */
+
 
 class DashboardView {
     constructor(currentUser, appController) {
@@ -16,22 +12,20 @@ class DashboardView {
             busqueda: null
         };
 
-        // Configuración de colores institucionales
         this.colors = {
-            primary: '#003366',      // Azul policía principal
-            secondary: '#0a4d8c',    // Azul más claro para hover
-            accent: '#ff6b35',       // Naranja de alerta/acceso rápido
-            accentGreen: '#28a745',  // Verde para éxito/operativo
-            accentRed: '#dc3545',    // Rojo para emergencias
-            light: '#f8f9fa',        // Fondo claro
-            dark: '#212529',         // Texto oscuro
-            gray: '#6c757d',         // Texto secundario
-            border: '#dee2e6',       // Bordes
-            warning: '#ffc107',      // Amarillo advertencia
-            info: '#17a2b8'          // Azul información
+            primary: '#003366',
+            secondary: '#0a4d8c',
+            accent: '#ff6b35',
+            accentGreen: '#28a745',
+            accentRed: '#dc3545',
+            light: '#f8f9fa',
+            dark: '#212529',
+            gray: '#6c757d',
+            border: '#dee2e6',
+            warning: '#ffc107',
+            info: '#17a2b8'
         };
 
-        // Configuración para expansión
         this.expandedContainer = null;
         this.originalContainer = null;
         this.horaActualizacion = null;
@@ -54,7 +48,6 @@ class DashboardView {
     async render(container) {
         this.originalContainer = container;
 
-        // Crear contenedor expandido con fondo institucional
         this.expandedContainer = document.createElement('div');
         this.expandedContainer.className = 'dashboard-cerit-tehuacan view-bleed view-shell view-form';
 
@@ -67,7 +60,6 @@ class DashboardView {
 
         await this.loadData();
 
-        // Iniciar actualización automática de hora
         this.iniciarActualizacionHora();
     }
 
@@ -81,7 +73,7 @@ class DashboardView {
         return `
             <div class="cerit-dashboard view-shell--xl">
                 <!-- HEADER INSTITUCIONAL -->
-                
+
                 <!-- PANEL DE CONTROL PRINCIPAL -->
                 <div class="dashboard-main-grid">
                     <!-- Tabla Principal -->
@@ -92,18 +84,18 @@ class DashboardView {
                                 <h3 style="margin: 0; color: ${this.colors.primary}; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
                                     BITÁCORA DE OPERACIONES
                                 </h3>
-                                
+
                                 <!-- Filtros Rápidos -->
                                 <div style="display: flex; gap: 10px;">
                                     <div style="position: relative;">
-                                        <input type="text" id="filtro-busqueda" 
+                                        <input type="text" id="filtro-busqueda"
                                                style="padding: 8px 12px 8px 35px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; width: 200px; transition: all 0.3s;"
                                                placeholder="Buscar por folio, ubicación..."
                                                onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
                                                onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
                                     </div>
-                                    
-                                    <select id="filtro-estado" 
+
+                                    <select id="filtro-estado"
                                             style="padding: 8px 12px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; background: white; min-width: 150px; transition: all 0.3s;"
                                             onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
                                             onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
@@ -114,13 +106,13 @@ class DashboardView {
                                     </select>
                                 </div>
                             </div>
-                            
+
                             <!-- Filtros Detallados -->
                             <div id="filtros-detallados" style="margin-top: 15px; display: none;">
                                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                                     <div>
                                         <label style="display: block; color: ${this.colors.gray}; font-size: 0.8rem; margin-bottom: 3px; font-weight: 600;">MES</label>
-                                        <select id="filtro-mes" 
+                                        <select id="filtro-mes"
                                                 style="padding: 8px 12px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; background: white; min-width: 180px;"
                                                 onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
                                                 onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
@@ -128,10 +120,10 @@ class DashboardView {
                                             ${this.generarOpcionesMeses()}
                                         </select>
                                     </div>
-                                    
+
                                     <div>
                                         <label style="display: block; color: ${this.colors.gray}; font-size: 0.8rem; margin-bottom: 3px; font-weight: 600;">TURNO</label>
-                                        <select id="filtro-turno" 
+                                        <select id="filtro-turno"
                                                 style="padding: 8px 12px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; background: white; min-width: 150px;"
                                                 onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
                                                 onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
@@ -141,7 +133,7 @@ class DashboardView {
                                             <option value="nocturno">Nocturno</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div>
                                         <label style="display: block; color: ${this.colors.gray}; font-size: 0.8rem; margin-bottom: 3px; font-weight: 600;">FECHA</label>
                                         <input type="date" id="filtro-fecha"
@@ -149,16 +141,16 @@ class DashboardView {
                                                onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
                                                onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
                                     </div>
-                                    
+
                                     <div style="display: flex; gap: 5px; align-self: flex-end;">
-                                        <button id="btn-aplicar-filtros" 
+                                        <button id="btn-aplicar-filtros"
                                                 style="padding: 8px 15px; background: ${this.colors.primary}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;}"
                                                 onmouseover="this.style.background='${this.colors.secondary}'"
                                                 onmouseout="this.style.background='${this.colors.primary}'">
                                             Aplicar
                                         </button>
-                                        
-                                        <button id="btn-limpiar-filtros" 
+
+                                        <button id="btn-limpiar-filtros"
                                                 style="padding: 8px 15px; background: white; color: ${this.colors.gray}; border: 1px solid ${this.colors.border}; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;}"
                                                 onmouseover="this.style.background='${this.colors.light}'; this.style.color='${this.colors.dark}'"
                                                 onmouseout="this.style.background='white'; this.style.color='${this.colors.gray}'">
@@ -167,26 +159,26 @@ class DashboardView {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Controles de Vista -->
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                                 <div id="contador-registros" style="color: ${this.colors.gray}; font-size: 0.85rem; display: flex; align-items: center; gap: 5px;">
                                     <span>Mostrando <span id="registros-mostrados">0</span> de <span id="registros-totales">0</span> registros</span>
                                 </div>
                                 <div style="display: flex; gap: 8px;">
-                                    <button id="btn-toggle-filtros" 
+                                    <button id="btn-toggle-filtros"
                                             style="padding: 6px 12px; background: white; color: ${this.colors.primary}; border: 1px solid ${this.colors.primary}; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
                                             onmouseover="this.style.background='${this.colors.primary}'; this.style.color='white'"
                                             onmouseout="this.style.background='white'; this.style.color='${this.colors.primary}'">
                                         Más filtros
                                     </button>
-                                    <button id="btn-exportar-excel" 
+                                    <button id="btn-exportar-excel"
                                             style="padding: 6px 12px; background: ${this.colors.accentGreen}; color: white; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
                                             onmouseover="this.style.background='#218838'; this.style.transform='translateY(-1px)'"
                                             onmouseout="this.style.background='${this.colors.accentGreen}'; this.style.transform='translateY(0)'">
                                         Exportar
                                     </button>
-                                    <button id="btn-imprimir" 
+                                    <button id="btn-imprimir"
                                             style="padding: 6px 12px; background: ${this.colors.info}; color: white; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
                                             onmouseover="this.style.background='#138496'; this.style.transform='translateY(-1px)'"
                                             onmouseout="this.style.background='${this.colors.info}'; this.style.transform='translateY(0)'">
@@ -195,7 +187,7 @@ class DashboardView {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Tabla de Datos -->
                         <div id="tabla-llamadas-container" class="dashboard-table-container"
                              style="background: white; border-radius: 0 0 10px 10px; border: 1px solid ${this.colors.border}; border-top: none; flex: 1; min-height: 520px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
@@ -206,7 +198,7 @@ class DashboardView {
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Panel Lateral - Accesos Rápidos y Estadísticas Pequeñas -->
                     <div>
                         <!-- Accesos Rápidos -->
@@ -214,9 +206,9 @@ class DashboardView {
                             <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
                                 ACCESOS RÁPIDOS
                             </h4>
-                            
+
                             <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <button id="btn-reporte-mensual" 
+                                <button id="btn-reporte-mensual"
                                         style="padding: 12px; background: linear-gradient(135deg, ${this.colors.secondary} 0%, ${this.colors.primary} 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: left; display: flex; align-items: center; gap: 10px;"
                                         onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 4px 8px rgba(0, 51, 102, 0.2)'"
                                         onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none'">
@@ -225,8 +217,8 @@ class DashboardView {
                                         <div style="font-size: 0.8rem; opacity: 0.9;">Generar PDF</div>
                                     </div>
                                 </button>
-                                
-                                <button id="btn-mapa-calor" 
+
+                                <button id="btn-mapa-calor"
                                         style="padding: 12px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: left; display: flex; align-items: center; gap: 10px;"
                                         onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 4px 8px rgba(231, 76, 60, 0.2)'"
                                         onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none'">
@@ -237,27 +229,27 @@ class DashboardView {
                                 </button>
                             </div>
                         </div>
-                        
+
                         <!-- Estadísticas del Día Pequeñas -->
                         <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid ${this.colors.border}; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
                             <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
                                 ESTADÍSTICAS DEL DÍA
                             </h4>
-                            
+
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                                 <!-- Total del Día -->
                                 <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 3px solid ${this.colors.primary};">
                                     <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 600; margin-bottom: 3px;">TOTAL HOY</div>
                                     <div id="stat-total-pequeno" style="font-size: 1.5rem; font-weight: 800; color: ${this.colors.primary};">0</div>
                                 </div>
-                                
+
                                 <!-- Pendientes -->
                                 <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 3px solid #ff6b35;">
                                     <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 600; margin-bottom: 3px;">PENDIENTES</div>
                                     <div id="stat-pendientes-pequeno" style="font-size: 1.5rem; font-weight: 800; color: #ff6b35;">0</div>
                                 </div>
                             </div>
-                            
+
                             <!-- Estadísticas por Turno -->
                             <div style="border-top: 1px solid ${this.colors.border}; padding-top: 15px;">
                                 <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 10px;">POR TURNO</div>
@@ -293,19 +285,19 @@ class DashboardView {
                     </div>
                 </div>
             </div>
-            
+
             <style>
                 /* Estilos Responsivos */
                 .dashboard-main-grid {
-                    display: grid; 
-                    grid-template-columns: 1fr 320px; 
-                    gap: 20px; 
-                    margin-bottom: 12px; 
+                    display: grid;
+                    grid-template-columns: 1fr 320px;
+                    gap: 20px;
+                    margin-bottom: 12px;
                     align-items: start;
                 }
-                
+
                 .dashboard-table-column {
-                    display: flex; 
+                    display: flex;
                     flex-direction: column;
                     min-width: 0; /* Permite que el contenedor se encoja correctamente en grid/flex */
                 }
@@ -321,7 +313,7 @@ class DashboardView {
                     .dashboard-main-grid {
                         grid-template-columns: 1fr;
                     }
-                    
+
                     /* Mover la barra lateral abajo en móviles/tablets */
                     .dashboard-main-grid > div:nth-child(2) {
                         order: 2;
@@ -333,36 +325,36 @@ class DashboardView {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                 }
-                
+
                 @keyframes pulse-green {
                     0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
                     70% { box-shadow: 0 0 0 6px rgba(40, 167, 69, 0); }
                     100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
                 }
-                
+
                 @keyframes pulse-red {
                     0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
                     70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
                     100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
                 }
-                
+
                 .btn-emergencia-pulse {
                     animation: pulse-red 2s infinite;
                 }
-                
+
                 .fade-in {
                     animation: fadeIn 0.5s ease-in;
                 }
-                
+
                 @keyframes fadeIn {
                     from { opacity: 0; transform: translateY(10px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                
+
                 .stat-update {
                     animation: statUpdate 0.5s ease-out;
                 }
-                
+
                 @keyframes statUpdate {
                     0% { transform: scale(1); }
                     50% { transform: scale(1.1); }
@@ -374,7 +366,7 @@ class DashboardView {
 
     generarOpcionesMeses() {
         if (!this.data || this.data.length === 0) {
-            // Fallback a los últimos 6 meses si no hay datos
+
             const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
                 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
             let options = '';
@@ -390,7 +382,6 @@ class DashboardView {
             return options;
         }
 
-        // Obtener meses únicos de los datos
         const mesesDisponibles = new Set();
 
         this.data.forEach(item => {
@@ -399,15 +390,14 @@ class DashboardView {
                 if (fechaStr.includes('T')) {
                     fechaStr = fechaStr.split('T')[0];
                 }
-                // Formato esperado YYYY-MM-DD
+
                 if (/^\d{4}-\d{2}-\d{2}$/.test(fechaStr)) {
-                    const mesAnio = fechaStr.substring(0, 7); // YYYY-MM
+                    const mesAnio = fechaStr.substring(0, 7);
                     mesesDisponibles.add(mesAnio);
                 }
             }
         });
 
-        // Convertir a array y ordenar descendente
         const mesesOrdenados = Array.from(mesesDisponibles).sort().reverse();
 
         const nombresMeses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
@@ -423,7 +413,6 @@ class DashboardView {
             }
         });
 
-        // Si no hay meses disponibles (por formato de fecha incorrecto), mostrar el mes actual
         if (options === '') {
             const hoy = new Date();
             const mesActual = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
@@ -443,7 +432,6 @@ class DashboardView {
             this.originalContainer.innerHTML = '';
         }
 
-        // Limpiar intervalos
         if (this.intervaloActualizacion) {
             clearInterval(this.intervaloActualizacion);
         }
@@ -454,7 +442,7 @@ class DashboardView {
     }
 
     bindEvents() {
-        // Botón nueva llamada
+
         const btnNueva = this.container.querySelector('#btn-nueva-llamada');
         if (btnNueva) {
             btnNueva.addEventListener('click', () => {
@@ -462,7 +450,6 @@ class DashboardView {
             });
         }
 
-        // Botón emergencia
         const btnEmergencia = this.container.querySelector('#btn-emergencia');
         if (btnEmergencia) {
             btnEmergencia.addEventListener('click', () => {
@@ -470,7 +457,6 @@ class DashboardView {
             });
         }
 
-        // Botón actualizar
         const btnActualizar = this.container.querySelector('#btn-actualizar');
         if (btnActualizar) {
             btnActualizar.addEventListener('click', () => {
@@ -478,7 +464,6 @@ class DashboardView {
             });
         }
 
-        // Botón exportar
         const btnExportar = this.container.querySelector('#btn-exportar-excel');
         if (btnExportar) {
             btnExportar.addEventListener('click', () => {
@@ -486,7 +471,6 @@ class DashboardView {
             });
         }
 
-        // Botón imprimir
         const btnImprimir = this.container.querySelector('#btn-imprimir');
         if (btnImprimir) {
             btnImprimir.addEventListener('click', () => {
@@ -494,7 +478,6 @@ class DashboardView {
             });
         }
 
-        // Botón reporte mensual
         const btnReporteMensual = this.container.querySelector('#btn-reporte-mensual');
         if (btnReporteMensual) {
             btnReporteMensual.addEventListener('click', () => {
@@ -502,7 +485,6 @@ class DashboardView {
             });
         }
 
-        // Botón mapa calor
         const btnMapaCalor = this.container.querySelector('#btn-mapa-calor');
         if (btnMapaCalor) {
             btnMapaCalor.addEventListener('click', () => {
@@ -510,7 +492,6 @@ class DashboardView {
             });
         }
 
-        // Toggle filtros
         const btnToggleFiltros = this.container.querySelector('#btn-toggle-filtros');
         if (btnToggleFiltros) {
             btnToggleFiltros.addEventListener('click', () => {
@@ -518,14 +499,12 @@ class DashboardView {
             });
         }
 
-        // Filtros
         const filtroBusqueda = this.container.querySelector('#filtro-busqueda');
         const filtroEstado = this.container.querySelector('#filtro-estado');
         const filtroMes = this.container.querySelector('#filtro-mes');
         const filtroTurno = this.container.querySelector('#filtro-turno');
         const filtroFecha = this.container.querySelector('#filtro-fecha');
 
-        // Filtro búsqueda con debounce
         if (filtroBusqueda) {
             let timeout;
             filtroBusqueda.addEventListener('input', () => {
@@ -566,7 +545,6 @@ class DashboardView {
             });
         }
 
-        // Botón aplicar filtros
         const btnAplicarFiltros = this.container.querySelector('#btn-aplicar-filtros');
         if (btnAplicarFiltros) {
             btnAplicarFiltros.addEventListener('click', () => {
@@ -574,7 +552,6 @@ class DashboardView {
             });
         }
 
-        // Botón limpiar filtros
         const btnLimpiarFiltros = this.container.querySelector('#btn-limpiar-filtros');
         if (btnLimpiarFiltros) {
             btnLimpiarFiltros.addEventListener('click', () => {
@@ -585,16 +562,13 @@ class DashboardView {
 
     async loadData() {
         try {
-            // Actualizar hora
+
             this.actualizarHora();
 
-            // Actualizar última actualización
             this.actualizarUltimaActualizacion();
 
-            // Cargar tabla
             await this.fetchAndRenderTable();
 
-            // Mostrar estadísticas iniciales
             this.calcularEstadisticasDesdeDatos();
 
         } catch (error) {
@@ -604,7 +578,7 @@ class DashboardView {
     }
 
     iniciarActualizacionHora() {
-        // Actualizar reloj cada segundo
+
         this.intervaloActualizacion = setInterval(() => {
             this.actualizarHora();
         }, 1000);
@@ -626,7 +600,6 @@ class DashboardView {
             reloj.textContent = horaStr;
         }
 
-        // Actualizar cada minuto para estadísticas
         if (!this.horaActualizacion || ahora.getMinutes() !== this.horaActualizacion.getMinutes()) {
             this.horaActualizacion = ahora;
             this.actualizarEstadisticasTiempoReal();
@@ -707,7 +680,7 @@ class DashboardView {
             let llamadas = [];
 
             if (typeof LlamadasService !== 'undefined') {
-                // Modificación: Por defecto, pedir solo el mes actual o el filtrado, NO TODO.
+
                 let params = {};
                 if (this.filtrosActivos.mes) {
                     params.mes = this.filtrosActivos.mes;
@@ -718,7 +691,6 @@ class DashboardView {
                     params.mes = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
                 }
 
-                // Si hay otros filtros backend (limit, turno, etc) se pueden pasar aquí si se quiere delegar al DB
                 const response = await LlamadasService.obtenerLlamadas(params);
 
                 if (response) {
@@ -729,7 +701,7 @@ class DashboardView {
                     llamadas = response.data || [];
                 } else {
                     console.warn("Respuesta no exitosa del servicio:", response);
-                    // No usar datos de ejemplo si hay un error del backend
+
                     this.data = [];
                     this.renderizarTabla();
                     this.actualizarContadorRegistros(0);
@@ -739,25 +711,18 @@ class DashboardView {
                 console.warn("LlamadasService no está definido");
             }
 
-            // Si no hay datos del servicio, no mostrar registros
             if (llamadas.length === 0) {
-                // Sin registros
+
             }
 
             this.data = llamadas;
 
-            // Renderizar tabla
             this.renderizarTabla();
 
-            // Actualizar contador
             this.actualizarContadorRegistros();
 
-            // Recalcular estadísticas con los nuevos datos
             this.calcularEstadisticasDesdeDatos();
 
-            // ACTUALIZACIÓN DE MESES Y ESTADÍSTICAS MENSUALES
-            // Ya no generamos los meses a partir de los datos porque solo pedimos un mes a la vez.
-            // this.actualizarSelectorMeses(); // Deshabilitado para no pispar meses históricos de las opciones.
             this.inicializarEstadisticasMes();
 
         } catch (error) {
@@ -770,7 +735,7 @@ class DashboardView {
                     </div>
                     <h3 style="color: ${this.colors.accentRed}; margin-bottom: 10px;">Error al cargar datos</h3>
                     <p style="color: ${this.colors.gray}; margin-bottom: 20px;">${error.message}</p>
-                    <button onclick="location.reload()" 
+                    <button onclick="location.reload()"
                             style="padding: 8px 20px; background: ${this.colors.primary}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
                             onmouseover="this.style.background='${this.colors.secondary}'"
                             onmouseout="this.style.background='${this.colors.primary}'">
@@ -792,11 +757,11 @@ class DashboardView {
             container.innerHTML = `
                 <div style="text-align: center; padding: 60px 20px;">
                     <div style="width: 80px; height: 80px; background: ${this.colors.light}; border: 3px solid ${this.colors.border}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: ${this.colors.gray};">
-                        
+
                     </div>
                     <h4 style="color: ${this.colors.dark}; margin-bottom: 10px;">No hay registros</h4>
                     <p style="color: ${this.colors.gray}; margin-bottom: 20px;">No se encontraron llamadas con los filtros aplicados.</p>
-                    <button id="btn-crear-primero" 
+                    <button id="btn-crear-primero"
                             style="padding: 10px 25px; background: ${this.colors.primary}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(0, 51, 102, 0.2)'"
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
@@ -812,15 +777,12 @@ class DashboardView {
             return;
         }
 
-        // Aplicar filtros
         let llamadasFiltradas = this.aplicarFiltrosADatos(this.data);
 
-        // Ordenar por fecha y hora descendente
         llamadasFiltradas.sort((a, b) => {
             return this.obtenerTimestamp(b) - this.obtenerTimestamp(a);
         });
 
-        // Crear tabla
         const tableId = 'tabla-llamadas-cerit';
         container.innerHTML = `
             <style>
@@ -829,13 +791,13 @@ class DashboardView {
                     border-collapse: collapse;
                     font-size: 0.85rem;
                 }
-                
+
                 #${tableId} thead {
                     position: sticky;
                     top: 0;
                     z-index: 10;
                 }
-                
+
                 #${tableId} th {
                     background: ${this.colors.primary};
                     color: white;
@@ -848,7 +810,7 @@ class DashboardView {
                     text-transform: uppercase;
                     letter-spacing: 0.5px;
                 }
-                
+
                 #${tableId} td {
                     padding: 10px 8px;
                     border-bottom: 1px solid ${this.colors.border};
@@ -856,16 +818,16 @@ class DashboardView {
                     line-height: 1.4;
                     background: white;
                 }
-                
+
                 #${tableId} tbody tr:nth-child(even) {
                     background: ${this.colors.light};
                 }
-                
+
                 #${tableId} tbody tr:hover {
                     background: #e3f2fd !important;
                     cursor: pointer;
                 }
-                
+
                 .badge-estado {
                     padding: 4px 8px;
                     border-radius: 4px;
@@ -876,7 +838,7 @@ class DashboardView {
                     text-align: center;
                     text-transform: uppercase;
                 }
-                
+
                 .btn-accion-tabla {
                     padding: 4px 8px;
                     border-radius: 4px;
@@ -889,17 +851,17 @@ class DashboardView {
                     font-size: 0.75rem;
                     transition: all 0.2s;
                 }
-                
+
                 .btn-accion-tabla:hover {
                     transform: translateY(-1px);
                     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
                 }
-                
+
                 .btn-detalles {
                     background: ${this.colors.primary};
                     color: white;
                 }
-                
+
                 .scroll-container {
                     height: 100%;
                     min-height: 0;
@@ -907,21 +869,21 @@ class DashboardView {
                     scrollbar-width: thin;
                     scrollbar-color: ${this.colors.primary} ${this.colors.border};
                 }
-                
+
                 .scroll-container::-webkit-scrollbar {
                     width: 8px;
                 }
-                
+
                 .scroll-container::-webkit-scrollbar-track {
                     background: ${this.colors.light};
                 }
-                
+
                 .scroll-container::-webkit-scrollbar-thumb {
                     background-color: ${this.colors.primary};
                     border-radius: 4px;
                 }
             </style>
-            
+
             <div class="scroll-container">
                 <table id="${tableId}">
 <thead>
@@ -958,7 +920,6 @@ class DashboardView {
     getFilaTablaCERIT(llamada, index) {
         llamada = (llamada && typeof llamada === 'object') ? llamada : {};
 
-        // Normalización de datos principal
         const hora = llamada.hora || llamada.hr_rec || '00:00';
         const turno = llamada.turno || llamada.turn || 'NO ASIG.';
         const telefono = llamada.numero_telefono || llamada.numero_tel || llamada.telefono_agente || '--';
@@ -983,12 +944,10 @@ class DashboardView {
             return valor;
         };
 
-        // Generar ID en formato 2001260812 (día/mes/año-hora-minuto)
         const idFormateado = (fechaHora && !isNaN(fechaHora))
             ? `${String(fechaHora.getDate()).padStart(2, '0')}${String(fechaHora.getMonth() + 1).padStart(2, '0')}${String(fechaHora.getFullYear()).slice(-2)}${String(fechaHora.getHours()).padStart(2, '0')}${String(fechaHora.getMinutes()).padStart(2, '0')}`
             : '--';
 
-        // Determinar estado
         let estadoColor = this.colors.gray;
         let estadoTexto = 'REGISTRADO';
         let estadoIcon = 'fas fa-file-alt';
@@ -1003,7 +962,6 @@ class DashboardView {
             estadoIcon = 'fas fa-exclamation-circle';
         }
 
-        // Colores para turno
         let turnoColor = this.colors.gray;
         let turnoTexto = turno.toUpperCase();
         let turnoIcon = 'fas fa-clock';
@@ -1025,7 +983,6 @@ class DashboardView {
         const procedencia = llamada.procedencia || llamada.motivo_radio_operacion || '--';
         const grupo = llamada.grupo_tipo || llamada.agente || peticionario;
 
-        // Acortar textos
         const motivoCorto = motivo && motivo.length > 25 ?
             motivo.substring(0, 25) + '...' : motivo || '--';
 
@@ -1039,7 +996,7 @@ class DashboardView {
             razonamiento.substring(0, 25) + '...' : razonamiento || '--';
 
         return `
-    <tr data-id="${llamada.id || index}" 
+    <tr data-id="${llamada.id || index}"
         data-folio="${llamada.folio_sistema || ''}"
         onclick="this.querySelector('.btn-detalles').click()">
         <td style="font-family: 'Courier New', monospace; font-weight: 700; color: ${this.colors.primary};">
@@ -1053,7 +1010,7 @@ class DashboardView {
         </td>
         <td>
             <div style="display: flex; align-items: center; gap: 5px; color: ${turnoColor};">
-                
+
                 <span style="font-weight: 600; font-size: 0.8rem;">${turnoTexto}</span>
             </div>
         </td>
@@ -1096,13 +1053,13 @@ class DashboardView {
         </td>
         <td>
             <div class="badge-estado" style="background: ${estadoColor}; color: white;">
-                
+
                 ${estadoTexto}
             </div>
         </td>
         <td style="white-space: nowrap;">
-            <button class="btn-accion-tabla btn-detalles" 
-                    data-action="ver" 
+            <button class="btn-accion-tabla btn-detalles"
+                    data-action="ver"
                     data-id="${llamada.id || index}"
                     title="Ver detalles completos">
                 Ver
@@ -1115,18 +1072,17 @@ class DashboardView {
     formatearFolioCERIT(folio) {
         if (!folio) return '--';
 
-        // Si el folio es formato SAS-YYYYMMDD-NNN
         if (folio.startsWith('SAS-')) {
             try {
                 const partes = folio.split('-');
                 if (partes.length >= 3) {
-                    const fechaCompleta = partes[1]; // 20260126
-                    const numeroSecuencia = partes[2]; // 001
+                    const fechaCompleta = partes[1];
+                    const numeroSecuencia = partes[2];
 
                     if (fechaCompleta.length === 8) {
-                        const añoCorto = fechaCompleta.substring(2, 4); // 26
-                        const mes = fechaCompleta.substring(4, 6); // 01
-                        const dia = fechaCompleta.substring(6, 8); // 26
+                        const añoCorto = fechaCompleta.substring(2, 4);
+                        const mes = fechaCompleta.substring(4, 6);
+                        const dia = fechaCompleta.substring(6, 8);
 
                         return `${dia}/${mes}/${añoCorto}-${numeroSecuencia}`;
                     }
@@ -1136,7 +1092,6 @@ class DashboardView {
             }
         }
 
-        // Si ya está en formato numérico
         if (/^\d+$/.test(folio)) {
             if (folio.length >= 10) {
                 const dia = folio.substring(0, 2);
@@ -1154,7 +1109,6 @@ class DashboardView {
     bindTableEvents() {
         if (!this.container) return;
 
-        // Botones Ver Detalles
         this.container.querySelectorAll('.btn-detalles').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -1167,10 +1121,6 @@ class DashboardView {
     aplicarFiltrosADatos(datos) {
         let filtrados = [...datos];
 
-        // Ya no filtramos por mes aquí porque el backend solo nos mandó los de este mes.
-        // Pero si el backend manda extra u otros filtros:
-
-        // Filtro por fecha específica
         if (this.filtrosActivos.fecha) {
             filtrados = filtrados.filter(item => {
                 if (!item.fecha) return false;
@@ -1179,7 +1129,6 @@ class DashboardView {
             });
         }
 
-        // Filtro por turno
         if (this.filtrosActivos.turno) {
             filtrados = filtrados.filter(item => {
                 if (!item.turno) return false;
@@ -1187,7 +1136,6 @@ class DashboardView {
             });
         }
 
-        // Filtro por estado
         if (this.filtrosActivos.estado) {
             if (this.filtrosActivos.estado === 'seguimiento') {
                 filtrados = filtrados.filter(item => item.seguimiento);
@@ -1198,7 +1146,6 @@ class DashboardView {
             }
         }
 
-        // Filtro por búsqueda
         if (this.filtrosActivos.busqueda) {
             const busqueda = this.filtrosActivos.busqueda.toLowerCase();
             filtrados = filtrados.filter(item =>
@@ -1215,14 +1162,14 @@ class DashboardView {
     }
 
     async aplicarFiltros() {
-        // Al cambiar de mes o dar click a aplicar, recargamos fuerte del backend porque depende del mes
+
         await this.fetchAndRenderTable();
         this.renderizarTabla();
         this.mostrarInfoFiltros();
     }
 
     limpiarFiltros() {
-        // Resetear filtros
+
         this.filtrosActivos = {
             mes: null,
             turno: null,
@@ -1231,7 +1178,6 @@ class DashboardView {
             fecha: null
         };
 
-        // Resetear inputs
         const filtroBusqueda = this.container.querySelector('#filtro-busqueda');
         const filtroEstado = this.container.querySelector('#filtro-estado');
         const filtroMes = this.container.querySelector('#filtro-mes');
@@ -1244,7 +1190,6 @@ class DashboardView {
         if (filtroTurno) filtroTurno.value = '';
         if (filtroFecha) filtroFecha.value = '';
 
-        // Aplicar filtros vacíos provocará que se haga fetch de hoy.
         this.aplicarFiltros();
         const estadisticasMes = this.container.querySelector('#estadisticas-mes-contenido');
         if (estadisticasMes) {
@@ -1279,12 +1224,12 @@ class DashboardView {
 
             if (mostrados < total) {
                 contador.innerHTML = `
-                    
+
                     <span>Mostrando <span id="registros-mostrados" style="color: ${this.colors.accent}; font-weight: 700;">${mostrados}</span> de <span id="registros-totales" style="font-weight: 700;">${total}</span> registros</span>
                 `;
             } else {
                 contador.innerHTML = `
-                    
+
                     <span>Mostrando <span id="registros-mostrados" style="font-weight: 700;">${mostrados}</span> de <span id="registros-totales" style="font-weight: 700;">${total}</span> registros</span>
                 `;
             }
@@ -1331,18 +1276,15 @@ class DashboardView {
             return;
         }
 
-        // Filtrar registros de hoy usando fecha local
         const hoy = new Date();
         const year = hoy.getFullYear();
         const month = String(hoy.getMonth() + 1).padStart(2, '0');
         const day = String(hoy.getDate()).padStart(2, '0');
         const hoyStr = `${year}-${month}-${day}`;
 
-
-
         const datosHoy = this.data.filter(item => {
             if (!item.fecha) return false;
-            // Normalizar fecha del item
+
             let fechaItem = item.fecha;
             if (fechaItem.includes('T')) {
                 fechaItem = fechaItem.split('T')[0];
@@ -1350,9 +1292,6 @@ class DashboardView {
             return fechaItem === hoyStr;
         });
 
-
-
-        // Calcular estadísticas
         const stats = {
             total: datosHoy.length,
             matutino: datosHoy.filter(item => item.turno && item.turno.toLowerCase() === 'matutino').length,
@@ -1424,7 +1363,6 @@ class DashboardView {
         const diferencia = valorFinal - valorInicial;
         if (diferencia === 0) return;
 
-        // Agregar clase de animación
         elemento.classList.add('stat-update');
         setTimeout(() => {
             elemento.classList.remove('stat-update');
@@ -1473,7 +1411,6 @@ class DashboardView {
         const datosMes = this.filtrarPorMes(mesAnio);
         const stats = this.calcularEstadisticasMes(datosMes);
 
-        // Formatear nombre del mes
         const [año, mes] = mesAnio.split('-');
         const nombreMes = new Date(año, mes - 1, 1).toLocaleDateString('es-MX', { month: 'long' }).toUpperCase();
 
@@ -1482,7 +1419,7 @@ class DashboardView {
             <h5 style="color: ${this.colors.primary}; margin-bottom: 15px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
                 ${nombreMes} ${año}
             </h5>
-            
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                 <div style="background: ${this.colors.light}; padding: 8px; border-radius: 6px; border-left: 3px solid ${this.colors.primary};">
                     <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 600;">TOTAL</div>
@@ -1493,7 +1430,7 @@ class DashboardView {
                     <div style="font-size: 1.2rem; font-weight: 700; color: #ff6b35;">${stats.pendientes}</div>
                 </div>
             </div>
-            
+
             <div style="margin-bottom: 10px;">
                 <div style="font-size: 0.75rem; color: ${this.colors.gray}; margin-bottom: 5px; font-weight: 600;">POR TURNO</div>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
@@ -1511,7 +1448,7 @@ class DashboardView {
                     </div>
                 </div>
             </div>
-            
+
             <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid ${this.colors.border};">
                 <div style="font-size: 0.75rem; color: ${this.colors.gray};">
                     ${stats.concluidos} registros concluidos
@@ -1552,22 +1489,17 @@ class DashboardView {
         };
     }
 
-
-
     actualizarSelectorMeses() {
         if (!this.container) return;
         const selector = this.container.querySelector('#filtro-mes');
         if (selector) {
-            // Guardar selección actual si existe
+
             const seleccionActual = selector.value;
 
-            // Generar nuevas opciones basadas en los datos cargados
             const opciones = this.generarOpcionesMeses();
 
-            // Mantener la opción "Todos los meses" y agregar las nuevas
             selector.innerHTML = '<option value="">Todos los meses</option>' + opciones;
 
-            // Restaurar selección si es posible, o dejar en blanco
             if (seleccionActual && selector.querySelector(`option[value="${seleccionActual}"]`)) {
                 selector.value = seleccionActual;
             }
@@ -1575,27 +1507,24 @@ class DashboardView {
     }
 
     inicializarEstadisticasMes() {
-        // Seleccionar el mes más reciente de los datos para mostrar estadísticas por defecto
+
         if (!this.container) return;
         const selector = this.container.querySelector('#filtro-mes');
         if (!selector) return;
 
         let mesParaMostrar = '';
 
-        // Intentar obtener el primer mes disponible (el más reciente) del selector
         if (selector.options.length > 1) {
-            // El índice 0 es "Todos los meses", el 1 debería ser el mes más reciente
+
             mesParaMostrar = selector.options[1].value;
         } else {
-            // Si no hay opciones (no hay datos), usar mes actual
+
             const hoy = new Date();
             mesParaMostrar = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
         }
 
         this.mostrarEstadisticasMes(mesParaMostrar);
     }
-
-    // ========== MÉTODOS DE ACCIÓN ==========
 
     verDetallesCompletos(id) {
         const llamada = this.data.find(l => l.id == id);
@@ -1605,7 +1534,7 @@ class DashboardView {
     }
 
     mostrarModalDetallesCERIT(llamada) {
-        // Normalizar fecha y hora para ID
+
         const fechaStr = this.normalizarFecha(llamada.fecha);
         const horaStr = this.normalizarHora(llamada.hora || llamada.hr_rec);
 
@@ -1621,8 +1550,8 @@ class DashboardView {
         const modal = document.createElement('div');
         modal.id = modalId;
         modal.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); z-index: 1000; display: flex; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 1000; display: flex;
             align-items: center; justify-content: center; padding: 20px;
         `;
 
@@ -1638,7 +1567,7 @@ class DashboardView {
                             ID: ${idFormateado} | CERIT Tehuacán
                         </p>
                     </div>
-                    <button onclick="document.getElementById('${modalId}').remove()" 
+                    <button onclick="document.getElementById('${modalId}').remove()"
                             style="background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.2rem; cursor: pointer; padding: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s;"
                             onmouseover="this.style.background='rgba(255,255,255,0.3)'"
                             onmouseout="this.style.background='rgba(255,255,255,0.2)'">
@@ -1655,12 +1584,12 @@ class DashboardView {
     }
 
     getContenidoModalDetalles(llamada, idFormateado) {
-        // Normalización de datos para compatibilidad con diferentes fuentes
+
         const datos = {
             ...llamada,
             hora: llamada.hora || llamada.hr_rec || '00:00',
             turno: llamada.turno || llamada.turn || 'NO ASIGNADO',
-            urgencia: llamada.urgencia || 'MEDIA', // Valor por defecto
+            urgencia: llamada.urgencia || 'MEDIA',
             grupo_tipo: llamada.grupo_tipo || 'General',
             codigo_procedimiento: llamada.codigo_procedimiento || llamada.folio_sistema || 'S/C',
             elementos_tipo: llamada.elementos_tipo || llamada.unidad || 'No especificado',
@@ -1707,7 +1636,7 @@ class DashboardView {
                     </div>
                 </div>
             </div>
-            
+
             <!-- SECCIÓN 2: CLASIFICACIÓN Y PRIORIDAD -->
             <div style="margin-bottom: 25px;">
                 <h4 style="color: ${this.colors.primary}; margin-bottom: 15px; border-bottom: 2px solid ${this.colors.accent}; padding-bottom: 5px; display: flex; align-items: center; gap: 8px;">
@@ -1730,7 +1659,7 @@ class DashboardView {
                     </div>
                 </div>
             </div>
-            
+
             <!-- SECCIÓN 3: INFORMACIÓN ESPECÍFICA -->
             <div style="margin-bottom: 25px;">
                 <h4 style="color: ${this.colors.primary}; margin-bottom: 15px; border-bottom: 2px solid ${this.colors.info}; padding-bottom: 5px; display: flex; align-items: center; gap: 8px;">
@@ -1757,7 +1686,7 @@ class DashboardView {
                     </div>
                 </div>
             </div>
-            
+
             <!-- SECCIÓN 4: INFORMACIÓN ADICIONAL -->
             <div style="margin-bottom: 25px;">
                 <h4 style="color: ${this.colors.primary}; margin-bottom: 15px; border-bottom: 2px solid ${this.colors.accentGreen}; padding-bottom: 5px; display: flex; align-items: center; gap: 8px;">
@@ -1781,14 +1710,14 @@ class DashboardView {
                         <div>${datos.peticionario}</div>
                     </div>
                 </div>
-                
+
                 <div style="margin-top: 15px;">
                     <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Motivo Principal</div>
                     <div style="font-weight: 600; font-size: 1.1rem; color: ${this.colors.dark}; background: white; padding: 10px; border-radius: 6px; border-left: 4px solid ${this.colors.primary};">
                         ${datos.motivo}
                     </div>
                 </div>
-                
+
                 <div style="margin-top: 15px;">
                     <div style="color: ${this.colors.gray}; font-size: 0.9rem; font-weight: 600; margin-bottom: 5px;">Descripción Detallada</div>
                     <div style="white-space: pre-wrap; line-height: 1.5; background: white; padding: 15px; border-radius: 6px; border: 1px solid ${this.colors.border};">
@@ -1796,7 +1725,7 @@ class DashboardView {
                     </div>
                 </div>
             </div>
-            
+
             <!-- SECCIÓN 5: SEGUIMIENTO Y CONCLUSIÓN -->
             <div style="margin-bottom: 25px;">
                 <h4 style="color: ${this.colors.primary}; margin-bottom: 15px; border-bottom: 2px solid ${this.colors.warning}; padding-bottom: 5px; display: flex; align-items: center; gap: 8px;">
@@ -1832,20 +1761,20 @@ class DashboardView {
                     ` : ''}
                 </div>
             </div>
-            
+
             <!-- Información de Sistema -->
             <div style="background: ${this.colors.primary}15; border-left: 4px solid ${this.colors.primary}; padding: 15px; border-radius: 6px; margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: ${this.colors.gray};">
                     <div>
-                        <i class="fas fa-user-shield"></i> 
+                        <i class="fas fa-user-shield"></i>
                         Operador: ${this.currentUser?.nombre || 'SISTEMA CERIT'}
                     </div>
                     <div>
-                        <i class="fas fa-database"></i> 
+                        <i class="fas fa-database"></i>
                         Registro: ${datos.id || 'N/A'}
                     </div>
                     <div>
-                        <i class="fas fa-clock"></i> 
+                        <i class="fas fa-clock"></i>
                         Hora registro: ${datos.hora_registro}
                     </div>
                 </div>
@@ -1860,8 +1789,8 @@ class DashboardView {
     mostrarModalEmergencia() {
         const modal = document.createElement('div');
         modal.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(220, 53, 69, 0.95); z-index: 2000; display: flex; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(220, 53, 69, 0.95); z-index: 2000; display: flex;
             align-items: center; justify-content: center; padding: 20px;
         `;
 
@@ -1878,12 +1807,12 @@ class DashboardView {
                         CERIT TEHUACÁN
                     </p>
                 </div>
-                
+
                 <div style="padding: 30px;">
                     <h3 style="color: #dc3545; margin-bottom: 20px; text-align: center; font-size: 1.3rem;">
                         <i class="fas fa-broadcast-tower"></i> ACTIVAR PROTOCOLO
                     </h3>
-                    
+
                     <div style="margin-bottom: 25px;">
                         <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
@@ -1894,9 +1823,9 @@ class DashboardView {
                                 Este protocolo activará alertas simultáneas a todas las unidades disponibles y notificará al mando superior.
                             </p>
                         </div>
-                        
+
                         <div style="display: flex; flex-direction: column; gap: 12px;">
-                            <button onclick="this.iniciarEmergenciaTipo('medica')" 
+                            <button onclick="this.iniciarEmergenciaTipo('medica')"
                                     style="padding: 15px; background: #dc3545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; font-size: 1rem; transition: all 0.3s;"
                                     onmouseover="this.style.background='#c82333'; this.style.transform='translateY(-2px)'"
                                     onmouseout="this.style.background='#dc3545'; this.style.transform='translateY(0)'">
@@ -1906,8 +1835,8 @@ class DashboardView {
                                     <div style="font-size: 0.85rem; opacity: 0.9;">Accidente, heridos, atención médica</div>
                                 </div>
                             </button>
-                            
-                            <button onclick="this.iniciarEmergenciaTipo('seguridad')" 
+
+                            <button onclick="this.iniciarEmergenciaTipo('seguridad')"
                                     style="padding: 15px; background: #343a40; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; font-size: 1rem; transition: all 0.3s;"
                                     onmouseover="this.style.background='#23272b'; this.style.transform='translateY(-2px)'"
                                     onmouseout="this.style.background='#343a40'; this.style.transform='translateY(0)'">
@@ -1917,8 +1846,8 @@ class DashboardView {
                                     <div style="font-size: 0.85rem; opacity: 0.9;">Incidente violento, amenaza, robo</div>
                                 </div>
                             </button>
-                            
-                            <button onclick="this.iniciarEmergenciaTipo('incendio')" 
+
+                            <button onclick="this.iniciarEmergenciaTipo('incendio')"
                                     style="padding: 15px; background: #fd7e14; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 10px; font-size: 1rem; transition: all 0.3s;"
                                     onmouseover="this.style.background='#e96a00'; this.style.transform='translateY(-2px)'"
                                     onmouseout="this.style.background='#fd7e14'; this.style.transform='translateY(0)'">
@@ -1930,9 +1859,9 @@ class DashboardView {
                             </button>
                         </div>
                     </div>
-                    
+
                     <div style="text-align: center; margin-top: 20px;">
-                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()"
                                 style="padding: 10px 25px; background: #6c757d; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;"
                                 onmouseover="this.style.background='#5a6268'"
                                 onmouseout="this.style.background='#6c757d'">
@@ -1940,7 +1869,7 @@ class DashboardView {
                         </button>
                     </div>
                 </div>
-                
+
                 <div style="background: #f8f9fa; padding: 15px; border-top: 1px solid #dee2e6; text-align: center; font-size: 0.8rem; color: #6c757d;">
                     <i class="fas fa-phone-alt"></i> Línea directa: 911 | CERIT Tehuacán
                 </div>
@@ -1949,7 +1878,6 @@ class DashboardView {
 
         document.body.appendChild(modal);
 
-        // Añadir funciones a los botones
         modal.querySelector('button[onclick*="iniciarEmergenciaTipo(\'medica\')"]').onclick = () => {
             this.procesarEmergencia('medica');
             modal.remove();
@@ -1982,7 +1910,6 @@ class DashboardView {
             'emergencia'
         );
 
-        // Simular envío de alerta
         setTimeout(() => {
             this.mostrarAlerta(
                 '✅ ALERTA ENVIADA',
@@ -1996,7 +1923,6 @@ class DashboardView {
         try {
             this.mostrarAlerta('🔄 ACTUALIZANDO', 'Recargando datos del servidor...', 'info');
 
-            // Mostrar loading
             const container = this.container.querySelector('#tabla-llamadas-container');
             container.innerHTML = `
                 <div style="text-align: center; padding: 50px; color: ${this.colors.gray};">
@@ -2006,16 +1932,13 @@ class DashboardView {
                 </div>
             `;
 
-            // Limpiar cache si existe
             if (typeof LlamadasService !== 'undefined' && LlamadasService.limpiarCache) {
                 LlamadasService.limpiarCache();
             }
 
-            // Forzar recarga
             this.data = [];
             await this.fetchAndRenderTable();
 
-            // Actualizar última actualización
             this.actualizarUltimaActualizacion();
 
             this.mostrarAlerta('✅ ACTUALIZADO', 'Datos cargados correctamente', 'success');
@@ -2031,7 +1954,6 @@ class DashboardView {
             return;
         }
 
-        // Aplicar filtros actuales a los datos
         let datosExportar = this.aplicarFiltrosADatos(this.data);
 
         if (datosExportar.length === 0) {
@@ -2039,11 +1961,10 @@ class DashboardView {
             return;
         }
 
-        // Crear CSV con los campos de la BD
         let csv = 'ID,Fecha,Hora,Turno,Folio Sistema,Motivo,Ubicación,Colonia,Peticionario,Teléfono,Seguimiento,Razonamiento,Conclusión,Descripción Detallada,Agente,Teléfono Agente,Folio C5,Estado\n';
 
         datosExportar.forEach(item => {
-            // Determinar estado
+
             let estado = 'REGISTRADO';
             if (item.seguimiento) estado = 'EN SEGUIMIENTO';
             if (item.conclusion) estado = 'CONCLUIDO';
@@ -2098,7 +2019,6 @@ class DashboardView {
             return;
         }
 
-        // Aplicar filtros actuales
         let datosImprimir = this.aplicarFiltrosADatos(this.data);
 
         if (datosImprimir.length === 0) {
@@ -2106,7 +2026,6 @@ class DashboardView {
             return;
         }
 
-        // Crear ventana de impresión
         const ventanaImpresion = window.open('', '_blank');
         ventanaImpresion.document.write(`
             <!DOCTYPE html>
@@ -2136,7 +2055,7 @@ class DashboardView {
                     <p>Centro de Emergencia y Respuesta Inmediata</p>
                     <p>Reporte de Operaciones</p>
                 </div>
-                
+
                 <div class="info">
                     <div>
                         <strong>Fecha de generación:</strong> ${new Date().toLocaleDateString('es-MX')}<br>
@@ -2147,7 +2066,7 @@ class DashboardView {
                         <strong>Total registros:</strong> ${datosImprimir.length}
                     </div>
                 </div>
-                
+
                 <table>
                     <thead>
                         <tr>
@@ -2174,12 +2093,12 @@ class DashboardView {
                         `).join('')}
                     </tbody>
                 </table>
-                
+
                 <div class="footer">
                     <p>Sistema CERIT Tehuacán - Protocolo SAS-C4 v2.1</p>
                     <p>Documento generado automáticamente</p>
                 </div>
-                
+
                 <div class="no-print" style="margin-top: 20px; text-align: center;">
                     <button onclick="window.print()" style="padding: 10px 20px; background: #003366; color: white; border: none; border-radius: 4px; cursor: pointer;">
                         Imprimir Reporte
@@ -2188,7 +2107,7 @@ class DashboardView {
                         Cerrar
                     </button>
                 </div>
-                
+
                 <script>
                     window.onload = function() {
                         // Auto-imprimir si está configurado
@@ -2202,17 +2121,16 @@ class DashboardView {
     }
 
     async generarReporteMensual() {
-        // Verificar filtros activos para determinar mes
+
         let mesSeleccionado = this.filtrosActivos.mes;
 
-        // Si no hay mes seleccionado en filtros, preguntar o usar el actual
         if (!mesSeleccionado) {
-            // Intentar obtener del filtro de mes en el DOM aunque no esté aplicado
+
             const filtroMes = this.container.querySelector('#filtro-mes');
             if (filtroMes && filtroMes.value) {
                 mesSeleccionado = filtroMes.value;
             } else {
-                // Usar mes actual por defecto
+
                 const hoy = new Date();
                 mesSeleccionado = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
             }
@@ -2221,7 +2139,7 @@ class DashboardView {
         this.mostrarAlerta('📊 REPORTE MENSUAL', `Generando PDF para el mes ${mesSeleccionado}...`, 'info');
 
         try {
-            // Filtrar datos por el mes seleccionado
+
             const datosMes = this.filtrarPorMes(mesSeleccionado);
 
             if (datosMes.length === 0) {
@@ -2229,7 +2147,6 @@ class DashboardView {
                 return;
             }
 
-            // Verificar si jsPDF está disponible
             if (!window.jspdf || !window.jspdf.jsPDF) {
                 throw new Error("La librería jsPDF no está cargada");
             }
@@ -2237,11 +2154,9 @@ class DashboardView {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            // Colores
-            const primaryColor = [0, 51, 102]; // #003366
-            const secondaryColor = [108, 117, 125]; // #6c757d
+            const primaryColor = [0, 51, 102];
+            const secondaryColor = [108, 117, 125];
 
-            // Encabezado
             doc.setFillColor(...primaryColor);
             doc.rect(0, 0, 210, 40, 'F');
 
@@ -2254,7 +2169,6 @@ class DashboardView {
             doc.setFont("helvetica", "normal");
             doc.text("CENTRO DE EMERGENCIA Y RESPUESTA INMEDIATA", 105, 30, { align: "center" });
 
-            // Info del reporte
             const [año, mes] = mesSeleccionado.split('-');
             const nombreMes = new Date(parseInt(año), parseInt(mes) - 1, 1)
                 .toLocaleDateString('es-MX', { month: 'long' }).toUpperCase();
@@ -2271,7 +2185,6 @@ class DashboardView {
             doc.text(`Total de registros: ${datosMes.length}`, 14, 67);
             doc.text(`Operador solicitante: ${this.currentUser?.nombre || 'SISTEMA'}`, 14, 72);
 
-            // Estadísticas Resumen
             const stats = this.calcularEstadisticasMes(datosMes);
 
             doc.setDrawColor(200, 200, 200);
@@ -2291,7 +2204,6 @@ class DashboardView {
             doc.text(`Nocturno: ${stats.nocturno}`, 145, 75);
             doc.text(`Concluidos: ${stats.concluidos}`, 145, 80);
 
-            // Tabla de datos
             const tableData = datosMes.map(item => [
                 item.fecha || '',
                 (item.hora || '').substring(0, 5),
@@ -2329,7 +2241,7 @@ class DashboardView {
                     fillColor: [245, 245, 245]
                 },
                 didDrawPage: function (data) {
-                    // Footer
+
                     const str = "Página " + doc.internal.getNumberOfPages();
                     doc.setFontSize(8);
                     doc.setTextColor(150);
@@ -2339,7 +2251,6 @@ class DashboardView {
                 }
             });
 
-            // Guardar PDF
             doc.save(`Reporte_CERIT_${nombreMes}_${año}.pdf`);
 
             this.mostrarAlerta('✅ REPORTE GENERADO', 'El PDF se ha descargado correctamente', 'success');
@@ -2351,14 +2262,13 @@ class DashboardView {
     }
 
     mostrarMapaCalor() {
-        // Cargar la vista del mapa de calor
+
         if (this.appController && typeof this.appController.loadView === 'function') {
             this.appController.loadView('mapacalor');
         } else {
-            // Fallback si no hay appController
+
             this.mostrarAlerta('🗺️ MAPA DE CALOR', 'Redirigiendo al mapa de calor...', 'info');
 
-            // Simular redirección
             setTimeout(() => {
                 this.mostrarAlerta('⚠️ ERROR', 'No se pudo cargar el mapa de calor. Asegúrate de que MapaCalorView.js esté incluido.', 'error');
             }, 1000);
@@ -2377,10 +2287,10 @@ class DashboardView {
 
         const alertDiv = document.createElement('div');
         alertDiv.style.cssText = `
-            position: fixed; top: 20px; right: 20px; 
-            background: white; border-left: 4px solid ${tipoInfo.bg}; 
-            padding: 15px 20px; border-radius: 8px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            position: fixed; top: 20px; right: 20px;
+            background: white; border-left: 4px solid ${tipoInfo.bg};
+            padding: 15px 20px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1001; min-width: 300px; max-width: 400px;
             animation: fadeInRight 0.3s ease-out;
             border-top: 1px solid #dee2e6;
@@ -2397,7 +2307,7 @@ class DashboardView {
                     <div style="font-weight: 700; color: ${this.colors.dark}; margin-bottom: 5px; font-size: 0.95rem;">${titulo}</div>
                     <div style="color: ${this.colors.gray}; font-size: 0.9rem; white-space: pre-line;">${mensaje}</div>
                 </div>
-                <button onclick="this.parentElement.parentElement.remove()" 
+                <button onclick="this.parentElement.parentElement.remove()"
                         style="background: none; border: none; color: ${this.colors.gray}; cursor: pointer; padding: 0; font-size: 1rem; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s;"
                         onmouseover="this.style.background='${this.colors.light}'; this.style.color='${this.colors.dark}'"
                         onmouseout="this.style.background='none'; this.style.color='${this.colors.gray}'">
@@ -2408,7 +2318,6 @@ class DashboardView {
 
         document.body.appendChild(alertDiv);
 
-        // Auto-remover después de 5 segundos
         setTimeout(() => {
             if (alertDiv.parentNode) {
                 alertDiv.style.animation = 'fadeOutRight 0.3s ease-out';
@@ -2420,7 +2329,6 @@ class DashboardView {
             }
         }, 5000);
 
-        // Agregar estilos de animación si no existen
         if (!document.querySelector('#alert-animations')) {
             const style = document.createElement('style');
             style.id = 'alert-animations';

@@ -7,7 +7,6 @@ exports.validarCreacion = [
     body('ubicacion').notEmpty().withMessage('La ubicación es obligatoria').isString(),
     body('descripcion').notEmpty().withMessage('La descripción es obligatoria').isString(),
 
-    // Middleware para interceptar errores
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

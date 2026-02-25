@@ -2,17 +2,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Registrar hora de inicio del servidor para invalidar tokens viejos (como C5)
 const SERVER_START_TIME = Date.now();
 
 class AuthController {
     static async login(req, res) {
 
-
         try {
             const { username, password } = req.body;
 
-            // Validación básica
             if (!username || !password) {
 
                 return res.status(400).json({
@@ -21,9 +18,8 @@ class AuthController {
                 });
             }
 
-            // Buscar usuario
             const user = await User.findByUsername(username);
-            
+
             if (!user) {
 
                 return res.status(401).json({
@@ -32,9 +28,8 @@ class AuthController {
                 });
             }
 
-            // Verificar contraseña
             const validPassword = await bcrypt.compare(password, user.password);
-            
+
             if (!validPassword) {
 
                 return res.status(401).json({
@@ -43,7 +38,6 @@ class AuthController {
                 });
             }
 
-            // Generar Token
             const token = jwt.sign(
                 {
                     id: user.id,
@@ -52,11 +46,9 @@ class AuthController {
                     turno: user.turno,
                     rol: user.rol
                 },
-                process.env.JWT_SECRET || 'secreto_super_seguro', // Fallback por si falta .env
+                process.env.JWT_SECRET || 'secreto_super_seguro',
                 { expiresIn: '8h' }
             );
-
-
 
             res.json({
                 success: true,
@@ -72,15 +64,14 @@ class AuthController {
             });
         } catch (error) {
             console.error('🔥 Error CRÍTICO en login:', error);
-            
-            // INTENTO DE FALLBACK: Usar usuarios mock si falla la BD
+
             try {
                 const config = require('../config/app.config');
                 const mockUser = config.MOCK_USERS.find(u => u.username === req.body.username);
 
                 if (mockUser && mockUser.password === req.body.password) {
                     console.log('⚠️ Usando usuario MOCK por fallo en BD');
-                    
+
                     const token = jwt.sign(
                         {
                             id: 999,
@@ -120,7 +111,7 @@ class AuthController {
     static verifyToken(req, res, next) {
         try {
             const authHeader = req.headers.authorization;
-            
+
             if (!authHeader) {
                 return res.status(401).json({
                     success: false,
@@ -130,8 +121,7 @@ class AuthController {
 
             const token = authHeader.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto_super_seguro');
-            
-            // Simular comportamiento de Sesión C5: Invalida tokens creados antes del reinicio del servidor
+
             const serverStartSeconds = Math.floor(SERVER_START_TIME / 1000);
             if (decoded.iat && decoded.iat < serverStartSeconds) {
                 console.log(`Token rechazado: Creado en ${decoded.iat}, Servidor inició en ${serverStartSeconds}`);
@@ -140,7 +130,7 @@ class AuthController {
                     message: 'Sesión expirada por reinicio del servidor'
                 });
             }
-            
+
             req.user = decoded;
             next();
         } catch (error) {
@@ -154,7 +144,7 @@ class AuthController {
     static async getProfile(req, res) {
         try {
             const user = await User.findById(req.user.id);
-            
+
             res.json({
                 success: true,
                 user

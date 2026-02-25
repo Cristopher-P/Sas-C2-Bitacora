@@ -65,7 +65,7 @@ class LlamadaController {
             });
         }
     }
-    // Registrar nueva llamada
+
     static async registrarLlamada(req, res) {
         try {
             const errors = validationResult(req);
@@ -76,7 +76,6 @@ class LlamadaController {
                 });
             }
 
-            // Desestructurar todos los posibles campos del frontend
             const {
                 fecha,
                 turno,
@@ -86,13 +85,13 @@ class LlamadaController {
                 colonia,
                 seguimiento,
                 razonamiento,
-                descripcion,  // 
+                descripcion,
                 motivo_radio_operacion,
                 salida,
                 detenido,
                 vehiculo,
                 numero_telefono,
-                telefono,      // 
+                telefono,
                 peticionario,
                 agente,
                 telefono_agente,
@@ -100,7 +99,6 @@ class LlamadaController {
                 folio
             } = req.body;
 
-            //  CORRECTO: Crear objeto con valores por defecto
             const datosLlamada = {
                 folio_sistema: folio_sistema || folio || null,
                 fecha: fecha || new Date().toISOString().split('T')[0],
@@ -110,13 +108,13 @@ class LlamadaController {
                 ubicacion: ubicacion || '',
                 colonia: colonia || '',
                 seguimiento: seguimiento || 'Sin seguimiento',
-                razonamiento: razonamiento || descripcion || '',  // Aceptar ambos
+                razonamiento: razonamiento || descripcion || '',
                 descripcion_detallada: descripcion || razonamiento || '',
                 motivo_radio_operacion: motivo_radio_operacion || 'Llamada telefónica',
                 salida: salida || 'no',
                 detenido: detenido || 'no',
                 vehiculo: vehiculo || '',
-                numero_telefono: numero_telefono || telefono || '',  // Aceptar ambos
+                numero_telefono: numero_telefono || telefono || '',
                 peticionario: peticionario || 'Anónimo',
                 agente: agente || '',
                 telefono_agente: telefono_agente || '',
@@ -125,10 +123,8 @@ class LlamadaController {
                 usuario_id: req.user ? req.user.id : 1
             };
 
-            // ¡ESTA LÍNEA FALTABA! Crear en la base de datos
             const llamadaId = await LlamadaBitacora.create(datosLlamada);
 
-            // Obtener la llamada recién creada con su folio
             const llamada = await LlamadaBitacora.findById(llamadaId);
 
             res.status(201).json({
@@ -147,12 +143,11 @@ class LlamadaController {
         }
     }
 
-    // Obtener llamadas con filtros
     static async obtenerLlamadas(req, res) {
         try {
             const {
                 fecha,
-                mes, // NUEVO PARÁMETRO: ej '2026-02'
+                mes,
                 turno,
                 motivo,
                 ubicacion,
@@ -170,7 +165,7 @@ class LlamadaController {
             let filtros = {};
 
             if (fecha) filtros.fecha = fecha;
-            if (mes) filtros.mes_objetivo = mes + '-01'; // Enviarlo compatible como fecha (YYYY-MM-DD) al modelo
+            if (mes) filtros.mes_objetivo = mes + '-01';
             if (turno) filtros.turno = turno;
             if (motivo) filtros.motivo = motivo;
             if (ubicacion) filtros.ubicacion = ubicacion;
@@ -207,12 +202,10 @@ class LlamadaController {
         }
     }
 
-    // Obtener una llamada específica (Peligro: Asume tabla actual si no se provee info extra por params de momento)
-    // Para una solución perfecta, la UI tendría que mandar la fecha o mes de la tabla donde está
     static async obtenerLlamada(req, res) {
         try {
             const { id } = req.params;
-            const { mes } = req.query; // opcional para buscar en pasados
+            const { mes } = req.query;
 
             if (!id) {
                 return res.status(400).json({
@@ -244,7 +237,6 @@ class LlamadaController {
         }
     }
 
-    // Actualizar llamada
     static async actualizarLlamada(req, res) {
         try {
             const { id } = req.params;
@@ -257,7 +249,6 @@ class LlamadaController {
                 });
             }
 
-            // Para modificar, si envían la fecha vieja podemos saber en qué tabla estaba, si no asumimos actual
             const tableName = datos.fecha ? LlamadaBitacora.getTableName(datos.fecha) : null;
 
             const actualizado = await LlamadaBitacora.update(id, tableName, datos);
@@ -285,11 +276,10 @@ class LlamadaController {
         }
     }
 
-    // Eliminar llamada
     static async eliminarLlamada(req, res) {
         try {
             const { id } = req.params;
-            const { fecha } = req.query; // Debe enviar la fecha del elemento a eliminar para buscarlo en la tabla correcta
+            const { fecha } = req.query;
 
             if (!id) {
                 return res.status(400).json({
@@ -321,7 +311,6 @@ class LlamadaController {
         }
     }
 
-    // Obtener estadísticas
     static async obtenerEstadisticas(req, res) {
         try {
             const { fecha_inicio, fecha_fin } = req.query;
@@ -347,7 +336,6 @@ class LlamadaController {
         }
     }
 
-    // Obtener datos para autocompletar
     static async obtenerAutocompletar(req, res) {
         try {
             const datos = await LlamadaBitacora.getDatosAutocompletar();
@@ -365,7 +353,6 @@ class LlamadaController {
         }
     }
 
-    // Exportar llamadas a formato específico
     static async exportarLlamadas(req, res) {
         try {
             const { fecha_inicio, fecha_fin } = req.query;
@@ -375,7 +362,6 @@ class LlamadaController {
 
             const llamadas = await LlamadaBitacora.findByDateRange(fechaInicio, fechaFin);
 
-            // Formatear para exportación
             const datosExportar = llamadas.map(llamada => ({
                 'FOLIO SISTEMA': llamada.folio_sistema,
                 'FECHA': llamada.fecha,

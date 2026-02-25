@@ -1,7 +1,4 @@
-/**
- * APP.JS - Controlador principal simplificado
- * Maneja navegación, autenticación y carga de vistas
- */
+
 
 class App {
     constructor() {
@@ -11,24 +8,22 @@ class App {
     }
 
     async init() {
-        // 1. Verificar si hay token en localStorage
+
         const token = localStorage.getItem('token');
-        
+
         if (!token) {
             window.location.href = 'index.html';
             return;
         }
 
-        // 2. Validar sesión ESTRICTAMENTE con el backend
         try {
-            // Utilizamos el cliente API ya configurado que inyectará el token automáticamente
+
             const response = await window.API.get('/auth/profile');
             if (response && response.success && response.user) {
                 this.currentUser = response.user;
-                // Mantener sincronizado el localStorage por si otras vistas lo leen directamente
+
                 localStorage.setItem('user', JSON.stringify(this.currentUser));
 
-                // Ocultar overlay de carga y mostrar la UI ahora que estamos seguros que la sesión es válida
                 const loadingOverlay = document.getElementById('session-loading-overlay');
                 if (loadingOverlay) loadingOverlay.style.display = 'none';
 
@@ -45,13 +40,11 @@ class App {
             window.location.href = 'index.html';
             return;
         }
-        
-        // 3. Configurar Interfaz Inicial
+
         this.updateUserInfo();
         this.setupEventListeners();
-        
-        // 3. Cargar vista inicial (forzar Dashboard por defecto siempre)
-        localStorage.removeItem('lastView'); // Limpiar cualquier vista guardada previa
+
+        localStorage.removeItem('lastView');
         await this.loadView('dashboard');
     }
 
@@ -73,14 +66,14 @@ class App {
     }
 
     setupEventListeners() {
-        // Navegación del Menú
+
         const setupNav = (id, viewName) => {
             const el = document.getElementById(id);
             if (el) {
-                // Remover listener anterior si existe
+
                 el.replaceWith(el.cloneNode(true));
                 const newEl = document.getElementById(id);
-                
+
                 newEl.addEventListener('click', (e) => {
                     e.preventDefault();
                     this.loadView(viewName);
@@ -92,18 +85,17 @@ class App {
         setupNav('nav-llamadas', 'llamadas');
 
         setupNav('nav-c5', 'c5');
-        setupNav('nav-mapacalor', 'mapacalor'); // ← NUEVO: Enlace para mapa de calor
-        
-        // Logout - ¡IMPORTANTE! Esto debe estar aquí
+        setupNav('nav-mapacalor', 'mapacalor');
+
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
-            // Remover listener anterior si existe
+
             logoutBtn.replaceWith(logoutBtn.cloneNode(true));
             const newLogoutBtn = document.getElementById('logout-btn');
-            
+
             newLogoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                if(confirm("¿Deseas cerrar sesión?")) {
+                if (confirm("¿Deseas cerrar sesión?")) {
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
                     localStorage.removeItem('lastView');
@@ -115,16 +107,15 @@ class App {
 
     async loadView(viewName) {
         const content = document.getElementById('content');
-        
-        // Guardar la vista actual para recargas
+
         localStorage.setItem('lastView', viewName);
-        
-        // Limpiar vista anterior
+
         if (this.currentView && typeof this.currentView.cleanup === 'function') {
             this.currentView.cleanup();
         }
 
-        // Mostrar loader
+        content.className = '';
+
         content.innerHTML = `
             <div class="loading-container">
                 <i class="fas fa-circle-notch fa-spin"></i>
@@ -134,9 +125,8 @@ class App {
 
         this.setActiveNav(viewName);
 
-        // Cargar nueva vista inmediatamente
         try {
-            switch(viewName) {
+            switch (viewName) {
                 case 'dashboard':
                     if (typeof DashboardView === 'undefined') {
                         throw new Error('DashboardView no está cargado');
@@ -144,7 +134,7 @@ class App {
                     this.currentView = new DashboardView(this.currentUser, this);
                     await this.currentView.render(content);
                     break;
-                    
+
                 case 'llamadas':
                     if (typeof LlamadasView === 'undefined') {
                         throw new Error('LlamadasView no está cargado');
@@ -152,7 +142,7 @@ class App {
                     this.currentView = new LlamadasView(this.currentUser, this);
                     await this.currentView.render(content);
                     break;
-                    
+
                 case 'c5':
                     if (typeof C5View === 'undefined') {
                         throw new Error('C5View no está cargado');
@@ -160,17 +150,15 @@ class App {
                     this.currentView = new C5View(this.currentUser, this);
                     await this.currentView.render(content);
                     break;
-                    
 
-                    
-                case 'mapacalor':  // ← NUEVO: Vista del mapa de calor
+                case 'mapacalor':
                     if (typeof MapaCalorView === 'undefined') {
                         throw new Error('MapaCalorView no está cargado');
                     }
                     this.currentView = new MapaCalorView(this);
                     await this.currentView.render(content);
                     break;
-                    
+
                 default:
                     console.error('Vista no encontrada:', viewName);
                     await this.loadView('dashboard');
@@ -210,7 +198,6 @@ class App {
         }
     }
 
-    // Métodos de navegación pública (para usar desde las vistas)
     goToDashboard() {
         this.loadView('dashboard');
     }
@@ -219,24 +206,23 @@ class App {
         this.loadView('c5');
     }
 
-    goToMapaCalor() {  // ← NUEVO: Método para ir al mapa de calor
+    goToMapaCalor() {
         this.loadView('mapacalor');
     }
 }
 
-// Inicialización segura
 document.addEventListener('DOMContentLoaded', () => {
-    // Verificar que todas las dependencias estén cargadas
-    const requiredClasses = [
-        'DashboardView', 
-        'LlamadasView', 
-        'C5View', 
 
-        'MapaCalorView'  // ← NUEVO: Agregar MapaCalorView a las dependencias
+    const requiredClasses = [
+        'DashboardView',
+        'LlamadasView',
+        'C5View',
+
+        'MapaCalorView'
     ];
-    
+
     const missingClasses = requiredClasses.filter(cls => typeof window[cls] === 'undefined');
-    
+
     if (missingClasses.length > 0) {
         console.error('Clases faltantes:', missingClasses);
         document.getElementById('content').innerHTML = `
@@ -252,10 +238,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         return;
     }
-    
-    // Inicializar la aplicación
+
     window.app = new App();
 });
 
-// Hacer disponible globalmente para acceso desde las vistas
 window.App = App;
