@@ -67,6 +67,23 @@ class LlamadaBitacora {
 
         try {
             await pool.execute(sql);
+
+            // Verificar y añadir columnas nuevas si la tabla ya existía antes de la actualización
+            try {
+                const [columns] = await pool.execute(`SHOW COLUMNS FROM ${tableName} LIKE 'latitud'`);
+                if (columns.length === 0) {
+                    await pool.execute(`
+                        ALTER TABLE ${tableName} 
+                        ADD COLUMN latitud DECIMAL(10, 8),
+                        ADD COLUMN longitud DECIMAL(11, 8),
+                        ADD COLUMN ubicacion_exacta VARCHAR(255)
+                    `);
+                    console.log(`Columnas espaciales añadidas a la tabla ${tableName}`);
+                }
+            } catch (alterError) {
+                console.error(`Error verificando/alterando tabla ${tableName}:`, alterError);
+            }
+
         } catch (error) {
             console.error(`Error asegurando que existe la tabla ${tableName}:`, error);
             throw error;

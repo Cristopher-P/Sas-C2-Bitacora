@@ -24,8 +24,8 @@ class ResponseWorker {
             return;
         }
 
-        console.log('🔌 Iniciando Response Worker (C4)...');
-        console.log('🎯 Escuchando respuestas en:', this.queueUrl);
+        // console.log('🔌 Iniciando Response Worker (C4)...');
+        // console.log('🎯 Escuchando respuestas en:', this.queueUrl);
 
         const app = Consumer.create({
             queueUrl: this.queueUrl,
@@ -45,19 +45,19 @@ class ResponseWorker {
 
         app.start();
         this.isRunning = true;
-        console.log('✅ Response Worker activo.');
+        // console.log('✅ Response Worker activo.');
     }
 
     async procesarMensaje(message) {
         try {
             const body = JSON.parse(message.Body);
-            console.log('📩 Respuesta recibida:', body);
+            // console.log('📩 Respuesta recibida:', body);
 
             if (body.tipo === 'RESPUESTA_FOLIO' && body.folio_c4 && body.folio_c5) {
 
-                console.log(`🔄 Actualizando Folio C4: ${body.folio_c4} con C5: ${body.folio_c5}`);
+                // console.log(`🔄 Actualizando Folio C4: ${body.folio_c4} con C5: ${body.folio_c5}`);
                 await EnvioC5.registrarFolioC5(body.folio_c4, body.folio_c5);
-                console.log('✅ Base de datos actualizada correctamente');
+                // console.log('✅ Base de datos actualizada correctamente');
 
                 if (this.io) {
                     this.io.emit('reportes_actualizados', {

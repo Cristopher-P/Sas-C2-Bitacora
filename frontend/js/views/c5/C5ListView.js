@@ -22,8 +22,8 @@ class C5ListView {
         this.startWebSockets();
     }
 
-getTemplate() {
-    return `
+    getTemplate() {
+        return `
         <div class="fade-in view-shell--wide">
             <!-- Encabezado -->
             <div class="page-header">
@@ -152,7 +152,7 @@ getTemplate() {
             </div>
         </div>
     `;
-}
+    }
 
     cleanup() {
         this.stopWebSockets();
@@ -242,7 +242,7 @@ getTemplate() {
             if (isWebSocketUpdate) {
 
                 const totalBadge = this.container.querySelector('.fa-file-alt')?.parentElement;
-                if(totalBadge) {
+                if (totalBadge) {
                     totalBadge.style.transition = 'background 0.3s';
                     const originalBg = totalBadge.style.background;
                     totalBadge.style.background = '#2ecc71';
@@ -283,7 +283,7 @@ getTemplate() {
             this.socket = io(socketUrl);
 
             this.socket.on('connect', () => {
-                console.log('[WebSockets] Conectado en tiempo real (ID: ' + this.socket.id + ')');
+                // console.log('[WebSockets] Conectado en tiempo real (ID: ' + this.socket.id + ')');
             });
 
             this.socket.on('reportes_actualizados', (data) => {
@@ -296,7 +296,7 @@ getTemplate() {
             });
 
             this.socket.on('disconnect', () => {
-                console.log('[WebSockets] Desconectado del servidor');
+                // console.log('[WebSockets] Desconectado del servidor');
             });
         }
     }
@@ -555,7 +555,7 @@ getTemplate() {
                     ${folioC5Cell}
                 </td>
                 <td>${reporte.fecha_envio || '--'}</td>
-                <td>${reporte.hora_envio ? reporte.hora_envio.substring(0,5) : '--'}</td>
+                <td>${reporte.hora_envio ? reporte.hora_envio.substring(0, 5) : '--'}</td>
                 <td style="font-weight: 600;">${reporte.motivo || '--'}</td>
                 <td title="${reporte.ubicacion || ''}">${ubicacionCorta}</td>
                 <td title="${reporte.descripcion || ''}">${descripcionCorta}</td>
@@ -661,7 +661,7 @@ getTemplate() {
                             </div>
                             <div>
                                 <div style="color: #7f8c8d; font-size: 0.85rem; margin-bottom: 5px;">HORA</div>
-                                <div style="font-weight: 600; color: #2c3e50;">${reporte.hora_envio ? reporte.hora_envio.substring(0,5) : '--'}</div>
+                                <div style="font-weight: 600; color: #2c3e50;">${reporte.hora_envio ? reporte.hora_envio.substring(0, 5) : '--'}</div>
                             </div>
                             <div>
                                 <div style="color: #7f8c8d; font-size: 0.85rem; margin-bottom: 5px;">ESTADO</div>
@@ -878,7 +878,7 @@ getTemplate() {
         if (!reporte) return;
 
         const texto = `FOLIO: ${reporte.folio_c4}
-HORA: ${reporte.hora_envio?.substring(0,5) || ''}
+HORA: ${reporte.hora_envio?.substring(0, 5) || ''}
 MOTIVO: ${reporte.motivo}
 UBICACIÓN: ${reporte.ubicacion}
 DESCRIPCIÓN: ${reporte.descripcion || ''}
@@ -943,7 +943,7 @@ CONCLUSIÓN: ${reporte.conclusion || ''}
                 reporte.folio_c4 || '',
                 reporte.folio_c5 || '',
                 reporte.fecha_envio || '',
-                reporte.hora_envio ? reporte.hora_envio.substring(0,5) : '',
+                reporte.hora_envio ? reporte.hora_envio.substring(0, 5) : '',
                 reporte.motivo || '',
                 reporte.ubicacion || '',
                 `"${(reporte.descripcion || '').replace(/"/g, '""')}"`,
@@ -962,7 +962,7 @@ CONCLUSIÓN: ${reporte.conclusion || ''}
         const url = URL.createObjectURL(blob);
 
         link.setAttribute('href', url);
-        link.setAttribute('download', `reportes_c5_${new Date().toISOString().slice(0,10)}.csv`);
+        link.setAttribute('download', `reportes_c5_${new Date().toISOString().slice(0, 10)}.csv`);
         link.style.visibility = 'hidden';
 
         document.body.appendChild(link);

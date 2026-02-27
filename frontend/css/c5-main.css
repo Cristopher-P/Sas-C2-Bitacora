@@ -1,0 +1,379 @@
+/* 
+    Estilos Estructurales - C5 Command Center (Total Redesign sin Sidebar Interno)
+*/
+
+:root {
+    --c5-bg: #f0f1f4;
+    /* Subtle background using the palette's cool tones */
+    --c5-panel: #ffffff;
+
+    --c5-brand: #0F528C;
+    --c5-brand-hover: #4393D9;
+
+    --c5-accent-red: #ef4444;
+    --c5-accent-green: #10b981;
+    --c5-accent-yellow: #f59e0b;
+
+    --c5-text-dark: #0D0D0D;
+    --c5-text-gray: #899090;
+    --c5-text-light: #ffffff;
+
+    --c5-border: #C9CCD4;
+    --c5-shadow: 0 4px 6px -1px rgba(13, 13, 13, 0.05), 0 2px 4px -2px rgba(13, 13, 13, 0.05);
+}
+
+/* Base Layout */
+.c5-command-center {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: calc(100vh - 150px);
+    background-color: var(--c5-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    animation: fadeIn 0.4s ease;
+}
+
+/* Área Principal (Dashboard Content) */
+.c5-main-content {
+    flex: 1;
+    padding: 15px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Header & Quick Actions Area */
+.c5-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 5px;
+}
+
+.c5-page-title h2 {
+    font-size: 2rem;
+    color: var(--c5-text-dark);
+    margin: 0 0 6px 0;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.c5-page-title p {
+    color: var(--c5-text-gray);
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Acciones Rápidas */
+.c5-quick-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.c5-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--c5-shadow);
+}
+
+.c5-action-btn i {
+    font-size: 1.1rem;
+}
+
+.c5-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.c5-action-btn.new-report {
+    background: var(--c5-brand);
+    color: white;
+}
+
+.c5-action-btn.new-report:hover {
+    background: var(--c5-brand-hover);
+}
+
+.c5-action-btn.history {
+    background: var(--c5-panel);
+    color: var(--c5-text-dark);
+    border: 1px solid var(--c5-border);
+}
+
+.c5-action-btn.history:hover {
+    background: #f8fafc;
+}
+
+/* System Status Bar */
+.c5-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--c5-panel);
+    padding: 8px 15px;
+    border-radius: 12px;
+    box-shadow: var(--c5-shadow);
+    border: 1px solid var(--c5-border);
+}
+
+.c5-system-status {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--c5-text-dark);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.status-dot.online {
+    background: var(--c5-accent-green);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+.status-dot.online::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.c5-operator-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+/* Grid de Tarjetas Analíticas */
+.c5-analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.c5-stat-box {
+    background: var(--c5-panel);
+    border-radius: 16px;
+    padding: 14px;
+    border: 1px solid var(--c5-border);
+    box-shadow: var(--c5-shadow);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: transform 0.2s;
+}
+
+.c5-stat-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.c5-stat-icon-wrapper {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-blue {
+    background: rgba(67, 147, 217, 0.15);
+    color: var(--c5-brand);
+}
+
+.stat-green {
+    background: #d1fae5;
+    color: var(--c5-accent-green);
+}
+
+.stat-orange {
+    background: #fef3c7;
+    color: var(--c5-accent-yellow);
+}
+
+.c5-stat-info h3 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--c5-text-dark);
+    line-height: 1.2;
+}
+
+.c5-stat-info p {
+    margin: 4px 0 0 0;
+    color: var(--c5-text-gray);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Panel Principal (Actividad Reciente / Consola) */
+.c5-activity-panel {
+    background: var(--c5-panel);
+    border-radius: 16px;
+    border: 1px solid var(--c5-border);
+    box-shadow: var(--c5-shadow);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.c5-panel-header {
+    padding: 14px;
+    border-bottom: 1px solid var(--c5-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.c5-panel-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--c5-text-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.c5-panel-body {
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Tabla de Actividad Reciente */
+.c5-recent-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.c5-recent-table th {
+    background: rgba(201, 204, 212, 0.25);
+    padding: 8px 14px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c5-text-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--c5-border);
+}
+
+.c5-recent-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--c5-border);
+    font-size: 0.9rem;
+    color: var(--c5-text-dark);
+    vertical-align: middle;
+}
+
+.c5-recent-table tr:hover td {
+    background: rgba(201, 204, 212, 0.15);
+}
+
+.c5-recent-table .folio-c4 {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+}
+
+.c5-recent-table .folio-c5 {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    color: var(--c5-brand);
+    background: rgba(67, 147, 217, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.c5-recent-table .folio-pending {
+    color: var(--c5-accent-red);
+    background: #fef2f2;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Vacío State */
+.c5-empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--c5-text-gray);
+}
+
+.c5-empty-state i {
+    font-size: 3rem;
+    opacity: 0.3;
+    margin-bottom: 15px;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 1024px) {
+    .c5-header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .c5-quick-actions {
+        width: 100%;
+        gap: 10px;
+    }
+
+    .c5-action-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .c5-analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}

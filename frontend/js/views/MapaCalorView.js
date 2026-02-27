@@ -15,19 +15,19 @@ class MapaCalorView {
         };
 
         this.colors = {
-            primary: '#2c3e50',
-            primaryLight: '#34495e',
-            primaryDark: '#1a252f',
-            accent: '#e67e22',
-            accentRed: '#e74c3c',
-            accentGreen: '#27ae60',
-            warning: '#f1c40f',
-            info: '#3498db',
-            dark: '#2c3e50',
-            light: '#f5f7fa',
-            border: '#ecf0f1',
-            text: '#2c3e50',
-            textLight: '#7f8c8d'
+            primary: '#0F528C',      // Azul oscuro
+            secondary: '#4393D9',    // Azul claro
+            primaryDark: '#0D0D0D',  // Negro
+            accent: '#ff6b35',
+            accentRed: '#dc3545',
+            accentGreen: '#28a745',
+            warning: '#ffc107',
+            info: '#17a2b8',
+            dark: '#0D0D0D',
+            light: '#C9CCD4',        // Gris claro
+            border: '#899090',       // Gris medio oscuro
+            text: '#0D0D0D',
+            textLight: '#899090'
         };
 
         this.coordenadasTehuacan = {
@@ -59,15 +59,15 @@ class MapaCalorView {
                 descripcion: 'Alteraciones del orden público'
             },
             'sospechoso': {
-                color: '#6c757d',
-                gradient: 'linear-gradient(135deg, #6c757d 0%, #8a929a 100%)',
+                color: '#899090',
+                gradient: 'linear-gradient(135deg, #899090 0%, #C9CCD4 100%)',
                 icon: 'user-secret',
                 nombre: 'Sospechosos',
                 descripcion: 'Personas o situaciones sospechosas'
             },
             'vehiculo': {
-                color: '#17a2b8',
-                gradient: 'linear-gradient(135deg, #17a2b8 0%, #1fc6df 100%)',
+                color: '#4393D9',
+                gradient: 'linear-gradient(135deg, #4393D9 0%, #899090 100%)',
                 icon: 'car',
                 nombre: 'Vehículos',
                 descripcion: 'Vehículos abandonados o sospechosos'
@@ -91,7 +91,20 @@ class MapaCalorView {
 
     async render(container) {
         this.container = container;
-        document.body.classList.add('mapa-fullscreen');
+        this.container.className = 'dashboard-cerit-tehuacan view-bleed view-shell view-form';
+
+        const footer = document.querySelector('.institutional-footer');
+        if (footer) footer.style.display = 'none';
+
+        const wrapper = document.querySelector('.content-wrapper');
+        if (wrapper) {
+            wrapper.style.overflow = 'hidden';
+            wrapper.style.padding = '0';
+        }
+
+        // Obtener API Key local desde backend para mantener seguridad en .env
+        await this.obtenerApiKeyAmazon();
+
         this.container.innerHTML = this.getTemplate();
         await this.initMapa();
         this.bindEvents();
@@ -100,439 +113,153 @@ class MapaCalorView {
         await this.cargarDatosMapa();
     }
 
+    async obtenerApiKeyAmazon() {
+        try {
+            const token = localStorage.getItem('token');
+            const apiUrl = window.AppConfig?.API_BASE_URL || '/api';
+            const response = await fetch(`${apiUrl}/config/amazon-location`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                this.amazonLocationApiKey = data.apiKey;
+            } else {
+                console.error('No se pudo obtener la llave de Amazon API desde el servidor seguro');
+            }
+        } catch (e) {
+            console.error('Error al solicitar API Key:', e);
+        }
+    }
+
     getTemplate() {
         return `
-            <div class="mapa-calor-container" style="position: fixed; top: 80px; left: 0; width: 100%; height: calc(100vh - 80px); background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%); display: flex; flex-direction: column; overflow: hidden; z-index: 90; margin: 0; padding: 0;">
-                <!-- Header eliminado para dar más espacio al mapa -->
+            <div class="cerit-dashboard view-shell--xl cerit-heatmap-fullscreen">
 
-                <!-- Indicadores Flotantes (Top Center) -->
-                <!-- Indicadores de estado eliminados (EN VIVO, Geocodificando) para limpiar la vista -->
+                <!-- Mapa a pantalla completa -->
+                <div id="mapa-tehuacan" class="fullscreen-mapa"></div>
 
-                <!-- Contenido Principal -->
-                <div class="mapa-layout" style="overflow: hidden; position: relative;">
-                    <!-- Panel de Control Lateral Mejorado -->
-                    <div id="panel-control" class="panel-control-lateral mapa-panel"
-                         style="background: white; border-right: 1px solid ${this.colors.border}; display: flex; flex-direction: column; transition: all 0.3s ease; box-shadow: 2px 0 12px rgba(0,0,0,0.08); z-index: 50; position: relative;">
-
-                        <!-- Botón toggle panel -->
-                        <button id="btn-toggle-panel"
-                                style="position: absolute; right: -20px; top: 50%; transform: translateY(-50%); width: 40px; height: 80px; background: white; border: 1px solid ${this.colors.border}; border-left: none; border-radius: 0 10px 10px 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 4px 0 12px rgba(0,0,0,0.1); transition: all 0.3s; z-index: 10;">
-                            <i class="fas fa-chevron-left" style="color: ${this.colors.primary}; transition: transform 0.3s;"></i>
-                        </button>
-
-                        <div style="flex: 1; overflow-y: auto; padding: 20px;">
-                            <!-- Tarjeta de Estadísticas Rápidas -->
-                            <div class="stats-rapidas" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 25px;">
-                                <div class="stat-card" style="background: linear-gradient(135deg, ${this.colors.primary} 0%, ${this.colors.primaryLight} 100%); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,51,102,0.2); position: relative; overflow: hidden;">
-                                    <div style="position: absolute; top: -10px; right: -10px; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-                                    <div style="position: relative; z-index: 1;">
-                                        <div style="color: rgba(255,255,255,0.8); font-size: 0.75rem; font-weight: 600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Total</div>
-                                        <div id="total-incidencias" style="color: white; font-size: 2rem; font-weight: 700; line-height: 1;">0</div>
-                                        <div style="color: rgba(255,255,255,0.9); font-size: 0.8rem; margin-top: 3px;">Incidencias</div>
-                                    </div>
-                                </div>
-
-                                <div class="stat-card" style="background: linear-gradient(135deg, ${this.colors.accent} 0%, #ff8c5a 100%); padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(255,107,53,0.2); position: relative; overflow: hidden;">
-                                    <div style="position: absolute; top: -10px; right: -10px; width: 60px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-                                    <div style="position: relative; z-index: 1;">
-                                        <div style="color: rgba(255,255,255,0.8); font-size: 0.75rem; font-weight: 600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Visibles</div>
-                                        <div id="mostradas-incidencias" style="color: white; font-size: 2rem; font-weight: 700; line-height: 1;">0</div>
-                                        <div style="color: rgba(255,255,255,0.9); font-size: 0.8rem; margin-top: 3px;">En mapa</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Filtros Mejorados -->
-                            <div class="seccion-filtros" style="margin-bottom: 25px;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                                    <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 8px; font-weight: 700;">
-                                        <i class="fas fa-sliders-h"></i> FILTROS
-                                    </h4>
-                                    <button id="btn-limpiar-filtros-mapa"
-                                            style="padding: 5px 12px; background: ${this.colors.light}; color: ${this.colors.text}; border: 1px solid ${this.colors.border}; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;"
-                                            title="Limpiar todos los filtros">
-                                        <i class="fas fa-eraser"></i> Limpiar
-                                    </button>
-                                </div>
-
-                                <div style="display: flex; flex-direction: column; gap: 18px;">
-                                    <!-- Rango de Fechas -->
-                                    <div class="form-group-mapa">
-                                        <label style="display: block; color: ${this.colors.text}; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
-                                            <i class="fas fa-calendar-alt" style="color: ${this.colors.info};"></i> Período
-                                        </label>
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                            <input type="date" id="filtro-fecha-inicio"
-                                                   class="input-custom"
-                                                   style="padding: 12px 10px; border: 2px solid ${this.colors.border}; border-radius: 8px; font-size: 0.85rem; transition: all 0.3s;"
-                                                   placeholder="Desde">
-                                            <input type="date" id="filtro-fecha-fin"
-                                                   class="input-custom"
-                                                   style="padding: 12px 10px; border: 2px solid ${this.colors.border}; border-radius: 8px; font-size: 0.85rem; transition: all 0.3s;"
-                                                   placeholder="Hasta">
-                                        </div>
-                                    </div>
-
-                                    <!-- Botón Aplicar Filtros -->
-                                    <button id="btn-aplicar-filtros-mapa"
-                                            style="width: 100%; padding: 14px; background: linear-gradient(135deg, ${this.colors.primary} 0%, ${this.colors.primaryLight} 100%); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 0.95rem; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,51,102,0.3);">
-                                        <i class="fas fa-filter"></i> APLICAR FILTROS
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Leyenda movida al mapa -->
-
-                            <!-- Información Adicional -->
-                            <div style="background: linear-gradient(135deg, ${this.colors.light} 0%, white 100%); padding: 15px; border-radius: 10px; border: 1px solid ${this.colors.border};">
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                    <i class="fas fa-info-circle" style="color: ${this.colors.info}; font-size: 1.1rem;"></i>
-                                    <span style="font-size: 0.85rem; font-weight: 700; color: ${this.colors.text};">ÚLTIMA ACTUALIZACIÓN</span>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <div class="pulso-pequeño" style="width: 8px; height: 8px; background: ${this.colors.accentGreen}; border-radius: 50%;"></div>
-                                    <span id="ultima-actualizacion-mapa" style="font-size: 0.9rem; color: ${this.colors.primary}; font-weight: 600;">Ahora mismo</span>
-                                </div>
-                            </div>
-
-                            <!-- Últimos Registros -->
-                            <div class="seccion-ultimos" style="margin-top: 25px;">
-                                <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-weight: 700;">
-                                    <i class="fas fa-history"></i> ÚLTIMOS REGISTROS
-                                </h4>
-                                <div id="lista-ultimos-registros" style="display: flex; flex-direction: column; gap: 10px;">
-                                    <!-- Se llenará dinámicamente -->
-                                    <div style="text-align: center; color: ${this.colors.textLight}; font-size: 0.85rem; padding: 10px;">
-                                        <i class="fas fa-spinner fa-spin"></i> Cargando...
-                                    </div>
-                                </div>
-                            </div>
+                <!-- Panel superior izquierdo: Título + Stats -->
+                <div class="panel-flotante-top">
+                    <div class="panel-titulo hm-card">
+                        <div class="panel-titulo__icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div class="panel-titulo__text">
+                            <h3>MAPA DE CALOR</h3>
+                            <p>Análisis espacial · CERIT Tehuacán</p>
                         </div>
                     </div>
-
-                    <!-- Mapa Principal -->
-                    <div class="mapa-canvas" style="position: relative; background: ${this.colors.light};">
-                        <div id="mapa-tehuacan" style="width: 100%; height: 100%;"></div>
-
-                        <!-- Controles flotantes del mapa (Columna Vertical Derecha) -->
-                        <div class="controles-flotantes" style="position: absolute; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 400;">
-
-                            <!-- Control de zoom personalizado -->
-                            <div style="background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); overflow: hidden;">
-                                <button id="btn-zoom-in"
-                                        style="width: 45px; height: 45px; background: white; border: none; border-bottom: 1px solid ${this.colors.border}; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
-                                    <i class="fas fa-plus" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
-                                </button>
-                                <button id="btn-zoom-out"
-                                        style="width: 45px; height: 45px; background: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
-                                    <i class="fas fa-minus" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
-                                </button>
-                            </div>
-
-                            <!-- Control de ubicación -->
-                            <button id="btn-mi-ubicacion"
-                                    style="width: 45px; height: 45px; background: white; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                <i class="fas fa-crosshairs" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
-                            </button>
-
-                            <!-- Control pantalla completa -->
-                            <button id="btn-pantalla-completa"
-                                    style="width: 45px; height: 45px; background: white; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                <i class="fas fa-expand" style="color: ${this.colors.primary}; font-size: 1.1rem;"></i>
-                            </button>
-
-                            <!-- Divisor visual -->
-                            <div style="height: 10px;"></div>
-
-                            <!-- Modos de Vista (Apilados Verticalmente) -->
-                            <div class="grupo-vistas-vertical" style="background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); overflow: hidden; display: flex; flex-direction: column;">
-                                <button class="btn-vista-mapa active" data-vista="calor"
-                                        style="width: 45px; height: 45px; background: ${this.colors.light}; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.primary}; transition: all 0.3s; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid ${this.colors.border};"
-                                        title="Mapa de calor">
-                                    <i class="fas fa-fire"></i>
-                                </button>
-                                <button class="btn-vista-mapa" data-vista="marcadores"
-                                        style="width: 45px; height: 45px; background: white; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.textLight}; transition: all 0.3s; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid ${this.colors.border};"
-                                        title="Marcadores">
-                                    <i class="fas fa-map-pin"></i>
-                                </button>
-                                <button class="btn-vista-mapa" data-vista="clusters"
-                                        style="width: 45px; height: 45px; background: white; border: none; cursor: pointer; font-size: 1.1rem; color: ${this.colors.textLight}; transition: all 0.3s; display: flex; align-items: center; justify-content: center;"
-                                        title="Agrupación">
-                                    <i class="fas fa-th"></i>
-                                </button>
-                            </div>
+                    <div class="panel-stats">
+                        <div class="stat-card stat-total hm-card">
+                            <div class="stat-icon"><i class="fas fa-database"></i></div>
+                            <div id="total-incidencias" class="stat-value">0</div>
+                            <div class="stat-label">Total</div>
                         </div>
-
-                        <!-- Indicador de modo vista [ELIMINADO] -->
-                        <!-- Se elimina para limpiar la vista. -->
-                        <div id="indicador-modo-vista" style="display: none;"></div>
-
-                        <!-- Leyenda Flotante (Top Center) -->
-                        <div id="leyenda-flotante" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 6px 15px; border-radius: 30px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 400; max-width: 90%; overflow-x: auto;">
-                            ${Object.entries(this.tiposIncidencia).map(([key, tipo]) => `
-                                <div class="leyenda-item-flotante" data-tipo="${key}" title="${tipo.nombre}" style="display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s;">
-                                    <div style="width: 10px; height: 10px; background: ${tipo.color}; border-radius: 50%;"></div>
-                                    <span style="font-size: 0.8rem; font-weight: 700; color: ${this.colors.dark}; white-space: nowrap;">${tipo.nombre}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-
-                        <!-- Loading del Mapa Mejorado -->
-                        <div id="loading-mapa" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(5px);">
-                            <div style="position: relative; width: 100px; height: 100px; margin-bottom: 30px;">
-                                <div class="loader-ring" style="position: absolute; width: 100%; height: 100%; border: 4px solid ${this.colors.light}; border-top-color: ${this.colors.primary}; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: ${this.colors.primary}; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-map" style="color: white; font-size: 1.3rem;"></i>
-                                </div>
-                            </div>
-                            <h4 style="color: ${this.colors.primary}; margin-bottom: 10px; font-weight: 700; font-size: 1.2rem;">Cargando Mapa de Tehuacán</h4>
-                            <p style="color: ${this.colors.textLight}; font-size: 0.95rem;">Preparando datos de incidencias...</p>
-                            <div style="width: 200px; height: 4px; background: ${this.colors.light}; border-radius: 2px; margin-top: 20px; overflow: hidden;">
-                                <div class="barra-progreso" style="width: 0%; height: 100%; background: linear-gradient(90deg, ${this.colors.primary}, ${this.colors.accent}); border-radius: 2px; animation: progreso 2s ease-in-out infinite;"></div>
-                            </div>
+                        <div class="stat-card stat-visibles hm-card">
+                            <div class="stat-icon"><i class="fas fa-eye"></i></div>
+                            <div id="mostradas-incidencias" class="stat-value">0</div>
+                            <div class="stat-label">En mapa</div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Panel derecho: Filtros -->
+                <div class="panel-flotante-right hm-card custom-scrollbar">
+                    <div class="panel-header">
+                        <div class="panel-header__title">
+                            <span class="panel-header__dot"></span>
+                            <h4>FILTROS</h4>
+                        </div>
+                        <button id="btn-limpiar-filtros-mapa" class="btn-clean">Limpiar</button>
+                    </div>
+                    <div class="filtros-body">
+                        <div class="filtro-grupo">
+                            <label class="filtro-label"><i class="fas fa-calendar-alt"></i> Rango de Fechas</label>
+                            <div class="filtro-fechas">
+                                <div class="input-wrapper">
+                                    <span class="input-prefix">Desde</span>
+                                    <input type="date" id="filtro-fecha-inicio">
+                                </div>
+                                <div class="input-wrapper">
+                                    <span class="input-prefix">Hasta</span>
+                                    <input type="date" id="filtro-fecha-fin">
+                                </div>
+                            </div>
+                        </div>
+                        <button id="btn-aplicar-filtros-mapa" class="btn-primary-hm">
+                            <i class="fas fa-search"></i> Aplicar Filtros
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel inferior derecho: Últimos Registros -->
+                <div class="panel-flotante-bottom-right hm-card">
+                    <div class="panel-header">
+                        <div class="panel-header__title">
+                            <span class="panel-header__dot panel-header__dot--accent"></span>
+                            <h4>ÚLTIMOS REGISTROS</h4>
+                        </div>
+                    </div>
+                    <div id="lista-ultimos-registros" class="lista-registros custom-scrollbar">
+                        <div class="loading-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controles del mapa (izquierda, centrados verticalmente) -->
+                <div class="controles-flotantes-left">
+                    <div class="control-group hm-card">
+                        <button id="btn-zoom-in" class="ctrl-btn" title="Acercar"><i class="fas fa-plus"></i></button>
+                        <hr class="control-divider">
+                        <button id="btn-zoom-out" class="ctrl-btn" title="Alejar"><i class="fas fa-minus"></i></button>
+                    </div>
+                    <button id="btn-mi-ubicacion" class="control-btn single hm-card ctrl-btn" title="Centrar Mapa">
+                        <i class="fas fa-crosshairs"></i>
+                    </button>
+                    <div class="control-group hm-card modos-vista-grupo">
+                        <button class="btn-vista-mapa ctrl-btn active" data-vista="calor" title="Mapa de Calor"><i class="fas fa-fire"></i></button>
+                        <hr class="control-divider">
+                        <button class="btn-vista-mapa ctrl-btn" data-vista="marcadores" title="Marcadores"><i class="fas fa-map-pin"></i></button>
+                        <hr class="control-divider">
+                        <button class="btn-vista-mapa ctrl-btn" data-vista="clusters" title="Agrupación"><i class="fas fa-layer-group"></i></button>
+                    </div>
+                </div>
+
+                <!-- Leyenda flotante (inferior izquierda) -->
+                <div id="leyenda-flotante" class="leyenda-flotante hm-card">
+                    <div class="leyenda-titulo"><i class="fas fa-circle-dot"></i> INCIDENCIAS</div>
+                    <div class="leyenda-grid">
+                        ${Object.entries(this.tiposIncidencia).map(([key, tipo]) => `
+                            <div class="leyenda-item-flotante" data-tipo="${key}" title="${tipo.nombre}">
+                                <div class="leyenda-color" style="background: ${tipo.color};"></div>
+                                <span>${tipo.nombre}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Loading overlay -->
+                <div id="loading-mapa" class="loading-mapa-overlay">
+                    <div class="loading-inner">
+                        <i class="fas fa-map-marked-alt fa-2x"></i>
+                        <div class="loading-spinner"></div>
+                        <h4>Cargando Mapa...</h4>
+                        <p>Iniciando visualización</p>
+                    </div>
+                </div>
             </div>
-
-            ${this.getEstilos()}
-        `;
-    }
-
-    getEstilos() {
-        return `
-            <style>
-                .mapa-layout {
-                    display: flex;
-                    flex: 1;
-                    min-height: 0;
-                    overflow: hidden;
-                    width: 100%;
-                    height: 100%;
-                    position: relative;
-                }
-                .mapa-panel {
-                    width: 380px;
-                    min-width: 320px;
-                    max-width: 100%;
-                    height: 100%;
-                    overflow: hidden;
-                }
-                .mapa-canvas {
-                    flex: 1;
-                    min-width: 0;
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                #mapa-tehuacan {
-                    flex: 1;
-                    min-height: 320px;
-                }
-                .mapa-toolbar {
-                    flex-wrap: wrap;
-                }
-
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-
-                @keyframes progreso {
-                    0% { width: 0%; transform: translateX(0); }
-                    50% { width: 70%; }
-                    100% { width: 100%; transform: translateX(100%); }
-                }
-
-                @keyframes pulso {
-                    0%, 100% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.2); opacity: 0.7; }
-                }
-
-                @keyframes fadeInUp {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-
-                @keyframes fadeInRight {
-                    from { opacity: 0; transform: translateX(20px); }
-                    to { opacity: 1; transform: translateX(0); }
-                }
-
-                @keyframes fadeOutRight {
-                    from { opacity: 1; transform: translateX(0); }
-                    to { opacity: 0; transform: translateX(20px); }
-                }
-
-                .pulso-indicador {
-                    animation: pulso 2s ease-in-out infinite;
-                }
-
-                .pulso-pequeño {
-                    animation: pulso 1.5s ease-in-out infinite;
-                }
-
-                .stat-card {
-                    animation: fadeInUp 0.5s ease-out;
-                }
-
-                .stat-card:nth-child(2) {
-                    animation-delay: 0.1s;
-                }
-
-                .btn-accion-mapa:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 16px rgba(0,0,0,0.2) !important;
-                }
-
-                .btn-accion-mapa:active {
-                    transform: translateY(0);
-                }
-
-                .btn-vista-mapa:hover {
-                    background: ${this.colors.light} !important;
-                    color: ${this.colors.primary};
-                }
-
-                .btn-vista-mapa.active {
-                    background: ${this.colors.primary} !important;
-                    color: white !important;
-                }
-
-                .input-custom:focus {
-                    outline: none;
-                    border-color: ${this.colors.primary};
-                    box-shadow: 0 0 0 3px rgba(0,51,102,0.1);
-                }
-
-                .btn-turno.active {
-                    background: ${this.colors.primary} !important;
-                    color: white !important;
-                    border-color: ${this.colors.primary} !important;
-                }
-
-                .btn-turno:hover {
-                    border-color: ${this.colors.primary};
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                }
-
-                .leyenda-item:hover {
-                    border-color: ${this.colors.primary};
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                    transform: translateX(5px);
-                }
-
-                .controles-flotantes button:hover {
-                    background: ${this.colors.light} !important;
-                    transform: scale(1.1);
-                }
-
-                .leaflet-popup-content-wrapper {
-                    border-radius: 12px !important;
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
-                }
-
-                .leaflet-popup-tip {
-                    box-shadow: 0 3px 6px rgba(0,0,0,0.1) !important;
-                }
-
-                /* Scrollbar personalizado */
-                .panel-control-lateral::-webkit-scrollbar {
-                    width: 6px;
-                }
-
-                .panel-control-lateral::-webkit-scrollbar-track {
-                    background: ${this.colors.light};
-                }
-
-                .panel-control-lateral::-webkit-scrollbar-thumb {
-                    background: ${this.colors.border};
-                    border-radius: 3px;
-                }
-
-                .panel-control-lateral::-webkit-scrollbar-thumb:hover {
-                    background: ${this.colors.textLight};
-                }
-
-                /* Animación de entrada para elementos */
-                .seccion-filtros,
-                .seccion-leyenda {
-                    animation: fadeInUp 0.6s ease-out;
-                }
-
-                /* Panel colapsado */
-                .panel-control-lateral.colapsado {
-                    width: 0 !important;
-                    padding: 0 !important;
-                    border: none !important;
-                }
-
-                .panel-control-lateral.colapsado #btn-toggle-panel i {
-                    transform: rotate(180deg);
-                }
-
-                @media (max-width: 1200px) {
-                    .mapa-panel {
-                        width: 320px;
-                    }
-                }
-
-                @media (max-width: 992px) {
-                    .mapa-layout {
-                        flex-direction: column;
-                    }
-                    .mapa-panel {
-                        width: 100%;
-                        height: auto;
-                        border-right: none;
-                        border-top: 1px solid ${this.colors.border};
-                    }
-                    .mapa-canvas {
-                        min-height: 60vh;
-                    }
-                    .controles-flotantes {
-                        top: 12px !important;
-                        right: 12px !important;
-                    }
-                }
-
-                @media (max-width: 768px) {
-                    .mapa-header {
-                        position: relative;
-                    }
-                    .mapa-toolbar {
-                        gap: 8px !important;
-                    }
-                    .mapa-toolbar button {
-                        padding: 8px 12px !important;
-                    }
-                    .btn-group-mapa-flotante {
-                        bottom: 80px !important;
-                        right: 20px !important;
-                    }
-                    .controles-flotantes {
-                        top: 20px !important;
-                        right: 12px !important;
-                        flex-direction: column !important;
-                    }
-                }
-            </style>
         `;
     }
 
     getEmojiForTipo(tipo) {
-        const emojis = {
-            'accidente': '🚗',
-            'robo': '🚨',
-            'disturbio': '⚠️',
-            'sospechoso': '🔍',
-            'vehiculo': '🚙',
-            'medica': '🚑'
-        };
-        return emojis[tipo] || '📍';
+        return {
+            'accidente': '🚗', 'robo': '🚨', 'disturbio': '⚠️',
+            'sospechoso': '🔍', 'vehiculo': '🚙', 'medica': '🚑'
+        }[tipo] || '📍';
     }
 
     async initMapa() {
@@ -613,18 +340,6 @@ class MapaCalorView {
             });
         });
 
-        document.getElementById('btn-toggle-panel').addEventListener('click', () => {
-            this.togglePanel();
-        });
-
-        document.querySelectorAll('.btn-turno').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.btn-turno').forEach(b => b.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-                document.getElementById('filtro-turno').value = e.currentTarget.dataset.turno;
-            });
-        });
-
         document.getElementById('btn-aplicar-filtros-mapa').addEventListener('click', () => {
             this.aplicarFiltrosMapa();
         });
@@ -643,10 +358,6 @@ class MapaCalorView {
 
         document.getElementById('btn-mi-ubicacion').addEventListener('click', () => {
             this.centrarEnTehuacan();
-        });
-
-        document.getElementById('btn-pantalla-completa').addEventListener('click', () => {
-            this.togglePantallaCompleta();
         });
 
         document.querySelectorAll('.leyenda-item-flotante').forEach(item => {
@@ -714,7 +425,7 @@ class MapaCalorView {
 
         const indicadorIcono = document.querySelector('#indicador-modo-vista i');
         if (indicadorIcono) {
-            indicadorIcono.className = `fas ${iconos[modo]}`;
+            indicadorIcono.className = `fas ${iconos[modo]} `;
         }
         const nombreModo = document.getElementById('nombre-modo-vista');
         if (nombreModo) {
@@ -742,7 +453,7 @@ class MapaCalorView {
 
         const datosFiltrados = this.aplicarFiltrosADatos(this.datosMapa || []);
 
-        switch(this.modoVista) {
+        switch (this.modoVista) {
             case 'calor':
                 this.mostrarMapaCalor(datosFiltrados);
                 break;
@@ -757,22 +468,7 @@ class MapaCalorView {
 
     mostrarNotificacionRapida(mensaje) {
         const notif = document.createElement('div');
-        notif.style.cssText = `
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            z-index: 2000;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            animation: fadeInUp 0.3s ease-out;
-        `;
+        notif.className = 'hm-notif';
         notif.textContent = mensaje;
         document.body.appendChild(notif);
 
@@ -821,15 +517,18 @@ class MapaCalorView {
             if (!Array.isArray(this.datosMapa)) {
                 this.datosMapa = [];
             }
-            this.aplicarModoVista();
+
+            // Renderizamos primero solo stats y listas visuales
             this.actualizarEstadisticas(this.datosMapa.length, this.datosMapa.length);
             this.actualizarContadoresTipo(this.datosMapa);
-
             this.actualizarUltimosRegistros(this.datosMapa);
 
-            this.resolverCoordenadasIncidencias(this.datosMapa).then(() => {
-                this.aplicarModoVista();
-            });
+            // Geocodificamos en background, y HASTA que haya terminado (o parcialmente validado), dibujamos el mapa.
+            // Para lotes muy grandes, la barra de geocodificación mostrará el progreso
+            await this.resolverCoordenadasIncidencias(this.datosMapa);
+
+            // Ahora sí, con coordenadas (reales o fallback) listas, dibujamos el mapa sin "saltos"
+            this.aplicarModoVista();
 
             if (this.mapa) {
                 setTimeout(() => this.mapa.invalidateSize(), 100);
@@ -974,7 +673,7 @@ class MapaCalorView {
         };
 
         return lat >= limites.latMin && lat <= limites.latMax &&
-               lng >= limites.lngMin && lng <= limites.lngMax;
+            lng >= limites.lngMin && lng <= limites.lngMax;
     }
 
     async resolverCoordenadasIncidencias(datos) {
@@ -995,6 +694,30 @@ class MapaCalorView {
 
         this.mostrarIndicadorGeocoding(true);
 
+        // Función para guardar coordenadas en la BD (fuego y olvida, sin bloquear el mapa)
+        const guardarCoordenadasEnBD = async (incidencia, coords) => {
+            if (!incidencia.id) return;
+            try {
+                const token = localStorage.getItem('token');
+                const apiUrl = window.AppConfig?.API_BASE_URL || '/api';
+                await fetch(`${apiUrl}/llamadas/${incidencia.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        latitud: coords.lat,
+                        longitud: coords.lng,
+                        ubicacion_exacta: 1,
+                        fecha: incidencia.fecha ? incidencia.fecha.split('T')[0] : null  // Formato YYYY-MM-DD para MySQL
+                    })
+                });
+            } catch (e) {
+                // Silencioso: si falla el guardado, el mapa sigue funcionando
+            }
+        };
+
         const procesarLote = async (lote, index) => {
             await Promise.all(lote.map(async (incidencia) => {
                 const coords = await this.geocodificarIncidencia(incidencia);
@@ -1002,6 +725,8 @@ class MapaCalorView {
                     incidencia.latitud = coords.lat;
                     incidencia.longitud = coords.lng;
                     incidencia._coords = coords;
+                    // Guardar en BD para que la próxima carga no necesite geocodificar
+                    guardarCoordenadasEnBD(incidencia, coords);
                 } else {
                     incidencia._coords = this.obtenerCoordenadasFallback(incidencia);
                 }
@@ -1011,13 +736,13 @@ class MapaCalorView {
             this.actualizarProgresoGeocoding(procesados, pendientes.length);
         };
 
-        const tamañoLote = 1;
+        const tamañoLote = 3; // Procesar 3 registros en paralelo para mayor velocidad
         for (let i = 0; i < pendientes.length; i += tamañoLote) {
             const lote = pendientes.slice(i, i + tamañoLote);
             await procesarLote(lote, i);
 
             if (i + tamañoLote < pendientes.length) {
-                await new Promise(resolve => setTimeout(resolve, 1100));
+                await new Promise(resolve => setTimeout(resolve, 600)); // 600ms entre lotes (era 1100ms)
             }
         }
 
@@ -1026,62 +751,55 @@ class MapaCalorView {
     }
 
     async geocodificarIncidencia(incidencia) {
-
-        let query = `${incidencia.calle || incidencia.ubicacion || ''}`;
-        if (incidencia.numero) query += ` ${incidencia.numero}`;
-        query += ', Tehuacán, Puebla';
+        let query = `${incidencia.calle || incidencia.ubicacion || ''} `;
+        if (incidencia.numero) query += ` ${incidencia.numero} `;
+        query += 'Tehuacán, Puebla';
+        query = query.trim();
 
         if (this.coordenadasCache && this.coordenadasCache.has(query)) {
             return this.coordenadasCache.get(query);
         }
 
-        try {
-
-            const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1&lat=18.46&lon=-97.39`;
-
-            const response = await fetch(photonUrl);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.features && data.features.length > 0) {
-                    const coordsData = data.features[0].geometry.coordinates;
-                    const lng = coordsData[0];
-                    const lat = coordsData[1];
-
-                    if (Number.isFinite(lat) && Number.isFinite(lng) && this.validarCoordenadasTehuacan(lat, lng)) {
-                        const resultado = { lat, lng };
-                        if (this.coordenadasCache) this.coordenadasCache.set(query, resultado);
-                        return resultado;
-                    }
-                }
-            }
-        } catch (e) {
-            console.warn('Fallo Photon:', e);
-        }
-
-        if (incidencia.colonia && incidencia.colonia.trim()) {
-            const queryColonia = `Colonia ${incidencia.colonia}, Tehuacán`;
-
-            if (this.coordenadasCache && this.coordenadasCache.has(queryColonia)) {
-                return this.coordenadasCache.get(queryColonia);
-            }
-
+        const fetchGeocodeText = async (text) => {
             try {
-                const photonUrlCol = `https://photon.komoot.io/api/?q=${encodeURIComponent(queryColonia)}&limit=1&lat=18.46&lon=-97.39`;
-                const response = await fetch(photonUrlCol);
+                const token = localStorage.getItem('token');
+                const apiUrl = window.AppConfig?.API_BASE_URL || '/api';
+                const response = await fetch(`${apiUrl}/config/geocode`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ QueryText: text })
+                });
+
                 if (response.ok) {
                     const data = await response.json();
-                     if (data.features && data.features.length > 0) {
-                        const coordsData = data.features[0].geometry.coordinates;
-                        const lng = coordsData[0];
-                        const lat = coordsData[1];
-                        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                    if (data?.ResultItems?.length > 0) {
+                        const [lng, lat] = data.ResultItems[0].Position;
+                        if (Number.isFinite(lat) && Number.isFinite(lng) && this.validarCoordenadasTehuacan(lat, lng)) {
                             const resultado = { lat, lng };
-                            if (this.coordenadasCache) this.coordenadasCache.set(queryColonia, resultado);
+                            if (this.coordenadasCache) this.coordenadasCache.set(text, resultado);
                             return resultado;
                         }
                     }
                 }
-            } catch (e) {  }
+            } catch (e) {
+                console.warn('Geocoding falló para:', text, e);
+            }
+            return null;
+        };
+
+        let result = await fetchGeocodeText(query);
+        if (result) return result;
+
+        if (incidencia.colonia && incidencia.colonia.trim()) {
+            const queryColonia = `Colonia ${incidencia.colonia.trim()}, Tehuacán`;
+            if (this.coordenadasCache && this.coordenadasCache.has(queryColonia)) {
+                return this.coordenadasCache.get(queryColonia);
+            }
+            result = await fetchGeocodeText(queryColonia);
+            if (result) return result;
         }
 
         return null;
@@ -1094,23 +812,6 @@ class MapaCalorView {
             if (!indicador) {
                 indicador = document.createElement('div');
                 indicador.id = 'geocoding-indicator';
-                indicador.style.cssText = `
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    background: white;
-                    padding: 10px 15px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                    z-index: 2000;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    font-size: 0.9rem;
-                    border-left: 4px solid #3498db;
-                    animation: slideInUp 0.3s ease-out;
-                    font-family: 'Segoe UI', sans-serif;
-                `;
                 indicador.innerHTML = `
                     <i class="fas fa-satellite-dish fa-spin" style="color: #3498db;"></i>
                     <div>
@@ -1157,7 +858,7 @@ class MapaCalorView {
         if (typeof original !== 'function') {
             return;
         }
-        HTMLCanvasElement.prototype.getContext = function(type, options) {
+        HTMLCanvasElement.prototype.getContext = function (type, options) {
             if (type === '2d') {
                 const merged = options ? { ...options, willReadFrequently: true } : { willReadFrequently: true };
                 return original.call(this, type, merged);
@@ -1206,22 +907,14 @@ class MapaCalorView {
 
     determinarTipoIncidencia(motivo) {
         if (!motivo) return 'accidente';
+        const m = motivo.toLowerCase();
 
-        const motivoLower = motivo.toLowerCase();
-
-        if (motivoLower.includes('accidente') || motivoLower.includes('choque') || motivoLower.includes('vehicular')) {
-            return 'accidente';
-        } else if (motivoLower.includes('robo') || motivoLower.includes('asalto') || motivoLower.includes('hurto')) {
-            return 'robo';
-        } else if (motivoLower.includes('disturbio') || motivoLower.includes('pelea') || motivoLower.includes('altercado')) {
-            return 'disturbio';
-        } else if (motivoLower.includes('sospechoso') || motivoLower.includes('merodeando') || motivoLower.includes('sospecha')) {
-            return 'sospechoso';
-        } else if (motivoLower.includes('vehículo') || motivoLower.includes('automóvil') || motivoLower.includes('carro')) {
-            return 'vehiculo';
-        } else if (motivoLower.includes('médica') || motivoLower.includes('herido') || motivoLower.includes('ambulancia')) {
-            return 'medica';
-        }
+        if (/(accidente|choque|vehicular)/.test(m)) return 'accidente';
+        if (/(robo|asalto|hurto)/.test(m)) return 'robo';
+        if (/(disturbio|pelea|altercado)/.test(m)) return 'disturbio';
+        if (/(sospechoso|merodeando|sospecha)/.test(m)) return 'sospechoso';
+        if (/(vehículo|automóvil|carro)/.test(m)) return 'vehiculo';
+        if (/(médica|herido|ambulancia)/.test(m)) return 'medica';
 
         return 'accidente';
     }
@@ -1303,11 +996,11 @@ class MapaCalorView {
         const icono = L.divIcon({
             className: 'marcador-custom',
             html: `
-                <div style="position: relative;">
-                    <div style="width: 40px; height: 40px; background: ${tipoInfo.gradient}; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 3px 10px ${tipoInfo.color}60; border: 3px solid white; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-${tipoInfo.icon}" style="color: white; font-size: 1rem; transform: rotate(45deg);"></i>
+                <div class="marcador-custom-body">
+                    <div class="marcador-custom-pin" style="background: ${tipoInfo.gradient}; box-shadow: 0 3px 10px ${tipoInfo.color}60;">
+                        <i class="fas fa-${tipoInfo.icon} marcador-custom-icon"></i>
                     </div>
-                    <div style="position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: ${tipoInfo.color}40; border-radius: 50%; filter: blur(3px);"></div>
+                    <div class="marcador-custom-shadow" style="background: ${tipoInfo.color}40;"></div>
                 </div>
             `,
             iconSize: [40, 40],
@@ -1367,10 +1060,10 @@ class MapaCalorView {
 
     crearPopupMejorado(tipoInfo, incidencia, index) {
         return `
-            <div style="font-family: 'Segoe UI', sans-serif; min-width: 280px;">
-                <div style="background: ${tipoInfo.gradient}; color: white; padding: 15px; border-radius: 10px 10px 0 0; margin: -15px -20px 15px -20px;">
+            <div class="popup-mejorado">
+                <div class="popup-mejorado-header" style="background: ${tipoInfo.gradient};">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                        <div style="width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                        <div class="popup-mejorado-icon-wrap">
                             <i class="fas fa-${tipoInfo.icon}" style="font-size: 1.3rem;"></i>
                         </div>
                         <div>
@@ -1381,7 +1074,7 @@ class MapaCalorView {
                     <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; opacity: 0.95;">
                         <i class="fas fa-calendar"></i> ${incidencia.fecha || 'N/A'}
                         <span style="margin: 0 5px;">•</span>
-                        <i class="fas fa-clock"></i> ${incidencia.hora ? incidencia.hora.substring(0,5) : 'N/A'}
+                        <i class="fas fa-clock"></i> ${incidencia.hora ? incidencia.hora.substring(0, 5) : 'N/A'}
                     </div>
                 </div>
 
@@ -1423,15 +1116,15 @@ class MapaCalorView {
 
     getEstadoBadge(incidencia) {
         if (incidencia.conclusion) {
-            return `<span style="padding: 5px 12px; background: ${this.colors.accentGreen}; color: white; border-radius: 15px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+            return `<span class="btn-hm-estado" style="background: ${this.colors.accentGreen};">
                 <i class="fas fa-check-circle"></i> CONCLUIDO
             </span>`;
         } else if (incidencia.seguimiento) {
-            return `<span style="padding: 5px 12px; background: ${this.colors.accent}; color: white; border-radius: 15px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+            return `<span class="btn-hm-estado" style="background: ${this.colors.accent};">
                 <i class="fas fa-spinner"></i> SEGUIMIENTO
             </span>`;
         } else {
-            return `<span style="padding: 5px 12px; background: ${this.colors.textLight}; color: white; border-radius: 15px; font-size: 0.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+            return `<span class="btn-hm-estado" style="background: ${this.colors.textLight};">
                 <i class="fas fa-circle"></i> REGISTRADO
             </span>`;
         }
@@ -1491,7 +1184,7 @@ class MapaCalorView {
 
         if (ultimos.length === 0) {
             contenedor.innerHTML = `
-                <div style="text-align: center; color: ${this.colors.textLight}; padding: 20px; font-style: italic;">
+                <div class="empty-state">
                     <i class="fas fa-inbox" style="font-size: 1.5rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
                     No hay registros recientes
                 </div>
@@ -1503,27 +1196,16 @@ class MapaCalorView {
             const tipoInfo = this.tiposIncidencia[this.determinarTipoIncidencia(incidencia.motivo)];
 
             const item = document.createElement('div');
-            item.className = 'item-registro';
+            item.className = 'item-registro item-registro-hover';
             item.style.cssText = `
                 background: white;
                 border-left: 4px solid ${tipoInfo.color};
                 padding: 10px;
                 border-radius: 6px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
                 cursor: pointer;
-                transition: all 0.2s;
                 border: 1px solid ${this.colors.border};
                 border-left-width: 4px;
             `;
-
-            item.onmouseenter = () => {
-                item.style.transform = 'translateX(3px)';
-                item.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-            };
-            item.onmouseleave = () => {
-                item.style.transform = 'translateX(0)';
-                item.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
-            };
 
             item.onclick = () => this.centrarEnIncidencia(incidencia.id);
 
@@ -1727,18 +1409,12 @@ class MapaCalorView {
         const tipoInfo = colores[tipo] || colores.info;
 
         const alertDiv = document.createElement('div');
-        alertDiv.style.cssText = `
-            position: fixed; top: 90px; right: 20px;
-            background: white; border-left: 4px solid ${tipoInfo.bg};
-            padding: 20px 25px; border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            z-index: 2000; min-width: 320px; max-width: 420px;
-            animation: fadeInRight 0.4s ease-out;
-            border: 1px solid ${this.colors.border};
-        `;
+        alertDiv.className = 'hm-alert';
+        alertDiv.style.borderLeft = `4px solid ${tipoInfo.bg}`;
+        alertDiv.style.border = `1px solid ${this.colors.border}`;
 
         alertDiv.innerHTML = `
-            <div style="display: flex; align-items: flex-start; gap: 15px;">
+            <div class="hm-alert-body">
                 <div style="width: 40px; height: 40px; background: ${tipoInfo.bg}; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px ${tipoInfo.bg}40;">
                     <i class="${tipoInfo.icon}" style="color: white; font-size: 1.2rem;"></i>
                 </div>
@@ -1767,115 +1443,17 @@ class MapaCalorView {
         }, 5000);
     }
 
-    generarDatosEjemploMapa() {
-        const hoy = new Date();
-        const fecha = hoy.toISOString().split('T')[0];
 
-        return [
-            {
-                id: 1,
-                fecha: fecha,
-                hora: '08:30:00',
-                turno: 'matutino',
-                motivo: 'Accidente vehicular en avenida principal',
-                ubicacion: 'Av. Reforma esq. 5 de Mayo',
-                colonia: 'Centro',
-                latitud: '18.4620',
-                longitud: '-97.3930'
-            },
-            {
-                id: 10,
-                fecha: fecha,
-                hora: '23:59:00',
-                turno: 'nocturno',
-                motivo: 'Reporte de prueba reciente',
-                ubicacion: 'Zócalo de la ciudad',
-                colonia: 'Centro',
-                latitud: '18.4625',
-                longitud: '-97.3925'
-            },
-            {
-                id: 2,
-                fecha: fecha,
-                hora: '14:15:00',
-                turno: 'vespertino',
-                motivo: 'Robo a comercio en mercado',
-                ubicacion: 'Mercado Municipal, local 15',
-                colonia: 'Centro',
-                latitud: '18.4630',
-                longitud: '-97.3950'
-            },
-            {
-                id: 3,
-                fecha: fecha,
-                hora: '22:45:00',
-                turno: 'nocturno',
-                motivo: 'Disturbios en zona comercial',
-                ubicacion: 'Calle Juárez #123',
-                colonia: 'San Francisco',
-                latitud: '18.4700',
-                longitud: '-97.3900'
-            },
-            {
-                id: 4,
-                fecha: fecha,
-                hora: '10:20:00',
-                turno: 'matutino',
-                motivo: 'Vehículo abandonado sospechoso',
-                ubicacion: 'Calle 3 Sur #456',
-                colonia: 'La Paz',
-                latitud: '18.4550',
-                longitud: '-97.4050'
-            },
-            {
-                id: 5,
-                fecha: fecha,
-                hora: '16:30:00',
-                turno: 'vespertino',
-                motivo: 'Persona sospechosa en parque',
-                ubicacion: 'Parque El Riego',
-                colonia: 'Centro',
-                latitud: '18.4550',
-                longitud: '-97.3900'
-            },
-            {
-                id: 6,
-                fecha: fecha,
-                hora: '09:45:00',
-                turno: 'matutino',
-                motivo: 'Accidente de motocicleta',
-                ubicacion: 'Av. Independencia #789',
-                colonia: 'San Francisco',
-                latitud: '18.4685',
-                longitud: '-97.3910'
-            },
-            {
-                id: 7,
-                fecha: fecha,
-                hora: '18:20:00',
-                turno: 'vespertino',
-                motivo: 'Robo de celular en terminal',
-                ubicacion: 'Terminal de Autobuses',
-                colonia: 'Centro',
-                latitud: '18.4650',
-                longitud: '-97.4000'
-            },
-            {
-                id: 8,
-                fecha: fecha,
-                hora: '13:10:00',
-                turno: 'vespertino',
-                motivo: 'Emergencia médica urgente',
-                ubicacion: 'Hospital General de Tehuacán',
-                colonia: 'Centro',
-                latitud: '18.4580',
-                longitud: '-97.3880'
-            }
-        ];
-    }
 
     cleanup() {
-        document.body.classList.remove('mapa-fullscreen');
+        const footer = document.querySelector('.institutional-footer');
+        if (footer) footer.style.display = 'block';
+
+        const wrapper = document.querySelector('.content-wrapper');
+        if (wrapper) {
+            wrapper.style.overflow = '';
+            wrapper.style.padding = '';
+        }
 
         try {
             if (this.mapa) {
@@ -1899,7 +1477,6 @@ class MapaCalorView {
         this.capasCalor = [];
         this.datosMapa = null;
     }
-$toInsert
 }
 
 window.MapaCalorView = MapaCalorView;

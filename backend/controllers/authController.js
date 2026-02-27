@@ -122,15 +122,6 @@ class AuthController {
             const token = authHeader.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secreto_super_seguro');
 
-            const serverStartSeconds = Math.floor(SERVER_START_TIME / 1000);
-            if (decoded.iat && decoded.iat < serverStartSeconds) {
-                console.log(`Token rechazado: Creado en ${decoded.iat}, Servidor inició en ${serverStartSeconds}`);
-                return res.status(401).json({
-                    success: false,
-                    message: 'Sesión expirada por reinicio del servidor'
-                });
-            }
-
             req.user = decoded;
             next();
         } catch (error) {
