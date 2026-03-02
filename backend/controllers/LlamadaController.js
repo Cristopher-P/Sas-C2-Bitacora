@@ -159,11 +159,13 @@ class LlamadaController {
                 detenido,
                 fecha_inicio,
                 fecha_fin,
-                limit
+                limit,
+                busqueda
             } = req.query;
 
             let filtros = {};
 
+            if (busqueda) filtros.busqueda = busqueda;
             if (fecha) filtros.fecha = fecha;
             if (mes) filtros.mes_objetivo = mes + '-01';
             if (turno) filtros.turno = turno;

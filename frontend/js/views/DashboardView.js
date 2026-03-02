@@ -74,6 +74,72 @@ class DashboardView {
             <div class="cerit-dashboard view-shell--xl">
                 <!-- HEADER INSTITUCIONAL -->
 
+                <!-- WIDGETS SUPERIORES RE-DISEÑADOS (Compactos) -->
+                <div class="dashboard-top-widgets" style="display: grid; grid-template-columns: 1fr 1fr 1.5fr auto; gap: 15px; margin-bottom: 20px;">
+                    
+                    <!-- Tarjeta: Total Hoy -->
+                    <div style="background: white; border-radius: 8px; border: 1px solid ${this.colors.border}; border-left: 4px solid ${this.colors.primary}; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; padding: 10px 15px; gap: 15px;">
+                        <div style="width: 42px; height: 42px; border-radius: 8px; background: ${this.colors.light}; display: flex; align-items: center; justify-content: center; color: ${this.colors.primary}; font-size: 1.2rem; flex-shrink: 0;">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 700; margin-bottom: 2px;">HOY (TOTAL)</div>
+                            <div id="stat-total-pequeno" style="font-size: 1.5rem; font-weight: 800; color: ${this.colors.primary}; line-height: 1;">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta: Pendientes -->
+                    <div style="background: white; border-radius: 8px; border: 1px solid ${this.colors.border}; border-left: 4px solid #ff6b35; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; padding: 10px 15px; gap: 15px;">
+                        <div style="width: 42px; height: 42px; border-radius: 8px; background: #fff0eb; display: flex; align-items: center; justify-content: center; color: #ff6b35; font-size: 1.2rem; flex-shrink: 0;">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 700; margin-bottom: 2px;">PENDIENTES</div>
+                            <div id="stat-pendientes-pequeno" style="font-size: 1.5rem; font-weight: 800; color: #ff6b35; line-height: 1;">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta: Turnos Hoy -->
+                    <div style="background: white; border-radius: 8px; border: 1px solid ${this.colors.border}; border-left: 4px solid #17a2b8; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; padding: 10px 15px; justify-content: space-between;">
+                        <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-clock" style="color: #17a2b8;"></i> TURNOS
+                        </div>
+                        <div style="display: flex; gap: 15px; text-align: center;">
+                            <div>
+                                <div style="color: ${this.colors.gray}; font-size: 0.65rem; font-weight: 700;">MAT</div>
+                                <div id="stat-matutino-pequeno" style="font-weight: 800; color: #b8860b; font-size: 1.2rem;">0</div>
+                            </div>
+                            <div style="width: 1px; background: ${this.colors.border};"></div>
+                            <div>
+                                <div style="color: ${this.colors.gray}; font-size: 0.65rem; font-weight: 700;">VESP</div>
+                                <div id="stat-vespertino-pequeno" style="font-weight: 800; color: #c0392b; font-size: 1.2rem;">0</div>
+                            </div>
+                            <div style="width: 1px; background: ${this.colors.border};"></div>
+                            <div>
+                                <div style="color: ${this.colors.gray}; font-size: 0.65rem; font-weight: 700;">NOC</div>
+                                <div id="stat-nocturno-pequeno" style="font-weight: 800; color: #1b6d6b; font-size: 1.2rem;">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta: Mes y Botón -->
+                    <div style="background: white; border-radius: 8px; border: 1px solid ${this.colors.border}; border-left: 4px solid #6c757d; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: stretch; overflow: hidden;">
+                        <div id="estadisticas-mes" style="padding: 10px 15px; flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 250px;">
+                            <div id="estadisticas-mes-contenido">
+                                <div style="color: ${this.colors.gray}; font-size: 0.75rem;">Selecciona un mes</div>
+                            </div>
+                        </div>
+                        <button id="btn-reporte-mensual"
+                                style="background: linear-gradient(135deg, ${this.colors.secondary} 0%, ${this.colors.primary} 100%); color: white; border: none; padding: 0 20px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; flex-shrink: 0;"
+                                onmouseover="this.style.opacity='0.9'"
+                                onmouseout="this.style.opacity='1'">
+                            <i class="fas fa-file-pdf" style="font-size: 1.2rem;"></i>
+                            <span style="font-size: 0.7rem; text-transform: uppercase;">Reporte</span>
+                        </button>
+                    </div>
+
+                </div>
+
                 <!-- PANEL DE CONTROL PRINCIPAL -->
                 <div class="dashboard-main-grid">
                     <!-- Tabla Principal -->
@@ -199,125 +265,21 @@ class DashboardView {
                         </div>
                     </div>
 
-                    <!-- Panel Lateral - Accesos Rápidos y Estadísticas Pequeñas -->
-                    <div>
-                        <!-- Accesos Rápidos -->
-                        <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid ${this.colors.border}; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                ACCESOS RÁPIDOS
-                            </h4>
 
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <button id="btn-reporte-mensual"
-                                        style="padding: 12px; background: linear-gradient(135deg, ${this.colors.secondary} 0%, ${this.colors.primary} 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: left; display: flex; align-items: center; gap: 10px;"
-                                        onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 4px 8px rgba(0, 51, 102, 0.2)'"
-                                        onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none'">
-                                    <div>
-                                        <div>Reporte Mensual</div>
-                                        <div style="font-size: 0.8rem; opacity: 0.9;">Generar PDF</div>
-                                    </div>
-                                </button>
-
-                                <button id="btn-mapa-calor"
-                                        style="padding: 12px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-align: left; display: flex; align-items: center; gap: 10px;"
-                                        onmouseover="this.style.transform='translateX(5px)'; this.style.boxShadow='0 4px 8px rgba(231, 76, 60, 0.2)'"
-                                        onmouseout="this.style.transform='translateX(0)'; this.style.boxShadow='none'">
-                                    <div>
-                                        <div>Mapa de Calor</div>
-                                        <div style="font-size: 0.8rem; opacity: 0.9;">Incidencias</div>
-                                    </div>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Estadísticas del Día Pequeñas -->
-                        <div style="background: white; border-radius: 10px; padding: 20px; border: 1px solid ${this.colors.border}; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                ESTADÍSTICAS DEL DÍA
-                            </h4>
-
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                                <!-- Total del Día -->
-                                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 3px solid ${this.colors.primary};">
-                                    <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 600; margin-bottom: 3px;">TOTAL HOY</div>
-                                    <div id="stat-total-pequeno" style="font-size: 1.5rem; font-weight: 800; color: ${this.colors.primary};">0</div>
-                                </div>
-
-                                <!-- Pendientes -->
-                                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 3px solid #ff6b35;">
-                                    <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 600; margin-bottom: 3px;">PENDIENTES</div>
-                                    <div id="stat-pendientes-pequeno" style="font-size: 1.5rem; font-weight: 800; color: #ff6b35;">0</div>
-                                </div>
-                            </div>
-
-                            <!-- Estadísticas por Turno -->
-                            <div style="border-top: 1px solid ${this.colors.border}; padding-top: 15px;">
-                                <div style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-bottom: 10px;">POR TURNO</div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span style="font-size: 0.8rem; color: ${this.colors.dark};">Matutino</span>
-                                        <span id="stat-matutino-pequeno" style="font-weight: 700; color: #b8860b;">0</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span style="font-size: 0.8rem; color: ${this.colors.dark};">Vespertino</span>
-                                        <span id="stat-vespertino-pequeno" style="font-weight: 700; color: #c0392b;">0</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between;">
-                                        <span style="font-size: 0.8rem; color: ${this.colors.dark};">Nocturno</span>
-                                        <span id="stat-nocturno-pequeno" style="font-weight: 700; color: #1b6d6b;">0</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Estadísticas del Mes -->
-<div id="estadisticas-mes" style="background: white; border-radius: 10px; padding: 20px; border: 1px solid ${this.colors.border}; margin-top: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-    <h4 style="color: ${this.colors.primary}; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-        ESTADÍSTICAS DEL MES
-    </h4>
-    <div id="estadisticas-mes-contenido" style="color: ${this.colors.gray}; text-align: center; padding: 20px;">
-    <div id="estadisticas-mes-contenido" style="color: ${this.colors.gray}; text-align: center; padding: 20px;">
-        <div style="margin-bottom: 10px; color: ${this.colors.border}; font-size: 2rem; font-weight: bold; opacity: 0.3;">
-            <div style="width: 40px; height: 40px; background: ${this.colors.border}; display: inline-block; border-radius: 4px;"></div>
-        </div>
-        <p>Selecciona un mes para ver estadísticas</p>
-    </div>
-</div>
-                    </div>
                 </div>
             </div>
 
             <style>
                 /* Estilos Responsivos */
                 .dashboard-main-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 320px;
-                    gap: 20px;
+                    display: block; /* Modificado de grid a block porque quitamos el panel lateral */
                     margin-bottom: 12px;
-                    align-items: start;
                 }
 
                 .dashboard-table-column {
                     display: flex;
                     flex-direction: column;
                     min-width: 0; /* Permite que el contenedor se encoja correctamente en grid/flex */
-                }
-
-                /* Media Queries para Responsividad */
-                @media (max-width: 1200px) {
-                    .dashboard-main-grid {
-                        grid-template-columns: 1fr 280px;
-                    }
-                }
-
-                @media (max-width: 992px) {
-                    .dashboard-main-grid {
-                        grid-template-columns: 1fr;
-                    }
-
-                    /* Mover la barra lateral abajo en móviles/tablets */
-                    .dashboard-main-grid > div:nth-child(2) {
-                        order: 2;
-                    }
                 }
 
                 /* Animaciones */
@@ -485,12 +447,6 @@ class DashboardView {
             });
         }
 
-        const btnMapaCalor = this.container.querySelector('#btn-mapa-calor');
-        if (btnMapaCalor) {
-            btnMapaCalor.addEventListener('click', () => {
-                this.mostrarMapaCalor();
-            });
-        }
 
         const btnToggleFiltros = this.container.querySelector('#btn-toggle-filtros');
         if (btnToggleFiltros) {
@@ -682,7 +638,11 @@ class DashboardView {
             if (typeof LlamadasService !== 'undefined') {
 
                 let params = {};
-                if (this.filtrosActivos.mes) {
+
+                if (this.filtrosActivos.busqueda) {
+                    // Global search, ignore default month logic
+                    params.busqueda = this.filtrosActivos.busqueda;
+                } else if (this.filtrosActivos.mes) {
                     params.mes = this.filtrosActivos.mes;
                 } else if (this.filtrosActivos.fecha) {
                     params.fecha = this.filtrosActivos.fecha;
@@ -1147,15 +1107,18 @@ class DashboardView {
         }
 
         if (this.filtrosActivos.busqueda) {
-            const busqueda = this.filtrosActivos.busqueda.toLowerCase();
-            filtrados = filtrados.filter(item =>
-                (item.folio_sistema && item.folio_sistema.toLowerCase().includes(busqueda)) ||
-                (item.motivo && item.motivo.toLowerCase().includes(busqueda)) ||
-                (item.colonia && item.colonia.toLowerCase().includes(busqueda)) ||
-                (item.ubicacion && item.ubicacion.toLowerCase().includes(busqueda)) ||
-                (item.peticionario && item.peticionario.toLowerCase().includes(busqueda)) ||
-                (item.descripcion_detallada && item.descripcion_detallada.toLowerCase().includes(busqueda))
-            );
+            const busqueda = this.filtrosActivos.busqueda.toLowerCase().replace(/[\s-]/g, '');
+            filtrados = filtrados.filter(item => {
+                const folioLimpio = (item.folio_sistema || '').toLowerCase().replace(/[\s-]/g, '');
+                return (
+                    folioLimpio.includes(busqueda) ||
+                    (item.motivo && item.motivo.toLowerCase().includes(busqueda)) ||
+                    (item.colonia && item.colonia.toLowerCase().includes(busqueda)) ||
+                    (item.ubicacion && item.ubicacion.toLowerCase().includes(busqueda)) ||
+                    (item.peticionario && item.peticionario.toLowerCase().includes(busqueda)) ||
+                    (item.descripcion_detallada && item.descripcion_detallada.toLowerCase().includes(busqueda))
+                );
+            });
         }
 
         return filtrados;
@@ -1194,8 +1157,7 @@ class DashboardView {
         const estadisticasMes = this.container.querySelector('#estadisticas-mes-contenido');
         if (estadisticasMes) {
             estadisticasMes.innerHTML = `
-                    <div style="width: 40px; height: 40px; background: ${this.colors.border}; display: inline-block; border-radius: 4px; margin-bottom: 10px; opacity: 0.3;"></div>
-                    <p>Selecciona un mes para ver estadísticas</p>
+                    <div style="color: ${this.colors.gray}; font-size: 0.75rem;">Selecciona un mes</div>
                     `;
         }
     }
@@ -1402,8 +1364,7 @@ class DashboardView {
 
         if (!mesAnio) {
             container.innerHTML = `
-            <div style="width: 40px; height: 40px; background: ${this.colors.border}; display: inline-block; border-radius: 4px; margin-bottom: 10px; opacity: 0.3;"></div>
-            <p>Selecciona un mes para ver estadísticas</p>
+            <div style="color: ${this.colors.gray}; font-size: 0.75rem;">Selecciona un mes</div>
         `;
             return;
         }
@@ -1412,50 +1373,30 @@ class DashboardView {
         const stats = this.calcularEstadisticasMes(datosMes);
 
         const [año, mes] = mesAnio.split('-');
-        const nombreMes = new Date(año, mes - 1, 1).toLocaleDateString('es-MX', { month: 'long' }).toUpperCase();
+        const nombreMes = new Date(año, mes - 1, 1).toLocaleDateString('es-MX', { month: 'short' }).toUpperCase();
 
         container.innerHTML = `
-        <div style="text-align: left;">
-            <h5 style="color: ${this.colors.primary}; margin-bottom: 15px; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
-                ${nombreMes} ${año}
-            </h5>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                <div style="background: ${this.colors.light}; padding: 8px; border-radius: 6px; border-left: 3px solid ${this.colors.primary};">
-                    <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 600;">TOTAL</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: ${this.colors.primary};">${stats.total}</div>
-                </div>
-                <div style="background: ${this.colors.light}; padding: 8px; border-radius: 6px; border-left: 3px solid #ff6b35;">
-                    <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 600;">ACTIVAS</div>
-                    <div style="font-size: 1.2rem; font-weight: 700; color: #ff6b35;">${stats.pendientes}</div>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 10px;">
-                <div style="font-size: 0.75rem; color: ${this.colors.gray}; margin-bottom: 5px; font-weight: 600;">POR TURNO</div>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: ${this.colors.dark}; font-size: 0.8rem;">Matutino</span>
-                        <span style="font-weight: 600; color: #b8860b;">${stats.matutino}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+                <div>
+                    <div style="color: ${this.colors.primary}; font-size: 0.75rem; font-weight: 800; margin-bottom: 2px;">${nombreMes} ${año}</div>
+                    <div style="display: flex; gap: 10px; font-size: 0.7rem; color: ${this.colors.gray}; font-weight: 600;">
+                        <span>M: <span style="color: #b8860b;">${stats.matutino}</span></span>
+                        <span>V: <span style="color: #c0392b;">${stats.vespertino}</span></span>
+                        <span>N: <span style="color: #1b6d6b;">${stats.nocturno}</span></span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: ${this.colors.dark}; font-size: 0.8rem;">Vespertino</span>
-                        <span style="font-weight: 600; color: #c0392b;">${stats.vespertino}</span>
+                </div>
+                <div style="display: flex; gap: 15px; text-align: center;">
+                    <div>
+                        <div style="color: ${this.colors.gray}; font-size: 0.6rem; font-weight: 700;">TOTAL</div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: ${this.colors.primary}; line-height: 1;">${stats.total}</div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: ${this.colors.dark}; font-size: 0.8rem;">Nocturno</span>
-                        <span style="font-weight: 600; color: #1b6d6b;">${stats.nocturno}</span>
+                    <div>
+                        <div style="color: ${this.colors.gray}; font-size: 0.6rem; font-weight: 700;">ACTIVAS</div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #ff6b35; line-height: 1;">${stats.pendientes}</div>
                     </div>
                 </div>
             </div>
-
-            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid ${this.colors.border};">
-                <div style="font-size: 0.75rem; color: ${this.colors.gray};">
-                    ${stats.concluidos} registros concluidos
-                </div>
-            </div>
-        </div>
-    `;
+        `;
     }
 
     filtrarPorMes(mesAnio) {

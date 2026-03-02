@@ -248,10 +248,45 @@ class LlamadaBitacora {
     }
 
     static async findAllRaw(filtros = {}) {
-        let targetDate = filtros.fecha || filtros.mes_objetivo || new Date();
-        const tableName = this.getTableName(targetDate);
-
         try {
+            if (filtros.busqueda) {
+                // Global search across all tables
+                const searchTerm = `%${filtros.busqueda}%`;
+
+                // Get all matching tables
+                const [tables] = await pool.execute("SHOW TABLES LIKE 'llamadas_bitacora_%'");
+
+                if (tables.length === 0) return [];
+
+                const tableNames = tables.map(t => Object.values(t)[0]);
+
+                let queries = [];
+                let params = [];
+
+                for (const tableName of tableNames) {
+                    let query = `SELECT lb.* FROM ${tableName} lb WHERE 1=1 AND (REPLACE(REPLACE(lb.folio_sistema, '-', ''), ' ', '') LIKE ? OR lb.motivo LIKE ? OR lb.ubicacion LIKE ? OR lb.colonia LIKE ? OR lb.peticionario LIKE ? OR lb.descripcion_detallada LIKE ?)`;
+                    queries.push(query);
+                    // Add params 6 times for the 6 OR conditions
+                    for (let i = 0; i < 6; i++) {
+                        params.push(searchTerm);
+                    }
+                }
+
+                let finalQuery = queries.join(' UNION ALL ') + ' ORDER BY fecha DESC, hora DESC';
+
+                if (filtros.limit) {
+                    finalQuery += ' LIMIT ?';
+                    params.push(parseInt(filtros.limit));
+                }
+
+                const [rows] = await pool.execute(finalQuery, params);
+                return rows;
+            }
+
+            // Normal search (single table)
+            let targetDate = filtros.fecha || filtros.mes_objetivo || new Date();
+            const tableName = this.getTableName(targetDate);
+
             await this.ensureTableExists(tableName);
 
             let sql = `SELECT lb.* FROM ${tableName} lb WHERE 1=1`;
@@ -314,10 +349,39 @@ class LlamadaBitacora {
     }
 
     static async countAllRaw(filtros = {}) {
-        let targetDate = filtros.fecha || filtros.mes_objetivo || new Date();
-        const tableName = this.getTableName(targetDate);
-
         try {
+            if (filtros.busqueda) {
+                // Global search across all tables
+                const searchTerm = `%${filtros.busqueda}%`;
+
+                // Get all matching tables
+                const [tables] = await pool.execute("SHOW TABLES LIKE 'llamadas_bitacora_%'");
+
+                if (tables.length === 0) return 0;
+
+                const tableNames = tables.map(t => Object.values(t)[0]);
+
+                let queries = [];
+                let params = [];
+
+                for (const tableName of tableNames) {
+                    let query = `SELECT COUNT(*) as table_total FROM ${tableName} lb WHERE 1=1 AND (REPLACE(REPLACE(lb.folio_sistema, '-', ''), ' ', '') LIKE ? OR lb.motivo LIKE ? OR lb.ubicacion LIKE ? OR lb.colonia LIKE ? OR lb.peticionario LIKE ? OR lb.descripcion_detallada LIKE ?)`;
+                    queries.push(query);
+                    for (let i = 0; i < 6; i++) {
+                        params.push(searchTerm);
+                    }
+                }
+
+                const finalQuery = `SELECT SUM(table_total) as total FROM (${queries.join(' UNION ALL ')}) as subquery`;
+
+                const [rows] = await pool.execute(finalQuery, params);
+                return rows[0]?.total || 0;
+            }
+
+            // Normal count (single table)
+            let targetDate = filtros.fecha || filtros.mes_objetivo || new Date();
+            const tableName = this.getTableName(targetDate);
+
             await this.ensureTableExists(tableName);
 
             let sql = `SELECT COUNT(*) as total FROM ${tableName} lb WHERE 1=1`;
