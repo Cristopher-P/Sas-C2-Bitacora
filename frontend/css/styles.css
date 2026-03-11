@@ -582,7 +582,7 @@ body {
     height: 80px;
     display: flex;
     align-items: center;
-    padding: 0 25px;
+    padding: 0 0 0 25px; /* Ajuste para centrar logo de 38px en 88px (88-38)/2 = 25 */
     background: rgba(0, 0, 0, 0.2);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -631,7 +631,19 @@ body {
 .sidebar-nav {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 10px 15px;
+}
+
+/* Ocultar barra de desplazamiento para navegadores Webkit (Chrome, Safari, Edge) */
+.sidebar-nav::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ocultar barra de desplazamiento para Firefox y IE/Edge heredado */
+.sidebar-nav {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 .sidebar-nav ul {
@@ -647,7 +659,7 @@ body {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 12px 14px;
+    padding: 12px 14px 12px 19px; /* Ajuste: (88-20)/2 = 34. Si el 'a' usa padding, 34-15 = 19 */
     color: var(--text-muted);
     text-decoration: none;
     border-radius: 10px;
@@ -688,12 +700,13 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 15px 10px;
+    padding: 15px 10px 15px 11px; /* Ajuste para centrar icono 36px en 88px (88-36)/2 = 26 - 15px padding padre = 11px */
 }
 
 .user-avatar {
     width: 36px;
     height: 36px;
+    flex-shrink: 0;
     border-radius: 50%;
     background: var(--c-primary-light);
     color: white;
@@ -723,7 +736,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 12px 10px;
+    padding: 12px 10px 12px 26px; /* Ajuste similar. Icono suele ser ~20px. 88/2=44. (44-10) = 34 */
     color: #e74c3c;
     text-decoration: none;
     font-size: 0.9rem;

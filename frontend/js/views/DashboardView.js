@@ -72,193 +72,141 @@ class DashboardView {
 
         return `
             <div class="cerit-dashboard view-shell--xl">
-                <!-- HEADER INSTITUCIONAL -->
+                <!-- HEADER INSTITUCIONAL / TÍTULO -->
+                <div style="margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
+                    <h1 style="margin: 0; color: ${this.colors.primary}; font-size: 1.8rem; font-weight: 800; display: flex; align-items: center; gap: 12px;">
+                        Bitácora de Operaciones
+                    </h1>
+                </div>
 
-                <!-- WIDGETS SUPERIORES RE-DISEÑADOS (Compactos) -->
-                <div class="dashboard-top-widgets" style="display: grid; grid-template-columns: 1fr 1fr 1.5fr auto; gap: 15px; margin-bottom: 20px;">
+                <!-- WIDGETS SUPERIORES RE-DISEÑADOS (Estilo Referencia) -->
+                <div class="dashboard-top-widgets">
                     
                     <!-- Tarjeta: Total Hoy -->
-                    <div style="background: white; border-radius: 8px; border: 1px solid ${this.colors.border}; border-left: 4px solid ${this.colors.primary}; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; padding: 10px 15px; gap: 15px;">
-                        <div style="width: 42px; height: 42px; border-radius: 8px; background: ${this.colors.light}; display: flex; align-items: center; justify-content: center; color: ${this.colors.primary}; font-size: 1.2rem; flex-shrink: 0;">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-icon icon-primary">
                             <i class="fas fa-calendar-day"></i>
                         </div>
-                        <div style="flex: 1;">
-                            <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 700; margin-bottom: 2px;">HOY (TOTAL)</div>
-                            <div id="stat-total-pequeno" style="font-size: 1.5rem; font-weight: 800; color: ${this.colors.primary}; line-height: 1;">0</div>
+                        <div class="dashboard-card-content">
+                            <div class="dashboard-stat-label">Total de registros hoy</div>
+                            <div id="stat-total-pequeno" class="dashboard-stat-value text-primary" style="margin-top: 5px; margin-bottom: 0;">0</div>
                         </div>
                     </div>
 
                     <!-- Tarjeta: Pendientes -->
-                    <div style="background: white; border-radius: 8px; border: 1px solid ${this.colors.border}; border-left: 4px solid #ff6b35; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; padding: 10px 15px; gap: 15px;">
-                        <div style="width: 42px; height: 42px; border-radius: 8px; background: #fff0eb; display: flex; align-items: center; justify-content: center; color: #ff6b35; font-size: 1.2rem; flex-shrink: 0;">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-icon icon-warning">
                             <i class="fas fa-exclamation-circle"></i>
                         </div>
-                        <div style="flex: 1;">
-                            <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 700; margin-bottom: 2px;">PENDIENTES</div>
-                            <div id="stat-pendientes-pequeno" style="font-size: 1.5rem; font-weight: 800; color: #ff6b35; line-height: 1;">0</div>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta: Turnos Hoy -->
-                    <div style="background: white; border-radius: 8px; border: 1px solid ${this.colors.border}; border-left: 4px solid #17a2b8; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; padding: 10px 15px; justify-content: space-between;">
-                        <div style="color: ${this.colors.gray}; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-clock" style="color: #17a2b8;"></i> TURNOS
-                        </div>
-                        <div style="display: flex; gap: 15px; text-align: center;">
-                            <div>
-                                <div style="color: ${this.colors.gray}; font-size: 0.65rem; font-weight: 700;">MAT</div>
-                                <div id="stat-matutino-pequeno" style="font-weight: 800; color: #b8860b; font-size: 1.2rem;">0</div>
-                            </div>
-                            <div style="width: 1px; background: ${this.colors.border};"></div>
-                            <div>
-                                <div style="color: ${this.colors.gray}; font-size: 0.65rem; font-weight: 700;">VESP</div>
-                                <div id="stat-vespertino-pequeno" style="font-weight: 800; color: #c0392b; font-size: 1.2rem;">0</div>
-                            </div>
-                            <div style="width: 1px; background: ${this.colors.border};"></div>
-                            <div>
-                                <div style="color: ${this.colors.gray}; font-size: 0.65rem; font-weight: 700;">NOC</div>
-                                <div id="stat-nocturno-pequeno" style="font-weight: 800; color: #1b6d6b; font-size: 1.2rem;">0</div>
-                            </div>
+                        <div class="dashboard-card-content">
+                            <div class="dashboard-stat-label">Registros pendientes</div>
+                            <div id="stat-pendientes-pequeno" class="dashboard-stat-value text-warning" style="margin-top: 5px; margin-bottom: 0;">0</div>
                         </div>
                     </div>
 
                     <!-- Tarjeta: Mes y Botón -->
-                    <div style="background: white; border-radius: 8px; border: 1px solid ${this.colors.border}; border-left: 4px solid #6c757d; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: stretch; overflow: hidden;">
-                        <div id="estadisticas-mes" style="padding: 10px 15px; flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 250px;">
+                    <div class="dashboard-card card-mes">
+                        <div id="estadisticas-mes" class="mes-content">
                             <div id="estadisticas-mes-contenido">
-                                <div style="color: ${this.colors.gray}; font-size: 0.75rem;">Selecciona un mes</div>
+                                <div class="dashboard-stat-label">Selecciona un mes</div>
                             </div>
                         </div>
-                        <button id="btn-reporte-mensual"
-                                style="background: linear-gradient(135deg, ${this.colors.secondary} 0%, ${this.colors.primary} 100%); color: white; border: none; padding: 0 20px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; flex-shrink: 0;"
+                        <button id="btn-reporte-mensual" class="btn-reporte-lateral"
                                 onmouseover="this.style.opacity='0.9'"
                                 onmouseout="this.style.opacity='1'">
-                            <i class="fas fa-file-pdf" style="font-size: 1.2rem;"></i>
-                            <span style="font-size: 0.7rem; text-transform: uppercase;">Reporte</span>
+                            <i class="fas fa-file-pdf" style="font-size: 1.1rem;"></i>
+                            <span>Reporte</span>
                         </button>
                     </div>
 
                 </div>
 
                 <!-- PANEL DE CONTROL PRINCIPAL -->
+                <!-- BARRA DE CONTROLES: FILTROS Y BÚSQUEDA (Flotando sobre la tabla) -->
+                <div class="dashboard-toolbar">
+                    <!-- Busqueda y Filtros Simplificados -->
+                    <div class="toolbar-group">
+                        <div class="input-pill-wrapper">
+                            <span class="icon">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" id="filtro-busqueda" class="input-pill input-search" placeholder="Buscar por folio, ubicación...">
+                        </div>
+
+                        <select id="filtro-estado" class="input-pill select-pill">
+                            <option value="">Filtro: Todo</option>
+                            <option value="registrado">Registrado</option>
+                            <option value="seguimiento">En Seguimiento</option>
+                            <option value="concluido">Concluido</option>
+                        </select>
+                    </div>
+
+                    <!-- Botones de Acción (Export/Print/More Filters) -->
+                    <div class="toolbar-group">
+                        <div id="contador-registros" style="color: ${this.colors.gray}; font-size: 0.8rem; font-weight: 600; margin-right: 15px;">
+                            Mostrando <span id="registros-mostrados">0</span> de <span id="registros-totales">0</span>
+                        </div>
+                        <button id="btn-toggle-filtros" class="btn-pill btn-pill-primary">
+                            Más filtros
+                        </button>
+                        <button id="btn-exportar-excel" class="btn-pill btn-pill-success">
+                            Excel
+                        </button>
+                        <button id="btn-imprimir" class="btn-pill btn-pill-info">
+                            Imprimir
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR DE TABLA (Fondo blanco sutil) -->
                 <div class="dashboard-main-grid">
-                    <!-- Tabla Principal -->
                     <div class="dashboard-table-column">
-                        <!-- Encabezado de Tabla -->
-                        <div style="background: white; border-radius: 10px 10px 0 0; padding: 20px; border: 1px solid ${this.colors.border}; border-bottom: 3px solid ${this.colors.primary}; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <h3 style="margin: 0; color: ${this.colors.primary}; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                                    BITÁCORA DE OPERACIONES
-                                </h3>
 
-                                <!-- Filtros Rápidos -->
-                                <div style="display: flex; gap: 10px;">
-                                    <div style="position: relative;">
-                                        <input type="text" id="filtro-busqueda"
-                                               style="padding: 8px 12px 8px 35px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; width: 200px; transition: all 0.3s;"
-                                               placeholder="Buscar por folio, ubicación..."
-                                               onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
-                                               onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
-                                    </div>
-
-                                    <select id="filtro-estado"
-                                            style="padding: 8px 12px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; background: white; min-width: 150px; transition: all 0.3s;"
-                                            onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
-                                            onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
-                                        <option value="">Todos los estados</option>
-                                        <option value="registrado">Registrado</option>
-                                        <option value="seguimiento">En Seguimiento</option>
-                                        <option value="concluido">Concluido</option>
+                        <!-- Filtros Detallados (Se despliegan aquí) -->
+                        <div id="filtros-detallados" class="dashboard-detailed-filters">
+                            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                                <div>
+                                    <label style="display: block; color: ${this.colors.primary}; font-size: 0.75rem; margin-bottom: 5px; font-weight: 700; text-transform: uppercase;">Mes</label>
+                                    <select id="filtro-mes" class="input-pill select-pill" style="min-width: 180px; background: ${this.colors.light}; box-shadow: none;">
+                                        <option value="">Todos los meses</option>
+                                        ${this.generarOpcionesMeses()}
                                     </select>
                                 </div>
-                            </div>
 
-                            <!-- Filtros Detallados -->
-                            <div id="filtros-detallados" style="margin-top: 15px; display: none;">
-                                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                                    <div>
-                                        <label style="display: block; color: ${this.colors.gray}; font-size: 0.8rem; margin-bottom: 3px; font-weight: 600;">MES</label>
-                                        <select id="filtro-mes"
-                                                style="padding: 8px 12px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; background: white; min-width: 180px;"
-                                                onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
-                                                onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
-                                            <option value="">Todos los meses</option>
-                                            ${this.generarOpcionesMeses()}
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label style="display: block; color: ${this.colors.gray}; font-size: 0.8rem; margin-bottom: 3px; font-weight: 600;">TURNO</label>
-                                        <select id="filtro-turno"
-                                                style="padding: 8px 12px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; background: white; min-width: 150px;"
-                                                onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
-                                                onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
-                                            <option value="">Todos los turnos</option>
-                                            <option value="matutino">Matutino</option>
-                                            <option value="vespertino">Vespertino</option>
-                                            <option value="nocturno">Nocturno</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label style="display: block; color: ${this.colors.gray}; font-size: 0.8rem; margin-bottom: 3px; font-weight: 600;">FECHA</label>
-                                        <input type="date" id="filtro-fecha"
-                                               style="padding: 8px 12px; border: 2px solid ${this.colors.border}; border-radius: 6px; font-size: 0.9rem; background: white; min-width: 150px;"
-                                               onfocus="this.style.borderColor='${this.colors.primary}'; this.style.boxShadow='0 0 0 3px rgba(0, 51, 102, 0.1)'"
-                                               onblur="this.style.borderColor='${this.colors.border}'; this.style.boxShadow='none'">
-                                    </div>
-
-                                    <div style="display: flex; gap: 5px; align-self: flex-end;">
-                                        <button id="btn-aplicar-filtros"
-                                                style="padding: 8px 15px; background: ${this.colors.primary}; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;}"
-                                                onmouseover="this.style.background='${this.colors.secondary}'"
-                                                onmouseout="this.style.background='${this.colors.primary}'">
-                                            Aplicar
-                                        </button>
-
-                                        <button id="btn-limpiar-filtros"
-                                                style="padding: 8px 15px; background: white; color: ${this.colors.gray}; border: 1px solid ${this.colors.border}; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.2s;}"
-                                                onmouseover="this.style.background='${this.colors.light}'; this.style.color='${this.colors.dark}'"
-                                                onmouseout="this.style.background='white'; this.style.color='${this.colors.gray}'">
-                                            Limpiar
-                                        </button>
-                                    </div>
+                                <div>
+                                    <label style="display: block; color: ${this.colors.primary}; font-size: 0.75rem; margin-bottom: 5px; font-weight: 700; text-transform: uppercase;">Turno</label>
+                                    <select id="filtro-turno" class="input-pill select-pill" style="min-width: 150px; background: ${this.colors.light}; box-shadow: none;">
+                                        <option value="">Todos los turnos</option>
+                                        <option value="matutino">Matutino</option>
+                                        <option value="vespertino">Vespertino</option>
+                                        <option value="nocturno">Nocturno</option>
+                                    </select>
                                 </div>
-                            </div>
 
-                            <!-- Controles de Vista -->
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                                <div id="contador-registros" style="color: ${this.colors.gray}; font-size: 0.85rem; display: flex; align-items: center; gap: 5px;">
-                                    <span>Mostrando <span id="registros-mostrados">0</span> de <span id="registros-totales">0</span> registros</span>
+                                <div>
+                                    <label style="display: block; color: ${this.colors.primary}; font-size: 0.75rem; margin-bottom: 5px; font-weight: 700; text-transform: uppercase;">Fecha</label>
+                                    <input type="date" id="filtro-fecha" class="input-pill" style="padding: 10px 15px; min-width: 150px; background: ${this.colors.light}; box-shadow: none;">
                                 </div>
-                                <div style="display: flex; gap: 8px;">
-                                    <button id="btn-toggle-filtros"
-                                            style="padding: 6px 12px; background: white; color: ${this.colors.primary}; border: 1px solid ${this.colors.primary}; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
-                                            onmouseover="this.style.background='${this.colors.primary}'; this.style.color='white'"
-                                            onmouseout="this.style.background='white'; this.style.color='${this.colors.primary}'">
-                                        Más filtros
+
+                                <div style="display: flex; gap: 10px; align-self: flex-end; margin-left: auto;">
+                                    <button id="btn-limpiar-filtros" class="btn-pill" style="color: ${this.colors.gray}; border: 1px solid ${this.colors.border};"
+                                            onmouseover="this.style.background='${this.colors.light}'; this.style.color='${this.colors.dark}'"
+                                            onmouseout="this.style.background='white'; this.style.color='${this.colors.gray}'">
+                                        Limpiar
                                     </button>
-                                    <button id="btn-exportar-excel"
-                                            style="padding: 6px 12px; background: ${this.colors.accentGreen}; color: white; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
-                                            onmouseover="this.style.background='#218838'; this.style.transform='translateY(-1px)'"
-                                            onmouseout="this.style.background='${this.colors.accentGreen}'; this.style.transform='translateY(0)'">
-                                        Exportar
-                                    </button>
-                                    <button id="btn-imprimir"
-                                            style="padding: 6px 12px; background: ${this.colors.info}; color: white; border: none; border-radius: 4px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;}"
-                                            onmouseover="this.style.background='#138496'; this.style.transform='translateY(-1px)'"
-                                            onmouseout="this.style.background='${this.colors.info}'; this.style.transform='translateY(0)'">
-                                        Imprimir
+                                    <button id="btn-aplicar-filtros" class="btn-pill btn-pill-primary" style="background: ${this.colors.primary}; color: white; border: none;"
+                                            onmouseover="this.style.opacity='0.9'"
+                                            onmouseout="this.style.opacity='1'">
+                                        Aplicar Filtros
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Tabla de Datos -->
-                        <div id="tabla-llamadas-container" class="dashboard-table-container"
-                             style="background: white; border-radius: 0 0 10px 10px; border: 1px solid ${this.colors.border}; border-top: none; flex: 1; min-height: 520px; overflow-x: auto; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-                            <div style="padding: 50px; text-align: center; color: ${this.colors.gray};">
-                                <div style="width: 50px; height: 50px; border: 3px solid ${this.colors.border}; border-top-color: ${this.colors.primary}; border-radius: 50%; margin: 0 auto 20px; animation: spin 1s linear infinite;"></div>
+                        <!-- Tabla de Datos (Contenedor minimalista) -->
+                        <div id="tabla-llamadas-container" class="dashboard-table-container">
+                            <div class="loading-wrap">
+                                <div class="spinner"></div>
                                 <h4 style="color: ${this.colors.dark}; margin-bottom: 10px;">Cargando bitácora de operaciones</h4>
                                 <p>Obteniendo información del servidor...</p>
                             </div>
@@ -268,61 +216,6 @@ class DashboardView {
 
                 </div>
             </div>
-
-            <style>
-                /* Estilos Responsivos */
-                .dashboard-main-grid {
-                    display: block; /* Modificado de grid a block porque quitamos el panel lateral */
-                    margin-bottom: 12px;
-                }
-
-                .dashboard-table-column {
-                    display: flex;
-                    flex-direction: column;
-                    min-width: 0; /* Permite que el contenedor se encoja correctamente en grid/flex */
-                }
-
-                /* Animaciones */
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-
-                @keyframes pulse-green {
-                    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-                    70% { box-shadow: 0 0 0 6px rgba(40, 167, 69, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-                }
-
-                @keyframes pulse-red {
-                    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-                    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-                    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-                }
-
-                .btn-emergencia-pulse {
-                    animation: pulse-red 2s infinite;
-                }
-
-                .fade-in {
-                    animation: fadeIn 0.5s ease-in;
-                }
-
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-
-                .stat-update {
-                    animation: statUpdate 0.5s ease-out;
-                }
-
-                @keyframes statUpdate {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.1); }
-                    100% { transform: scale(1); }
-                }
-            </style>
         `;
     }
 
@@ -745,127 +638,28 @@ class DashboardView {
 
         const tableId = 'tabla-llamadas-cerit';
         container.innerHTML = `
-            <style>
-                #${tableId} {
-                    width: 100%;
-                    border-collapse: collapse;
-                    font-size: 0.85rem;
-                }
-
-                #${tableId} thead {
-                    position: sticky;
-                    top: 0;
-                    z-index: 10;
-                }
-
-                #${tableId} th {
-                    background: ${this.colors.primary};
-                    color: white;
-                    padding: 12px 8px;
-                    text-align: left;
-                    font-weight: 600;
-                    font-size: 0.8rem;
-                    border-right: 1px solid rgba(255,255,255,0.1);
-                    white-space: nowrap;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-
-                #${tableId} td {
-                    padding: 10px 8px;
-                    border-bottom: 1px solid ${this.colors.border};
-                    vertical-align: middle;
-                    line-height: 1.4;
-                    background: white;
-                }
-
-                #${tableId} tbody tr:nth-child(even) {
-                    background: ${this.colors.light};
-                }
-
-                #${tableId} tbody tr:hover {
-                    background: #e3f2fd !important;
-                    cursor: pointer;
-                }
-
-                .badge-estado {
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    display: inline-block;
-                    min-width: 80px;
-                    text-align: center;
-                    text-transform: uppercase;
-                }
-
-                .btn-accion-tabla {
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    border: none;
-                    cursor: pointer;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 2px;
-                    font-size: 0.75rem;
-                    transition: all 0.2s;
-                }
-
-                .btn-accion-tabla:hover {
-                    transform: translateY(-1px);
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                }
-
-                .btn-detalles {
-                    background: ${this.colors.primary};
-                    color: white;
-                }
-
-                .scroll-container {
-                    height: 100%;
-                    min-height: 0;
-                    overflow-y: auto;
-                    scrollbar-width: thin;
-                    scrollbar-color: ${this.colors.primary} ${this.colors.border};
-                }
-
-                .scroll-container::-webkit-scrollbar {
-                    width: 8px;
-                }
-
-                .scroll-container::-webkit-scrollbar-track {
-                    background: ${this.colors.light};
-                }
-
-                .scroll-container::-webkit-scrollbar-thumb {
-                    background-color: ${this.colors.primary};
-                    border-radius: 4px;
-                }
-            </style>
-
-            <div class="scroll-container">
-                <table id="${tableId}">
-<thead>
-    <tr>
-        <th style="width: 100px;">ID</th>
-        <th style="width: 80px;">FECHA</th>
-        <th style="width: 70px;">HORA</th>
-        <th style="width: 80px;">TURNO</th>
-        <th style="width: 100px;">PROCEDENCIA</th>
-        <th style="width: 100px;">GRUPO</th>
-        <th style="width: 110px;">CÓDIGO</th>
-        <th style="width: 180px;">DESCRIPCIÓN</th>
-        <th style="width: 160px;">RAZONAMIENTO</th>
-        <th style="width: 120px;">VEHÍCULO</th>
-        <th style="width: 150px;">MOTIVO</th>
-        <th style="width: 150px;">UBICACIÓN</th>
-        <th style="width: 120px;">COLONIA</th>
-        <th style="width: 120px;">TELÉFONO</th>
-        <th style="width: 100px;">ESTADO</th>
-        <th style="width: 80px;">ACCIONES</th>
-    </tr>
-</thead>
+            <div class="table-scroll-container">
+                <table id="${tableId}" class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">ID</th>
+                            <th style="width: 80px;">FECHA</th>
+                            <th style="width: 70px;">HORA</th>
+                            <th style="width: 80px;">TURNO</th>
+                            <th style="width: 100px;">PROCEDENCIA</th>
+                            <th style="width: 100px;">GRUPO</th>
+                            <th style="width: 110px;">CÓDIGO</th>
+                            <th style="width: 180px;">DESCRIPCIÓN</th>
+                            <th style="width: 160px;">RAZONAMIENTO</th>
+                            <th style="width: 120px;">VEHÍCULO</th>
+                            <th style="width: 150px;">MOTIVO</th>
+                            <th style="width: 150px;">UBICACIÓN</th>
+                            <th style="width: 120px;">COLONIA</th>
+                            <th style="width: 120px;">TELÉFONO</th>
+                            <th style="width: 100px;">ESTADO</th>
+                            <th style="width: 80px;">ACCIONES</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         ${llamadasFiltradas.map((llamada, index) => this.getFilaTablaCERIT(llamada, index)).join("")}
                     </tbody>
@@ -895,7 +689,7 @@ class DashboardView {
 
         const fechaStr = this.normalizarFecha(fecha);
         const horaStr = this.normalizarHora(hora);
-        const fechaHora = fechaStr ? new Date(`${fechaStr}T${horaStr || '00:00'}`) : null;
+        const fechaHora = fechaStr ? new Date(`${fechaStr}T${horaStr || '00:00'} `) : null;
 
         const renderValor = (valor) => {
             if (!valor || valor === '--') {
@@ -905,7 +699,7 @@ class DashboardView {
         };
 
         const idFormateado = (fechaHora && !isNaN(fechaHora))
-            ? `${String(fechaHora.getDate()).padStart(2, '0')}${String(fechaHora.getMonth() + 1).padStart(2, '0')}${String(fechaHora.getFullYear()).slice(-2)}${String(fechaHora.getHours()).padStart(2, '0')}${String(fechaHora.getMinutes()).padStart(2, '0')}`
+            ? `${String(fechaHora.getDate()).padStart(2, '0')}${String(fechaHora.getMonth() + 1).padStart(2, '0')}${String(fechaHora.getFullYear()).slice(-2)}${String(fechaHora.getHours()).padStart(2, '0')}${String(fechaHora.getMinutes()).padStart(2, '0')} `
             : '--';
 
         let estadoColor = this.colors.gray;
@@ -938,7 +732,7 @@ class DashboardView {
         }
 
         const horaDisplay = horaStr || '--:--';
-        const fechaDisplay = fechaStr ? `${fechaStr.substring(8, 10)}/${fechaStr.substring(5, 7)}` : '--/--';
+        const fechaDisplay = fechaStr ? `${fechaStr.substring(8, 10)} /${fechaStr.substring(5, 7)}` : '--/--';
 
         const procedencia = llamada.procedencia || llamada.motivo_radio_operacion || '--';
         const grupo = llamada.grupo_tipo || llamada.agente || peticionario;
