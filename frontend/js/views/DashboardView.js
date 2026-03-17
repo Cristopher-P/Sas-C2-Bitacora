@@ -1696,30 +1696,34 @@ class DashboardView {
             return;
         }
 
-        let csv = 'ID,Fecha,Hora,Turno,Folio Sistema,Motivo,Ubicación,Colonia,Peticionario,Teléfono,Seguimiento,Razonamiento,Conclusión,Descripción Detallada,Agente,Teléfono Agente,Folio C5,Estado\n';
+        let csv = 'ID,Fecha,Hora,Turno,Folio Sistema,Motivo,Ubicación,Colonia,Sector,Unidad,Destino,Hora Reporte,Hora Llegada,Hora Salida,Seguimiento,Razonamiento,Conclusión,Descripción Detallada,Agente,Teléfono Agente,Folio C5,Estado\n';
 
         datosExportar.forEach(item => {
 
             let estado = 'REGISTRADO';
-            if (item.seguimiento) estado = 'EN SEGUIMIENTO';
+            if (item.seguimiento && item.seguimiento !== 'Sin seguimiento') estado = 'EN SEGUIMIENTO';
             if (item.conclusion) estado = 'CONCLUIDO';
 
             const row = [
                 item.id || '',
                 item.fecha || '',
                 item.hora || '',
-                item.turno || '',
+                item.turno || item.turn || '',
                 item.folio_sistema || '',
                 `"${(item.motivo || '').replace(/"/g, '""')}"`,
                 `"${(item.ubicacion || '').replace(/"/g, '""')}"`,
                 `"${(item.colonia || '').replace(/"/g, '""')}"`,
-                `"${(item.peticionario || '').replace(/"/g, '""')}"`,
-                item.numero_telefono || '',
+                `"${(item.ecto || '').replace(/"/g, '""')}"`,
+                `"${(item.unidad || '').replace(/"/g, '""')}"`,
+                `"${(item.de_desi || '').replace(/"/g, '""')}"`,
+                item.reporti || '',
+                item.llega || '',
+                item.salida_hora || item.salida_h || '',
                 `"${(item.seguimiento || '').replace(/"/g, '""')}"`,
                 `"${(item.razonamiento || '').replace(/"/g, '""')}"`,
                 `"${(item.conclusion || '').replace(/"/g, '""')}"`,
-                `"${(item.descripcion_detallada || '').replace(/"/g, '""')}"`,
-                `"${(item.agente || '').replace(/"/g, '""')}"`,
+                `"${(item.descripcion_detallada || item.det || '').replace(/"/g, '""')}"`,
+                `"${(item.agente || item.agente_tel || '').replace(/"/g, '""')}"`,
                 item.telefono_agente || '',
                 item.folio_c5 || '',
                 estado

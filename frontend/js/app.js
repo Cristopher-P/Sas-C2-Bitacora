@@ -1,9 +1,8 @@
-
-
 class App {
     constructor() {
         this.currentUser = null;
         this.currentView = null;
+        this.socket = null;
         this.init();
     }
 
@@ -43,25 +42,91 @@ class App {
 
         this.updateUserInfo();
         this.setupEventListeners();
+        this.setupWebSockets();
 
         localStorage.removeItem('lastView');
         await this.loadView('dashboard');
     }
 
+    setupWebSockets() {
+        if (typeof io !== 'undefined' && this.currentUser) {
+            this.socket = io({
+                auth: { token: localStorage.getItem('token') }
+            });
+
+            this.socket.on('connect', () => {
+                console.log('Conectado al servidor de tiempo real (WebSockets)');
+            });
+
+            // Lote B: Escuchar Forzar Cierre de Sesión
+            this.socket.on(`force_logout_${this.currentUser.id}`, () => {
+                console.warn('Cierre de sesión forzado por el administrador.');
+                this.socket.disconnect();
+                
+                // Limpiar sesión y redirigir
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                localStorage.removeItem('lastView');
+                
+                // Guardar un flag para mostrar mensajito de porqué lo sacaron
+                localStorage.setItem('logout_reason', 'El administrador ha forzado el cierre de tu sesión.');
+                window.location.replace('index.html');
+            });
+
+            // Lote B: Mensajes Globales (Broadcast)
+            this.socket.on('admin_broadcast', (data) => {
+                const { message, type } = data;
+                
+                // Mostrar alerta visual bloqueante si es importante, sino Toast.
+                if (type === 'warning' || type === 'error' || type === 'danger') {
+                    alert(`⚠️ MENSAJE DEL SISTEMA:\n\n${message}`);
+                } else {
+                    if (typeof window.Toast !== 'undefined') {
+                        window.Toast.show(message, type || 'info', 10000);
+                    } else {
+                        alert(`ℹ️ AVISO:\n\n${message}`);
+                    }
+                }
+            });
+        }
+    }
+
     updateUserInfo() {
-        const userInfo = document.getElementById('user-info');
-        if (userInfo && this.currentUser) {
-            userInfo.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="text-align: right;">
-                        <div style="font-weight: 700; font-size: 0.9rem;">${this.currentUser.username}</div>
-                        <div style="font-size: 0.75rem; opacity: 0.8; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px;">
-                            ${this.currentUser.turno || 'Operador'}
-                        </div>
-                    </div>
-                    <i class="fas fa-user-circle" style="font-size: 2rem;"></i>
-                </div>
-            `;
+        const userProfile = document.querySelector('.user-profile');
+        const userNameEl = document.getElementById('user-name');
+        const userRoleEl = document.querySelector('.user-role');
+
+        if (this.currentUser) {
+            const isAdmin = this.currentUser.rol === 'admin';
+
+            if (userNameEl) {
+                userNameEl.innerHTML = `${this.currentUser.username} ${isAdmin ? '<i class="fas fa-star" title="Admin" style="color:#ffc107; font-size:0.8rem; margin-left:4px;"></i>' : ''}`;
+            }
+            if (userRoleEl) {
+                userRoleEl.textContent = this.currentUser.turno || 'Operador';
+            }
+
+            if (isAdmin && userProfile) {
+                userProfile.style.cursor = 'pointer';
+                userProfile.title = 'Configuración de Administrador';
+
+                // Add hover effect
+                userProfile.addEventListener('mouseenter', () => {
+                    userProfile.style.opacity = '0.8';
+                });
+                userProfile.addEventListener('mouseleave', () => {
+                    userProfile.style.opacity = '1';
+                });
+
+                userProfile.addEventListener('click', () => {
+                    const masterPin = prompt(" Seguridad del Sistema \nIngrese el PIN Maestro de Administración:");
+                    if (masterPin === "271645116") {
+                        this.loadView('admin-settings');
+                    } else if (masterPin !== null) {
+                        alert("Acceso denegado: PIN incorrecto.");
+                    }
+                });
+            }
         }
     }
 
@@ -108,7 +173,10 @@ class App {
     async loadView(viewName) {
         const content = document.getElementById('content');
 
-        localStorage.setItem('lastView', viewName);
+        // Do not savec admin-settings to lastView, default to dashboard on reload
+        if (viewName !== 'admin-settings') {
+            localStorage.setItem('lastView', viewName);
+        }
 
         if (this.currentView && typeof this.currentView.cleanup === 'function') {
             this.currentView.cleanup();
@@ -127,6 +195,14 @@ class App {
 
         try {
             switch (viewName) {
+                case 'admin-settings':
+                    if (typeof AdminSettingsView === 'undefined') {
+                        throw new Error('AdminSettingsView no está cargado');
+                    }
+                    this.currentView = new AdminSettingsView(this.currentUser, this);
+                    await this.currentView.render(content);
+                    break;
+
                 case 'dashboard':
                     if (typeof DashboardView === 'undefined') {
                         throw new Error('DashboardView no está cargado');
@@ -218,9 +294,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'LlamadasView',
         'C5View',
 
-        'MapaCalorView'
+        'MapaCalorView',
+        'AdminSettingsView'
     ];
-
     const missingClasses = requiredClasses.filter(cls => typeof window[cls] === 'undefined');
 
     if (missingClasses.length > 0) {

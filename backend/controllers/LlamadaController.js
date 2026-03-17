@@ -1,5 +1,7 @@
 const https = require('https');
 const LlamadaBitacora = require('../models/LlamadaBitacora');
+const Configuracion = require('../models/Configuracion');
+const SystemLogger = require('../utils/logger');
 const { validationResult } = require('express-validator');
 
 class LlamadaController {
@@ -79,21 +81,35 @@ class LlamadaController {
             const {
                 fecha,
                 turno,
+                turn,
                 hora,
+                hr_rec,
                 motivo,
                 ubicacion,
                 colonia,
+                ecto,
+                unidad,
+                de_desi,
+                reporti,
+                llega,
+                salida_hora,
+                salida_h,
                 seguimiento,
                 razonamiento,
                 descripcion,
                 motivo_radio_operacion,
+                motivo_radio,
                 salida,
                 detenido,
+                det,
                 vehiculo,
+                veh,
                 numero_telefono,
                 telefono,
+                numero_tel,
                 peticionario,
                 agente,
+                agente_tel,
                 telefono_agente,
                 folio_sistema,
                 folio
@@ -102,21 +118,27 @@ class LlamadaController {
             const datosLlamada = {
                 folio_sistema: folio_sistema || folio || null,
                 fecha: fecha || new Date().toISOString().split('T')[0],
-                turno: turno || (req.user ? req.user.turno : 'matutino'),
-                hora: hora || new Date().toTimeString().substring(0, 5),
+                turno: turno || turn || (req.user ? req.user.turno : 'matutino'),
+                hora: hora || hr_rec || new Date().toTimeString().substring(0, 5),
                 motivo: motivo || '',
                 ubicacion: ubicacion || '',
                 colonia: colonia || '',
+                ecto: ecto || '',
+                unidad: unidad || '',
+                de_desi: de_desi || '',
+                reporti: reporti || null,
+                llega: llega || null,
+                salida_hora: salida_hora || salida_h || null,
                 seguimiento: seguimiento || 'Sin seguimiento',
                 razonamiento: razonamiento || descripcion || '',
                 descripcion_detallada: descripcion || razonamiento || '',
-                motivo_radio_operacion: motivo_radio_operacion || 'Llamada telefónica',
+                motivo_radio_operacion: motivo_radio_operacion || motivo_radio || 'Llamada telefónica',
                 salida: salida || 'no',
-                detenido: detenido || 'no',
-                vehiculo: vehiculo || '',
-                numero_telefono: numero_telefono || telefono || '',
+                detenido: detenido || det || 'no',
+                vehiculo: vehiculo || veh || '',
+                numero_telefono: numero_telefono || telefono || numero_tel || '',
                 peticionario: peticionario || 'Anónimo',
-                agente: agente || '',
+                agente: agente || agente_tel || '',
                 telefono_agente: telefono_agente || '',
                 folio_c5: '',
                 conclusion: '',
@@ -124,8 +146,11 @@ class LlamadaController {
             };
 
             const llamadaId = await LlamadaBitacora.create(datosLlamada);
+            const llamada = await LlamadaBitacora.findById(llamadaId.insertId || llamadaId);
 
-            const llamada = await LlamadaBitacora.findById(llamadaId);
+            if (req.user) {
+                await SystemLogger.log(req.user.id, 'registrar_llamada', `Nuevo registro ID: ${llamadaId.insertId || llamadaId}, Folio: ${llamada ? llamada.folio_sistema : ''}`);
+            }
 
             res.status(201).json({
                 success: true,
@@ -166,8 +191,28 @@ class LlamadaController {
             let filtros = {};
 
             if (busqueda) filtros.busqueda = busqueda;
-            if (fecha) filtros.fecha = fecha;
-            if (mes) filtros.mes_objetivo = mes + '-01';
+            
+            // Check Daily Reset Configuration if no explicit date/month is provided
+            if (!fecha && !mes && !busqueda && !fecha_inicio && !fecha_fin) {
+                const resetDiarioActivo = await Configuracion.get('reset_diario_activo');
+                if (resetDiarioActivo === 'true' || resetDiarioActivo === true) {
+                    const hoy = new Date();
+                    // Local machine time formatting might be needed to assure correct time zone
+                    // For now, mapping directly to iso string for 'fecha' field. Let's use standard local yyyy-mm-dd
+                    const offset = hoy.getTimezoneOffset() * 60000;
+                    const localISOTime = (new Date(hoy - offset)).toISOString().split('T')[0];
+                    filtros.fecha = localISOTime;
+                } else {
+                    const hoy = new Date();
+                    const currentMes = String(hoy.getMonth() + 1).padStart(2, '0');
+                    const año = hoy.getFullYear();
+                    filtros.mes_objetivo = `${año}-${currentMes}-01`;
+                }
+            } else {
+                if (fecha) filtros.fecha = fecha;
+                if (mes) filtros.mes_objetivo = mes + '-01';
+            }
+            
             if (turno) filtros.turno = turno;
             if (motivo) filtros.motivo = motivo;
             if (ubicacion) filtros.ubicacion = ubicacion;
@@ -251,6 +296,25 @@ class LlamadaController {
                 });
             }
 
+            const Configuracion = require('../models/Configuracion');
+            const edicionEstrictaStr = await Configuracion.get('edicion_estricta');
+            const edicionEstricta = edicionEstrictaStr === 'true' || edicionEstrictaStr === true;
+
+            if (edicionEstricta && req.user && req.user.rol !== 'admin') {
+                const SolicitudEdicion = require('../models/SolicitudEdicion');
+                await SolicitudEdicion.create('llamadas_bitacora', id, req.user.id, datos);
+                
+                const SystemLogger = require('../models/SystemLogger');
+                await SystemLogger.log(req.user.id, 'solicitud_edicion_llamada', `Llamada ID: ${id}`);
+
+                return res.json({
+                    success: true,
+                    message: 'Modificación enviada a revisión. Pendiente de aprobación.',
+                    data: null,
+                    isPendingReview: true
+                });
+            }
+
             const tableName = datos.fecha ? LlamadaBitacora.getTableName(datos.fecha) : null;
 
             const actualizado = await LlamadaBitacora.update(id, tableName, datos);
@@ -263,6 +327,10 @@ class LlamadaController {
             }
 
             const llamadaActualizada = await LlamadaBitacora.findById(id, tableName);
+
+            if (req.user) {
+                await SystemLogger.log(req.user.id, 'actualizar_llamada', `Llamada ID: ${id}`);
+            }
 
             res.json({
                 success: true,
@@ -291,13 +359,18 @@ class LlamadaController {
             }
 
             const tableName = fecha ? LlamadaBitacora.getTableName(fecha) : null;
-            const eliminado = await LlamadaBitacora.delete(id, tableName);
+            const usuario_id = req.user ? req.user.id : null;
+            const eliminado = await LlamadaBitacora.delete(id, tableName, usuario_id);
 
             if (eliminado === 0) {
                 return res.status(404).json({
                     success: false,
                     message: 'Llamada no encontrada en el sistema actual'
                 });
+            }
+
+            if (req.user) {
+                await SystemLogger.log(req.user.id, 'eliminar_llamada', `Llamada (borrado lógico) ID: ${id}`);
             }
 
             res.json({
@@ -372,8 +445,15 @@ class LlamadaController {
                 'MOTIVO': llamada.motivo,
                 'UBICACIÓN': llamada.ubicacion,
                 'COLONIA': llamada.colonia,
+                'SECTOR': llamada.ecto,
+                'UNIDAD': llamada.unidad,
+                'DESTINO': llamada.de_desi,
+                'HORA REPORTE': llamada.reporti,
+                'HORA LLEGADA': llamada.llega,
+                'HORA SALIDA': llamada.salida_hora,
                 'SEGUIMIENTO': llamada.seguimiento,
                 'RAZONAMIENTO': llamada.razonamiento,
+                'DESCRIPCIÓN DETALLADA': llamada.descripcion_detallada,
                 'MOTIVO RADIO OPERACIÓN': llamada.motivo_radio_operacion,
                 'SALIDA': llamada.salida,
                 'DETENIDO': llamada.detenido,
@@ -382,7 +462,8 @@ class LlamadaController {
                 'PETICIONARIO': llamada.peticionario,
                 'AGENTE': llamada.agente,
                 'TELÉFONO AGENTE': llamada.telefono_agente,
-                'SUPERVISOR': llamada.supervisor,
+                'FOLIO C5': llamada.folio_c5,
+                'CONCLUSIÓN': llamada.conclusion,
                 'HORA REGISTRO': llamada.hora_registro
             }));
 

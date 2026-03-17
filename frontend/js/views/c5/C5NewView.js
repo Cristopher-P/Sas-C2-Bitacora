@@ -11,20 +11,46 @@ class C5NewView {
             light: '#f8f9fa',
             dark: '#212529',
             gray: '#6c757d',
+            gray: '#6c757d',
             border: '#dee2e6'
         };
+        this.motivos = [];
     }
 
-    render(container) {
+    async render(container) {
         this.container = container;
 
         this.container.className = 'dashboard-cerit-tehuacan view-bleed view-shell view-form';
+        
+        this.container.innerHTML = `
+            <div class="cerit-dashboard view-shell--xl">
+                <div style="text-align: center; padding: 50px;">
+                    <i class="fas fa-circle-notch fa-spin fa-3x text-primary"></i>
+                    <h3 style="margin-top:20px;">Cargando catálogo...</h3>
+                </div>
+            </div>
+        `;
+
+        await this.loadMotivos();
+
         this.container.innerHTML = this.getTemplate();
 
         this.setDefaultValues();
         this.bindEvents();
 
         this.actualizarFolioPreview();
+    }
+
+    async loadMotivos() {
+        try {
+            const response = await fetch('/api/catalogos/motivo_llamada', { headers: typeof LlamadasService !== 'undefined' ? LlamadasService.getAuthHeaders() : {} });
+            const data = await response.json();
+            if (data.success) {
+                this.motivos = data.data;
+            }
+        } catch (error) {
+            console.error('Error cargando motivos:', error);
+        }
     }
 
     getTemplate() {
@@ -78,15 +104,8 @@ class C5NewView {
                                         <label class="form-label">MOTIVO DE REPORTE *</label>
                                         <select id="motivo-c5" class="form-control" required>
                                             <option value="">Seleccionar...</option>
-                                            <option value="VEHÍCULO SOSPECHOSO">🚗 VEHÍCULO SOSPECHOSO</option>
-                                            <option value="PERSONA SOSPECHOSA">👤 PERSONA SOSPECHOSA</option>
-                                            <option value="ALTERCADO EN VÍA PÚBLICA">⚔️ ALTERCADO EN VÍA PÚBLICA</option>
-                                            <option value="RUIDO EXCESIVO">🔊 RUIDO EXCESIVO</option>
-                                            <option value="SOLICITUD DE OTROS SERVICIOS PÚBLICOS">🏛️ SOLICITUD DE OTROS SERVICIOS PÚBLICOS</option>
-                                            <option value="ACCIDENTE VIAL">🚨 ACCIDENTE VIAL</option>
-                                            <option value="ROBO">💼 ROBO</option>
-                                            <option value="INCENDIO">🔥 INCENDIO</option>
-                                            <option value="OTRO">📝 OTRO</option>
+                                            ${this.motivos.map(m => `<option value="${m.valor}">${m.valor}</option>`).join('')}
+                                            <option value="OTRO">OTRO (Especificar en descripción)</option>
                                         </select>
                                     </div>
                                 </div>

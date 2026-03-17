@@ -1,4 +1,5 @@
 const EnvioC5 = require('../models/EnvioC5');
+const SystemLogger = require('../utils/logger');
 
 class EnvioC5Controller {
     static async crearReporte(req, res, next) {
@@ -38,6 +39,10 @@ class EnvioC5Controller {
                     accion: 'nuevo_reporte',
                     folio_c4: resultado.folio_c4
                 });
+            }
+
+            if (req.user) {
+                await SystemLogger.log(req.user.id, 'crear_reporte_c5', `Folio C4: ${resultado.folio_c4}`);
             }
 
             res.status(201).json({
@@ -117,6 +122,10 @@ class EnvioC5Controller {
                         folio_c4,
                         folio_c5
                     });
+                }
+
+                if (req.user) {
+                    await SystemLogger.log(req.user.id, 'asignar_folio_c5', `C4: ${folio_c4} -> C5: ${folio_c5}`);
                 }
 
                 res.json({

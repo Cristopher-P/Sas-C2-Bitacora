@@ -17,6 +17,8 @@ class LlamadasView {
             gray: '#6c757d',
             border: '#dee2e6'
         };
+        this.motivos = [];
+        this.destinos = [];
     }
 
     async render(container) {
@@ -29,9 +31,47 @@ class LlamadasView {
         this.originalContainer.appendChild(this.expandedContainer);
 
         this.container = this.expandedContainer;
+        this.container.innerHTML = `
+            <div class="cerit-dashboard view-shell--xl">
+                <div style="text-align: center; padding: 50px;">
+                    <i class="fas fa-circle-notch fa-spin fa-3x text-primary"></i>
+                    <h3 style="margin-top:20px;">Cargando catálogo...</h3>
+                </div>
+            </div>
+        `;
+
+        await Promise.all([
+            this.loadMotivos(),
+            this.loadDestinos()
+        ]);
+
         this.container.innerHTML = this.getTemplate();
         this.setDefaultValues();
         this.bindEvents();
+    }
+
+    async loadMotivos() {
+        try {
+            const response = await fetch('/api/catalogos/motivo_llamada', { headers: LlamadasService.getAuthHeaders() });
+            const data = await response.json();
+            if (data.success) {
+                this.motivos = data.data;
+            }
+        } catch (error) {
+            console.error('Error cargando motivos:', error);
+        }
+    }
+
+    async loadDestinos() {
+        try {
+            const response = await fetch('/api/catalogos/destino_patrulla', { headers: LlamadasService.getAuthHeaders() });
+            const data = await response.json();
+            if (data.success) {
+                this.destinos = data.data;
+            }
+        } catch (error) {
+            console.error('Error cargando destinos:', error);
+        }
     }
 
     setDefaultValues() {
@@ -133,7 +173,7 @@ class LlamadasView {
                                 </div>
                                 <div>
                                     <label class="form-label" style="font-weight: 600; font-size: 0.85rem; display: block; margin-bottom: 5px;">AGENTE TEL</label>
-                                    <input type="text" id="agente_tel" class="form-control" value="${this.currentUser?.nombre || ''}" readonly style="width: 100%; padding: 8px; border: 1px solid ${this.colors.border}; border-radius: 5px; background: ${this.colors.light};">
+                                    <input type="text" id="agente_tel" class="form-control" value="${this.currentUser?.nombre || ''}" style="width: 100%; padding: 8px; border: 1px solid ${this.colors.border}; border-radius: 5px;">
                                 </div>
                             </div>
                         </div>
@@ -177,11 +217,19 @@ class LlamadasView {
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                                 <div>
                                     <label class="form-label" style="font-weight: 600; font-size: 0.85rem; display: block; margin-bottom: 5px;">MOTIVO (REPORTADO) *</label>
-                                    <input type="text" id="motivo" class="form-control" placeholder="Incidente reportado" required style="width: 100%; padding: 8px; border: 1px solid ${this.colors.border}; border-radius: 5px;">
+                                    <select id="motivo" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid ${this.colors.border}; border-radius: 5px;">
+                                        <option value="">Seleccione un motivo...</option>
+                                        ${this.motivos.map(m => `<option value="${m.valor}">${m.valor}</option>`).join('')}
+                                        <option value="OTRO">OTRO (Especificar en Detalles)</option>
+                                    </select>
                                 </div>
                                 <div>
                                     <label class="form-label" style="font-weight: 600; font-size: 0.85rem; display: block; margin-bottom: 5px;">MOTIVO RADIO OPERAD *</label>
-                                    <input type="text" id="motivo_radio" class="form-control" placeholder="Tipificación operador" required style="width: 100%; padding: 8px; border: 1px solid ${this.colors.border}; border-radius: 5px;">
+                                    <select id="motivo_radio" class="form-control" required style="width: 100%; padding: 8px; border: 1px solid ${this.colors.border}; border-radius: 5px;">
+                                        <option value="">Seleccione un motivo...</option>
+                                        ${this.motivos.map(m => `<option value="${m.valor}">${m.valor}</option>`).join('')}
+                                        <option value="OTRO">OTRO (Especificar en Detalles)</option>
+                                    </select>
                                 </div>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -209,7 +257,11 @@ class LlamadasView {
                                 </div>
                                 <div>
                                     <label class="form-label" style="font-weight: 600; font-size: 0.85rem; display: block; margin-bottom: 5px;">DE DESI (DESTINO)</label>
-                                    <input type="text" id="de_desi" class="form-control" placeholder="Destino / Dependencia" style="width: 100%; padding: 8px; border: 1px solid ${this.colors.border}; border-radius: 5px;">
+                                    <select id="de_desi" class="form-control" style="width: 100%; padding: 8px; border: 1px solid ${this.colors.border}; border-radius: 5px;">
+                                        <option value="">Seleccione o escriba...</option>
+                                        ${this.destinos.map(d => `<option value="${d.valor}">${d.valor}</option>`).join('')}
+                                        <option value="OTRO">OTRO (Anotar en Veh/Det)</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -337,9 +389,9 @@ class LlamadasView {
 
         return {
             fecha: fecha,
-            turn: getVal('turn'),
+            turno: getVal('turn'),
             folio_sistema: this.generarFolioLlamada(fecha, hora),
-            hr_rec: hora,
+            hora: hora,
             motivo: getVal('motivo'),
             ubicacion: getVal('ubicacion'),
             colonia: getVal('colonia'),
@@ -348,15 +400,17 @@ class LlamadasView {
             de_desi: getVal('de_desi'),
             reporti: getVal('reporti'),
             llega: getVal('llega'),
+            salida_hora: getVal('salida'),
             seguimiento: getVal('seguimiento'),
             razonamiento: getVal('razonamiento'),
-            motivo_radio_operad: getVal('motivo_radio'),
-            salida: getVal('salida'),
-            det: getVal('det'),
-            veh: getVal('veh'),
-            numero_tel: getVal('numero_tel'),
+            motivo_radio_operacion: getVal('motivo_radio'),
+            salida: getVal('salida') ? 'si' : 'no', // This seems to be a time field in UI? Ref line 228
+            detenido: getVal('det') ? 'si' : 'no',
+            descripcion_detallada: getVal('det'),
+            vehiculo: getVal('veh'),
+            numero_telefono: getVal('numero_tel'),
             peticionario: getVal('peticionario'),
-            agente_tel: getVal('agente_tel') || this.currentUser?.nombre
+            agente: getVal('agente_tel') || this.currentUser?.nombre
         };
     }
 

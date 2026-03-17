@@ -65,7 +65,7 @@ class EnvioC5 {
                 u.nombre_completo as supervisor
             FROM envios_c5 ec
             JOIN usuarios u ON ec.usuario_id = u.id
-            WHERE 1=1
+            WHERE ec.eliminado_en IS NULL
         `;
 
         const params = [];
@@ -108,7 +108,7 @@ class EnvioC5 {
                 u.nombre_completo as supervisor
             FROM envios_c5 ec
             JOIN usuarios u ON ec.usuario_id = u.id
-            WHERE ec.folio_c4 = ?
+            WHERE ec.folio_c4 = ? AND ec.eliminado_en IS NULL
         `;
 
         const [rows] = await pool.execute(sql, [folioC4]);
@@ -122,11 +122,17 @@ class EnvioC5 {
                 u.nombre_completo as supervisor
             FROM envios_c5 ec
             JOIN usuarios u ON ec.usuario_id = u.id
-            WHERE ec.id = ?
+            WHERE ec.id = ? AND ec.eliminado_en IS NULL
         `;
 
         const [rows] = await pool.execute(sql, [id]);
         return rows[0];
+    }
+
+    static async delete(id, usuario_id) {
+        const sql = 'UPDATE envios_c5 SET eliminado_en = NOW(), eliminado_por = ? WHERE id = ?';
+        const [result] = await pool.execute(sql, [usuario_id || null, id]);
+        return result.affectedRows;
     }
 
     static async actualizarEstado(id, estado) {
@@ -159,7 +165,7 @@ CONCLUSIÓN: ${envio.conclusion}`;
     static async getPendientes() {
         const sql = `
             SELECT * FROM envios_c5
-            WHERE estado IN ('pendiente', 'enviado')
+            WHERE estado IN ('pendiente', 'enviado') AND eliminado_en IS NULL
             ORDER BY fecha_envio ASC, hora_envio ASC
         `;
 

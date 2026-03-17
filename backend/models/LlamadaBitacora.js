@@ -43,6 +43,12 @@ class LlamadaBitacora {
                 motivo VARCHAR(255),
                 ubicacion VARCHAR(255),
                 colonia VARCHAR(255),
+                ecto VARCHAR(100),
+                unidad VARCHAR(50),
+                de_desi VARCHAR(255),
+                reporti TIME,
+                llega TIME,
+                salida_hora TIME,
                 seguimiento TEXT,
                 razonamiento TEXT,
                 descripcion_detallada TEXT,
@@ -61,7 +67,9 @@ class LlamadaBitacora {
                 actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 latitud DECIMAL(10, 8),
                 longitud DECIMAL(11, 8),
-                ubicacion_exacta VARCHAR(255)
+                ubicacion_exacta VARCHAR(255),
+                eliminado_en DATETIME DEFAULT NULL,
+                eliminado_por INT DEFAULT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         `;
 
@@ -70,15 +78,28 @@ class LlamadaBitacora {
 
             // Verificar y añadir columnas nuevas si la tabla ya existía antes de la actualización
             try {
-                const [columns] = await pool.execute(`SHOW COLUMNS FROM ${tableName} LIKE 'latitud'`);
-                if (columns.length === 0) {
-                    await pool.execute(`
-                        ALTER TABLE ${tableName} 
-                        ADD COLUMN latitud DECIMAL(10, 8),
-                        ADD COLUMN longitud DECIMAL(11, 8),
-                        ADD COLUMN ubicacion_exacta VARCHAR(255)
-                    `);
-                    console.log(`Columnas espaciales añadidas a la tabla ${tableName}`);
+                const [columns] = await pool.execute(`SHOW COLUMNS FROM ${tableName}`);
+                const columnNames = columns.map(c => c.Field);
+
+                const missingColumns = [
+                    { name: 'ecto', type: 'VARCHAR(100)' },
+                    { name: 'unidad', type: 'VARCHAR(50)' },
+                    { name: 'de_desi', type: 'VARCHAR(255)' },
+                    { name: 'reporti', type: 'TIME' },
+                    { name: 'llega', type: 'TIME' },
+                    { name: 'salida_hora', type: 'TIME' },
+                    { name: 'latitud', type: 'DECIMAL(10, 8)' },
+                    { name: 'longitud', type: 'DECIMAL(11, 8)' },
+                    { name: 'ubicacion_exacta', type: 'VARCHAR(255)' },
+                    { name: 'eliminado_en', type: 'DATETIME DEFAULT NULL' },
+                    { name: 'eliminado_por', type: 'INT DEFAULT NULL' }
+                ];
+
+                for (const col of missingColumns) {
+                    if (!columnNames.includes(col.name)) {
+                        await pool.execute(`ALTER TABLE ${tableName} ADD COLUMN ${col.name} ${col.type}`);
+                        console.log(`Columna ${col.name} añadida a la tabla ${tableName}`);
+                    }
                 }
             } catch (alterError) {
                 console.error(`Error verificando/alterando tabla ${tableName}:`, alterError);
@@ -97,10 +118,11 @@ class LlamadaBitacora {
         const sql = `
             INSERT INTO ${tableName}
             (folio_sistema, fecha, turno, hora, motivo, ubicacion, colonia,
+             ecto, unidad, de_desi, reporti, llega, salida_hora,
              seguimiento, razonamiento, descripcion_detallada, motivo_radio_operacion,
              salida, detenido, vehiculo, numero_telefono,
              peticionario, agente, telefono_agente, folio_c5, conclusion, usuario_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const [result] = await pool.execute(sql, [
@@ -111,6 +133,12 @@ class LlamadaBitacora {
             llamadaData.motivo,
             llamadaData.ubicacion,
             llamadaData.colonia,
+            llamadaData.ecto,
+            llamadaData.unidad,
+            llamadaData.de_desi,
+            llamadaData.reporti,
+            llamadaData.llega,
+            llamadaData.salida_hora,
             llamadaData.seguimiento,
             llamadaData.razonamiento,
             llamadaData.descripcion_detallada,
@@ -159,25 +187,9 @@ class LlamadaBitacora {
 
             let sql = `
                 SELECT
-                    lb.id,
-                    lb.folio_sistema,
-                    lb.fecha,
-                    lb.turno,
-                    lb.hora,
-                    lb.motivo,
-                    lb.ubicacion,
-                    lb.colonia,
-                    lb.peticionario,
-                    lb.agente,
-                    lb.salida,
-                    lb.detenido,
-                    lb.vehiculo,
-                    lb.hora_registro,
-                    lb.latitud,
-                    lb.longitud,
-                    lb.ubicacion_exacta
+                    lb.*
                 FROM ${tableName} lb
-                WHERE 1=1
+                WHERE 1=1 AND lb.eliminado_en IS NULL
             `;
 
             const params = [];
@@ -264,7 +276,7 @@ class LlamadaBitacora {
                 let params = [];
 
                 for (const tableName of tableNames) {
-                    let query = `SELECT lb.* FROM ${tableName} lb WHERE 1=1 AND (REPLACE(REPLACE(lb.folio_sistema, '-', ''), ' ', '') LIKE ? OR lb.motivo LIKE ? OR lb.ubicacion LIKE ? OR lb.colonia LIKE ? OR lb.peticionario LIKE ? OR lb.descripcion_detallada LIKE ?)`;
+                    let query = `SELECT lb.* FROM ${tableName} lb WHERE 1=1 AND lb.eliminado_en IS NULL AND (REPLACE(REPLACE(lb.folio_sistema, '-', ''), ' ', '') LIKE ? OR lb.motivo LIKE ? OR lb.ubicacion LIKE ? OR lb.colonia LIKE ? OR lb.peticionario LIKE ? OR lb.descripcion_detallada LIKE ?)`;
                     queries.push(query);
                     // Add params 6 times for the 6 OR conditions
                     for (let i = 0; i < 6; i++) {
@@ -289,7 +301,7 @@ class LlamadaBitacora {
 
             await this.ensureTableExists(tableName);
 
-            let sql = `SELECT lb.* FROM ${tableName} lb WHERE 1=1`;
+            let sql = `SELECT lb.* FROM ${tableName} lb WHERE 1=1 AND lb.eliminado_en IS NULL`;
             const params = [];
 
             if (filtros.fecha) {
@@ -365,7 +377,7 @@ class LlamadaBitacora {
                 let params = [];
 
                 for (const tableName of tableNames) {
-                    let query = `SELECT COUNT(*) as table_total FROM ${tableName} lb WHERE 1=1 AND (REPLACE(REPLACE(lb.folio_sistema, '-', ''), ' ', '') LIKE ? OR lb.motivo LIKE ? OR lb.ubicacion LIKE ? OR lb.colonia LIKE ? OR lb.peticionario LIKE ? OR lb.descripcion_detallada LIKE ?)`;
+                    let query = `SELECT COUNT(*) as table_total FROM ${tableName} lb WHERE 1=1 AND lb.eliminado_en IS NULL AND (REPLACE(REPLACE(lb.folio_sistema, '-', ''), ' ', '') LIKE ? OR lb.motivo LIKE ? OR lb.ubicacion LIKE ? OR lb.colonia LIKE ? OR lb.peticionario LIKE ? OR lb.descripcion_detallada LIKE ?)`;
                     queries.push(query);
                     for (let i = 0; i < 6; i++) {
                         params.push(searchTerm);
@@ -384,7 +396,7 @@ class LlamadaBitacora {
 
             await this.ensureTableExists(tableName);
 
-            let sql = `SELECT COUNT(*) as total FROM ${tableName} lb WHERE 1=1`;
+            let sql = `SELECT COUNT(*) as total FROM ${tableName} lb WHERE 1=1 AND lb.eliminado_en IS NULL`;
             const params = [];
 
             if (filtros.fecha) {
@@ -413,7 +425,7 @@ class LlamadaBitacora {
             const sql = `
                 SELECT lb.*
                 FROM ${tableName} lb
-                WHERE lb.fecha BETWEEN ? AND ?
+                WHERE lb.fecha BETWEEN ? AND ? AND lb.eliminado_en IS NULL
                 ORDER BY lb.fecha DESC, lb.hora DESC
             `;
 
@@ -454,13 +466,13 @@ class LlamadaBitacora {
         }
     }
 
-    static async delete(id, tableName) {
+    static async delete(id, tableName, usuario_id) {
         if (!tableName) {
             tableName = this.getTableName(new Date());
         }
-        const sql = `DELETE FROM ${tableName} WHERE id = ?`;
+        const sql = `UPDATE ${tableName} SET eliminado_en = NOW(), eliminado_por = ? WHERE id = ?`;
         try {
-            const [result] = await pool.execute(sql, [id]);
+            const [result] = await pool.execute(sql, [usuario_id || null, id]);
             return result.affectedRows;
         } catch (error) {
             if (error.code === 'ER_NO_SUCH_TABLE') return 0;
@@ -482,7 +494,7 @@ class LlamadaBitacora {
                     COUNT(DISTINCT motivo) as motivos_distintos,
                     COUNT(DISTINCT ubicacion) as ubicaciones_distintas
                 FROM ${tableName}
-                WHERE fecha BETWEEN ? AND ?
+                WHERE fecha BETWEEN ? AND ? AND eliminado_en IS NULL
                 GROUP BY fecha
                 ORDER BY fecha DESC
             `;
@@ -501,11 +513,11 @@ class LlamadaBitacora {
             await this.ensureTableExists(tableName);
 
             const queries = [
-                `SELECT DISTINCT motivo FROM ${tableName} WHERE motivo IS NOT NULL ORDER BY motivo`,
-                `SELECT DISTINCT ubicacion FROM ${tableName} WHERE ubicacion IS NOT NULL ORDER BY ubicacion`,
-                `SELECT DISTINCT colonia FROM ${tableName} WHERE colonia IS NOT NULL ORDER BY colonia`,
-                `SELECT DISTINCT peticionario FROM ${tableName} WHERE peticionario IS NOT NULL ORDER BY peticionario`,
-                `SELECT DISTINCT agente FROM ${tableName} WHERE agente IS NOT NULL ORDER BY agente`
+                `SELECT DISTINCT motivo FROM ${tableName} WHERE motivo IS NOT NULL AND eliminado_en IS NULL ORDER BY motivo`,
+                `SELECT DISTINCT ubicacion FROM ${tableName} WHERE ubicacion IS NOT NULL AND eliminado_en IS NULL ORDER BY ubicacion`,
+                `SELECT DISTINCT colonia FROM ${tableName} WHERE colonia IS NOT NULL AND eliminado_en IS NULL ORDER BY colonia`,
+                `SELECT DISTINCT peticionario FROM ${tableName} WHERE peticionario IS NOT NULL AND eliminado_en IS NULL ORDER BY peticionario`,
+                `SELECT DISTINCT agente FROM ${tableName} WHERE agente IS NOT NULL AND eliminado_en IS NULL ORDER BY agente`
             ];
 
             const resultados = await Promise.all(
@@ -535,7 +547,7 @@ class LlamadaBitacora {
                     turno,
                     COUNT(*) as total
                 FROM ${tableName}
-                WHERE fecha = ?
+                WHERE fecha = ? AND eliminado_en IS NULL
                 GROUP BY turno
                 ORDER BY
                     CASE turno
